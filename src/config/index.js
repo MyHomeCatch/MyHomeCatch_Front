@@ -22,8 +22,8 @@ export default {
   accoutMenus: {
     // 인증 관련 메뉴 정보
     login: {
-      url: '/pageB/two',
-      title: 'PageB2',
+      url: '/pageB/Login',
+      title: '로그인',
       icon: 'fa-solid fa-right-to-bracket',
     },
     join: {

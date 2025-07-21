@@ -5,9 +5,9 @@ export default [
     component: () => import('../pages/PageB/PageB1.vue'),
   },
   {
-    path: '/pageB/two',
+    path: '/pageB/Login',
     name: 'pageBTwo',
-    component: () => import('../pages/PageB/PageB2.vue'),
+    component: () => import('../pages/PageB/LoginPage.vue'),
   },
   {
     path: '/pageB/three',
