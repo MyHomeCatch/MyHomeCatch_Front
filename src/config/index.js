@@ -22,13 +22,13 @@ export default {
   accoutMenus: {
     // 인증 관련 메뉴 정보
     login: {
-      url: '/pageB/Login',
+      url: '/login',
       title: '로그인',
       icon: 'fa-solid fa-right-to-bracket',
     },
     join: {
-      url: '/pageB/three',
-      title: 'PageB3',
+      url: '/join',
+      title: '회원가입',
       icon: 'fa-solid fa-user-plus',
     },
   },
