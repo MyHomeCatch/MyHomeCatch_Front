@@ -10,3 +10,7 @@ const api = axios.create({
 export const loginRequest = (payload) => {
   return api.post('/login', payload);
 };
+
+export const checkEmailRequest = (email) => {
+  return api.get('/check-email', {params: {email}});
+};

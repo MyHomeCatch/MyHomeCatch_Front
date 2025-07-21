@@ -24,7 +24,6 @@ const handleLogin = async () => {
   }
 };
 
-
 const goToSignUp = () => {
   router.push('/join');
 

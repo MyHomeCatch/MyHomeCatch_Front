@@ -2,20 +2,46 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import './auth.css';
+import { checkEmailRequest } from '../../api/auth';
 
 const router = useRouter();
 const name = ref('');
 const nickname = ref('');
 const email = ref('');
+const emailInput = ref(null);
 const address = ref('');
 const password = ref('');
 const errorMessage = ref('');
+const emailCheckMessage = ref('');
+const emailChecking = ref(false);
+const emailChecked = ref(false); // 중복확인 성공 여부
 
+
+const checkEmail = async () => {
+  if (!emailInput.value.checkValidity()) {
+    emailInput.value.reportValidity();
+    return;
+  }
+  emailCheckMessage.value = '';
+  emailChecking.value = true;
+  try {
+    const response = await checkEmailRequest(email.value);
+    if (response.data.available) {
+      emailCheckMessage.value = '사용 가능한 이메일입니다.';
+      emailChecked.value = true;
+    } else {
+      emailCheckMessage.value = '이미 사용 중인 이메일입니다.';
+      emailChecked.value = false;
+    }
+  } catch (err) {
+    emailCheckMessage.value = '오류가 발생했습니다.';
+    emailChecked.value = false;
+  } finally {
+    emailChecking.value = false;
+  }
+};
 const checkNickname = () => {
   // 닉네임 중복 확인 로직
-};
-const checkEmail = () => {
-  // 이메일 중복 확인 로직
 };
 const inputAddress = () => {
   // 주소 입력 로직
@@ -29,6 +55,12 @@ const handleSignUp = async () => {
 
 const goToSignIn = () => {
   router.push('/login');
+};
+
+const resetEmail = () => {
+  emailChecked.value = false;
+  email.value = '';
+  emailCheckMessage.value = '';
 };
 </script>
 
@@ -56,9 +88,36 @@ const goToSignIn = () => {
         <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px;">
           <div style="flex: 1;">
             <label>Email</label>
-            <input type="email" v-model="email" required autocomplete="username" />
+            <input
+              ref="emailInput"
+              type="email"
+              v-model="email"
+              required
+              autocomplete="username"
+              :readonly="emailChecked"
+              :class="{'input-checked': emailChecked}"
+            />
+            <!-- 메시지 표시 -->
+            <div v-if="emailCheckMessage" class="auth-error" style="margin-top: 4px;">{{ emailCheckMessage }}</div>
           </div>
-          <button type="button" class="auth-check-btn" @click="checkEmail">중복 확인</button>
+          <button
+            v-if="!emailChecked"
+            type="button"
+            class="auth-check-btn"
+            @click="checkEmail"
+            :disabled="emailChecking"
+          >
+            중복 확인
+          </button>
+          <button
+            v-else
+            type="button"
+            class="auth-check-btn"
+            @click="resetEmail"
+            style="background: #fff; color: #8ab191; border: 1.5px solid #8ab191;"
+          >
+            이메일 다시 입력
+          </button>
         </div>
         <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px;">
           <div style="flex: 1;">

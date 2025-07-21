@@ -204,6 +204,13 @@ form {
   background: #8ab191;
   color: #fff;
 }
+.input-checked {
+  background: #bdbdbd !important;
+  color: #fff !important;
+  border-radius: 6px;
+  border: none;
+  transition: background 0.2s;
+}
 @media (max-width: 900px) {
   .auth-bg { flex-direction: column; gap: 10px; }
   .auth-side { width: 95vw; height: 120px; }
