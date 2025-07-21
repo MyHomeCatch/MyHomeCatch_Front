@@ -2,6 +2,10 @@
 import { ref } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
@@ -17,6 +21,21 @@ const handleLogin = async () => {
     console.log('로그인 성공 token: ', authStore.token);
   }
   if (!success) errorMessage.value = '로그인 실패';
+};
+
+const isSignUpMode = ref(false);
+
+const showSignUp = () => {
+  isSignUpMode.value = true;
+
+  // // 600ms 후 페이지 이동 (애니메이션 시간과 동일하게 설정)
+  // setTimeout(() => {
+  //   router.replace('/signup-complete');
+  // }, 600);
+};
+
+const showSignIn = () => {
+  isSignUpMode.value = false;
 };
 </script>
 
@@ -35,295 +54,312 @@ const handleLogin = async () => {
     </form>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
   </div> -->
-  <div class="login-page" ng-app="">
-    <div class="login-content login-content-signin" ng-hide="showSignIn">
-      <div>
-        <h2>Log in</h2>
-        <form class="wrapper-box" role="form" ng-submit="login()">
-          <input
-            type="email"
-            ng-model="email"
-            class="form-control form-control-email"
-            placeholder="Email address"
-            required
-          />
-          <input
-            type="password"
-            ng-model="password"
-            class="form-control form-control-password"
-            placeholder="Password"
-            required
-          />
-          <!-- <div class="checkbox pull-left">
-          <label>
-            <input type="checkbox"> Remember me.
-          </label>
-        </div> -->
-          <a class="outer-link pull-left" href="#/forgot">Forgot Password</a>
-          <button type="submit" class="btn btn-submit btn-default pull-right">
-            Log in
-          </button>
-        </form>
-      </div>
+  <div
+    :class="['container', { 'right-panel-active': isSignUpMode }]"
+    id="container"
+  >
+    <div class="form-container sign-up-container">
+      <form action="#">
+        <h1>Create Account</h1>
+        <div class="social-container">
+          <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+          <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <span>or use your email for registration</span>
+        <input type="text" placeholder="Name" />
+        <input type="email" placeholder="Email" />
+        <input type="password" placeholder="Password" />
+        <button>Sign Up</button>
+      </form>
     </div>
-
-    <div
-      class="login-content login-content-signup ng-hide"
-      ng-show="showSignIn"
-    >
-      <div>
-        <h2>Sign Up</h2>
-        <form class="wrapper-box" role="form" ng-submit="register()">
-          <input
-            type="text"
-            ng-model="username"
-            class="form-control form-control-username"
-            placeholder="Username"
-            required
-          />
-          <input
-            type="email"
-            ng-model="email"
-            class="form-control form-control-email"
-            placeholder="Email address"
-            required
-          />
-          <input
-            type="password"
-            ng-model="password"
-            class="form-control form-control-password"
-            placeholder="Password"
-            required
-          />
-          <!-- <div class="checkbox pull-left">
-          <label>
-            <input type="checkbox"> Remember me.
-          </label>
-        </div> -->
-          <button type="submit" class="btn btn-submit btn-default pull-right">
-            Sign up
-          </button>
-        </form>
-      </div>
+    <div class="form-container sign-in-container">
+      <form action="#">
+        <h1>Sign in</h1>
+        <div class="social-container">
+          <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+          <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <span>or use your account</span>
+        <input type="email" placeholder="Email" />
+        <input type="password" placeholder="Password" />
+        <a href="#">Forgot your password?</a>
+        <button>Sign In</button>
+      </form>
     </div>
-
-    <div class="login-switcher">
-      <div class="login-switcher-signin" ng-show="showSignIn">
-        <h3>Have an account?</h3>
-        <button ng-click="showSignIn=false">Login</button>
-      </div>
-      <div class="login-switcher-signup" ng-hide="showSignIn">
-        <h3>Don't have an account?</h3>
-        <button ng-click="showSignIn=true">Sign Up</button>
+    <div class="overlay-container">
+      <div class="overlay">
+        <div class="overlay-panel overlay-left">
+          <h1>Welcome Back!</h1>
+          <p>To keep connected with us please login with your personal info</p>
+          <button class="ghost" id="signIn" @click.prevent="showSignIn">
+            Sign In
+          </button>
+        </div>
+        <div class="overlay-panel overlay-right">
+          <h1>Hello, Friend!</h1>
+          <p>Enter your personal details and start journey with us</p>
+          <button class="ghost" id="signUp" @click.prevent="showSignUp">
+            Sign Up
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped lang="less">
-@red: #ef6161;
-@green: #7ac142;
+<style scoped>
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
 
-.login-page {
-  position: absolute;
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #f6f5f7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-family: 'Montserrat', sans-serif;
+  height: 100vh;
+  margin: -20px 0 50px;
+}
+
+h1 {
+  font-weight: bold;
+  margin: 0;
+}
+
+h2 {
+  text-align: center;
+}
+
+p {
+  font-size: 14px;
+  font-weight: 100;
+  line-height: 20px;
+  letter-spacing: 0.5px;
+  margin: 20px 0 30px;
+}
+
+span {
+  font-size: 12px;
+}
+
+a {
+  color: #333;
+  font-size: 14px;
+  text-decoration: none;
+  margin: 15px 0;
+}
+
+button {
+  border-radius: 20px;
+  border: 1px solid #ff4b2b;
+  background-color: #ff4b2b;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 12px 45px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: transform 80ms ease-in;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+button:focus {
+  outline: none;
+}
+
+button.ghost {
+  background-color: transparent;
+  border-color: #ffffff;
+}
+
+form {
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 50px;
+  height: 100%;
+  text-align: center;
+}
+
+input {
+  background-color: #eee;
+  border: none;
+  padding: 12px 15px;
+  margin: 8px 0;
   width: 100%;
-  height: 80%;
+}
+
+.container {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+  position: relative;
+  overflow: hidden;
+  width: 768px;
+  max-width: 100%;
+  min-height: 480px;
+}
+
+.form-container {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transition: all 0.6s ease-in-out;
+}
+
+.sign-in-container {
   left: 0;
-  background: #fff;
+  width: 50%;
+  z-index: 2;
+}
 
-  .login-content {
-    width: 420px;
-    padding: 40px;
-    height: 500px;
-    top: 50%;
-    left: 50%;
-    -webkit-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
+.container.right-panel-active .sign-in-container {
+  transform: translateX(100%);
+}
+
+.sign-up-container {
+  left: 0;
+  width: 50%;
+  opacity: 0;
+  z-index: 1;
+}
+
+.container.right-panel-active .sign-up-container {
+  transform: translateX(100%);
+  opacity: 1;
+  z-index: 5;
+  animation: show 0.6s;
+}
+
+@keyframes show {
+  0%,
+  49.99% {
+    opacity: 0;
     z-index: 1;
-    position: absolute;
-    background: #fff;
-    box-shadow: 0 0px 70px rgba(0, 0, 0, 0.1);
-    border-top: 5px solid @green;
-    float: left;
-    -webkit-transition: all 0.2s ease-out;
-    transition: all 0.2s ease-out;
-    transition-delay: 0.2s;
-
-    &.login-content-signin.ng-hide:not(.ng-hide-animate) {
-      transition-delay: 0s;
-      display: block !important;
-      opacity: 0;
-      z-index: -1;
-      -webkit-transform: translate(-45%, -50%);
-      transform: translate(-45%, -50%);
-    }
-    &.login-content-signup.ng-hide:not(.ng-hide-animate) {
-      transition-delay: 0s;
-      display: block !important;
-      opacity: 0;
-      z-index: -1;
-      -webkit-transform: translate(-55%, -50%);
-      transform: translate(-55%, -50%);
-    }
-
-    h2 {
-      text-align: left;
-      color: @green;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin: 0;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    form.wrapper-box {
-      margin-top: 40px;
-      input {
-        margin-top: 20px;
-        border: none;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        border-radius: 0;
-        padding-left: 0;
-        box-shadow: none;
-        -webkit-transition: all 0.1s ease-out;
-        transition: all 0.1s ease-out;
-        &:valid {
-          border-bottom: 1px solid @green;
-        }
-        &:focus:invalid {
-          border-bottom: 1px solid @red;
-        }
-      }
-
-      ::-webkit-input-placeholder {
-        color: rgba(0, 0, 0, 0.5);
-      }
-      :-moz-placeholder {
-        color: rgba(0, 0, 0, 0.5);
-      }
-      ::-moz-placeholder {
-        color: rgba(0, 0, 0, 0.5);
-      }
-      :-ms-input-placeholder {
-        color: rgba(0, 0, 0, 0.5);
-      }
-
-      button {
-        display: inline-block;
-        margin-top: 50px;
-        border: 2px solid @green;
-        background: @green;
-        border-radius: 25px;
-        padding: 3px 12px 5px 12px;
-        color: #fff;
-        font-size: 14px;
-        font-weight: bold;
-        letter-spacing: 0px;
-        -webkit-transition: all 0.1s ease-out;
-        transition: all 0.1s ease-out;
-        &:hover {
-          color: @green;
-          background: #fff;
-          border: 2px solid @green;
-        }
-        &:active {
-          box-shadow: none;
-        }
-      }
-    }
-
-    .outer-link {
-      display: inline-block;
-      margin-top: 50px;
-      padding: 5px 0;
-      display: block;
-      color: rgba(0, 0, 0, 0.4);
-      -webkit-transition: all 0.1s ease-out;
-      transition: all 0.1s ease-out;
-      &:hover {
-        -webkit-transition: all 0s ease-out;
-        transition: all 0s ease-out;
-        color: rgba(0, 0, 0, 0.8);
-        text-decoration: none;
-      }
-    }
-
-    &.login-content-signin > div,
-    &.login-content-signup > div {
-      overflow: hidden;
-      top: 50%;
-      position: relative;
-      -webkit-transform: translateY(-50%);
-      transform: translateY(-50%);
-    }
-    &.login-content-signin {
-      margin-left: -130px;
-    }
-    &.login-content-signup {
-      margin-left: 130px;
-    }
   }
 
-  .login-switcher {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    margin: auto;
-    width: 660px;
-    height: 400px;
-    box-shadow: 0 0px 20px rgba(0, 0, 0, 0.03);
-
-    & > div {
-      width: 40%;
-      margin-top: 125px;
-
-      &.login-switcher-signin {
-        float: left;
-      }
-      &.login-switcher-signup {
-        float: right;
-      }
-
-      h3 {
-        color: rgba(0, 0, 0, 0.4);
-        text-align: center;
-        font-size: 14px;
-      }
-      button {
-        display: block;
-        margin: 20px auto 0 auto;
-        outline: 0;
-        background: none;
-        border: 2px solid rgba(0, 0, 0, 0.1);
-        border-radius: 20px;
-        color: rgba(0, 0, 0, 0.3);
-        font-weight: bold;
-        font-size: 14px;
-        padding: 4px 12px 5px 12px;
-        -webkit-transition: all 0.1s ease-out;
-        transition: all 0.1s ease-out;
-
-        &:hover {
-          border: 2px solid @green !important;
-          color: rgba(0, 0, 0, 0.8);
-        }
-      }
-    }
-
-    .login-switcher-signin,
-    .login-switcher-signup {
-      -webkit-transition: all 0.1s ease-out;
-      transition: all 0.1s ease-out;
-    }
-    .login-switcher-signin.ng-hide:not(.ng-hide-animate),
-    .login-switcher-signup.ng-hide:not(.ng-hide-animate) {
-      display: block !important;
-      opacity: 0;
-      -webkit-transform: translateY(10px);
-      transform: translateY(10px);
-    }
+  50%,
+  100% {
+    opacity: 1;
+    z-index: 5;
   }
+}
+
+.overlay-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100;
+}
+
+.container.right-panel-active .overlay-container {
+  transform: translateX(-100%);
+}
+
+.overlay {
+  background: #ff416c;
+  background: -webkit-linear-gradient(to right, #ff4b2b, #ff416c);
+  background: linear-gradient(to right, #ff4b2b, #ff416c);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0 0;
+  color: #ffffff;
+  position: relative;
+  left: -100%;
+  height: 100%;
+  width: 200%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.container.right-panel-active .overlay {
+  transform: translateX(50%);
+}
+
+.overlay-panel {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 40px;
+  text-align: center;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.overlay-left {
+  transform: translateX(-20%);
+}
+
+.container.right-panel-active .overlay-left {
+  transform: translateX(0);
+}
+
+.overlay-right {
+  right: 0;
+  transform: translateX(0);
+}
+
+.container.right-panel-active .overlay-right {
+  transform: translateX(20%);
+}
+
+.social-container {
+  margin: 20px 0;
+}
+
+.social-container a {
+  border: 1px solid #dddddd;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 5px;
+  height: 40px;
+  width: 40px;
+}
+
+footer {
+  background-color: #222;
+  color: #fff;
+  font-size: 14px;
+  bottom: 0;
+  position: fixed;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 999;
+}
+
+footer p {
+  margin: 10px 0;
+}
+
+footer i {
+  color: red;
+}
+
+footer a {
+  color: #3c97bf;
+  text-decoration: none;
 }
 </style>
