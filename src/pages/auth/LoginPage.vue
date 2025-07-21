@@ -72,15 +72,15 @@ const goToSignUp = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fafbfa;
-  gap: 40px;
+  gap: 0;
 }
 .auth-card {
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-  width: 400px;
-  padding: 40px 36px 32px 36px;
+  width: 520px;
+  height: 600px;
+  padding: 60px 48px 48px 48px;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -207,8 +207,8 @@ const goToSignUp = () => {
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-  width: 300px;
-  height: 400px;
+  width: 380px;
+  height: 600px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -236,7 +236,8 @@ const goToSignUp = () => {
   color: #fff;
 }
 @media (max-width: 900px) {
-  .auth-bg { flex-direction: column; gap: 20px; }
-  .auth-side { width: 90vw; height: 120px; }
+  .auth-bg { flex-direction: column; gap: 10px; }
+  .auth-side { width: 95vw; height: 120px; }
+  .auth-card { width: 95vw; height: auto; padding: 32px 10vw; }
 }
 </style>
