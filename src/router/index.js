@@ -3,6 +3,7 @@ import HomePage from '../pages/HomePage.vue';
 import pageARoutes from './pageA';
 import pageBRoutes from './pageB';
 import pageCRoutes from './pageC';
+import authRoutes from './auth';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,6 +12,7 @@ const router = createRouter({
     ...pageARoutes,
     ...pageBRoutes,
     ...pageCRoutes,
+    ...authRoutes,
   ],
 });
 
