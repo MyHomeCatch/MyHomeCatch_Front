@@ -1,8 +1,8 @@
 <script setup>
 import { ref } from 'vue';
 import { useAuthStore } from '../../stores/auth';
-
 import { useRouter } from 'vue-router';
+
 
 const router = useRouter();
 
@@ -17,349 +17,226 @@ const handleLogin = async () => {
     email: email.value,
     password: password.value,
   });
-  if (success) {
-    console.log('로그인 성공 token: ', authStore.token);
-  }
   if (!success) errorMessage.value = '로그인 실패';
 };
 
-const isSignUpMode = ref(false);
 
-const showSignUp = () => {
-  isSignUpMode.value = true;
+const goToSignUp = () => {
+  router.push('/join');
 
-  // // 600ms 후 페이지 이동 (애니메이션 시간과 동일하게 설정)
-  // setTimeout(() => {
-  //   router.replace('/signup-complete');
-  // }, 600);
-};
-
-const showSignIn = () => {
-  isSignUpMode.value = false;
 };
 </script>
 
 <template>
-  <!-- <div>
-    <h2>Login</h2>
-    <form @submit.prevent="handleLogin">
-      <input type="email" v-model="email" required />
-      <input
-        type="password"
-        v-model="password"
-        placeholder="비밀번호"
-        required
-      />
-      <button type="submit">Login</button>
-    </form>
-    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-  </div> -->
-  <div
-    :class="['container', { 'right-panel-active': isSignUpMode }]"
-    id="container"
-  >
-    <div class="form-container sign-up-container">
-      <form action="#">
-        <h1>Create Account</h1>
-        <div class="social-container">
-          <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-          <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+  <div class="auth-bg">
+    <div class="auth-card">
+      <div class="auth-card-bar"></div>
+      <h2 class="auth-title">LOG IN</h2>
+      <form @submit.prevent="handleLogin">
+        <div class="auth-input-group">
+          <label>Email</label>
+          <input type="email" v-model="email" required autocomplete="username" />
         </div>
-        <span>or use your email for registration</span>
-        <input type="text" placeholder="Name" />
-        <input type="email" placeholder="Email" />
-        <input type="password" placeholder="Password" />
-        <button>Sign Up</button>
-      </form>
-    </div>
-    <div class="form-container sign-in-container">
-      <form action="#">
-        <h1>Sign in</h1>
-        <div class="social-container">
-          <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-          <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+        <div class="auth-input-group">
+          <label>Password</label>
+          <input type="password" v-model="password" required autocomplete="current-password" />
         </div>
-        <span>or use your account</span>
-        <input type="email" placeholder="Email" />
-        <input type="password" placeholder="Password" />
-        <a href="#">Forgot your password?</a>
-        <button>Sign In</button>
-      </form>
-    </div>
-    <div class="overlay-container">
-      <div class="overlay">
-        <div class="overlay-panel overlay-left">
-          <h1>Welcome Back!</h1>
-          <p>To keep connected with us please login with your personal info</p>
-          <button class="ghost" id="signIn" @click.prevent="showSignIn">
-            Sign In
+        <div class="auth-divider">
+          <span>Social LogIn</span>
+        </div>
+        <div class="auth-social-row">
+          <button type="button" class="auth-social-btn">
+            <span class="icon-google"></span> Google
+          </button>
+          <button type="button" class="auth-social-btn">
+            <span class="icon-kakao"></span> Kakao
           </button>
         </div>
-        <div class="overlay-panel overlay-right">
-          <h1>Hello, Friend!</h1>
-          <p>Enter your personal details and start journey with us</p>
-          <button class="ghost" id="signUp" @click.prevent="showSignUp">
-            Sign Up
-          </button>
+        <div class="auth-forgot">
+          <a href="#">Forgot Password</a>
         </div>
-      </div>
+        <button type="submit" class="auth-submit">Log In</button>
+        <div v-if="errorMessage" class="auth-error">{{ errorMessage }}</div>
+      </form>
+    </div>
+    <div class="auth-side">
+      <p>Don't have an account?</p>
+      <button class="auth-side-btn" @click="goToSignUp">Sign Up</button>
     </div>
   </div>
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  background: #f6f5f7;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  font-family: 'Montserrat', sans-serif;
-  height: 100vh;
-  margin: -20px 0 50px;
-}
-
-h1 {
-  font-weight: bold;
-  margin: 0;
-}
-
-h2 {
-  text-align: center;
-}
-
-p {
-  font-size: 14px;
-  font-weight: 100;
-  line-height: 20px;
-  letter-spacing: 0.5px;
-  margin: 20px 0 30px;
-}
-
-span {
-  font-size: 12px;
-}
-
-a {
-  color: #333;
-  font-size: 14px;
-  text-decoration: none;
-  margin: 15px 0;
-}
-
-button {
-  border-radius: 20px;
-  border: 1px solid #ff4b2b;
-  background-color: #ff4b2b;
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 12px 45px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  transition: transform 80ms ease-in;
-}
-
-button:active {
-  transform: scale(0.95);
-}
-
-button:focus {
-  outline: none;
-}
-
-button.ghost {
-  background-color: transparent;
-  border-color: #ffffff;
-}
-
-form {
-  background-color: #ffffff;
+.auth-bg {
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  padding: 0 50px;
-  height: 100%;
-  text-align: center;
+  background: #fafbfa;
+  gap: 40px;
 }
-
-input {
-  background-color: #eee;
-  border: none;
-  padding: 12px 15px;
-  margin: 8px 0;
+.auth-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  width: 400px;
+  padding: 40px 36px 32px 36px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.auth-card-bar {
+  height: 10px;
   width: 100%;
-}
-
-.container {
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
-  position: relative;
-  overflow: hidden;
-  width: 768px;
-  max-width: 100%;
-  min-height: 480px;
-}
-
-.form-container {
+  background: #8ab191;
+  border-radius: 8px 8px 0 0;
   position: absolute;
-  top: 0;
-  height: 100%;
-  transition: all 0.6s ease-in-out;
+  top: 0; left: 0;
 }
-
-.sign-in-container {
-  left: 0;
-  width: 50%;
-  z-index: 2;
+.auth-title {
+  color: #7a9c7e;
+  font-weight: bold;
+  font-size: 2rem;
+  margin: 32px 0 32px 0;
+  letter-spacing: 1px;
 }
-
-.container.right-panel-active .sign-in-container {
-  transform: translateX(100%);
+.auth-input-group {
+  margin-bottom: 24px;
 }
-
-.sign-up-container {
-  left: 0;
-  width: 50%;
-  opacity: 0;
-  z-index: 1;
+.auth-input-group label {
+  display: block;
+  color: #888;
+  font-size: 1.1rem;
+  margin-bottom: 6px;
 }
-
-.container.right-panel-active .sign-up-container {
-  transform: translateX(100%);
-  opacity: 1;
-  z-index: 5;
-  animation: show 0.6s;
+.auth-input-group input {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid #e0e0e0;
+  font-size: 1.1rem;
+  padding: 8px 0;
+  outline: none;
+  background: transparent;
+  color: #444;
+  transition: border-color 0.2s;
 }
-
-@keyframes show {
-  0%,
-  49.99% {
-    opacity: 0;
-    z-index: 1;
-  }
-
-  50%,
-  100% {
-    opacity: 1;
-    z-index: 5;
-  }
+.auth-input-group input:focus {
+  border-bottom: 2px solid #8ab191;
 }
-
-.overlay-container {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 50%;
-  height: 100%;
-  overflow: hidden;
-  transition: transform 0.6s ease-in-out;
-  z-index: 100;
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 28px 0 16px 0;
+  color: #aaa;
+  font-size: 1rem;
 }
-
-.container.right-panel-active .overlay-container {
-  transform: translateX(-100%);
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e0e0e0;
+  margin: 0 10px;
 }
-
-.overlay {
-  background: #ff416c;
-  background: -webkit-linear-gradient(to right, #ff4b2b, #ff416c);
-  background: linear-gradient(to right, #ff4b2b, #ff416c);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: 0 0;
-  color: #ffffff;
-  position: relative;
-  left: -100%;
-  height: 100%;
-  width: 200%;
-  transform: translateX(0);
-  transition: transform 0.6s ease-in-out;
+.auth-social-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
 }
-
-.container.right-panel-active .overlay {
-  transform: translateX(50%);
-}
-
-.overlay-panel {
-  position: absolute;
+.auth-social-btn {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  padding: 0 40px;
-  text-align: center;
-  top: 0;
-  height: 100%;
-  width: 50%;
-  transform: translateX(0);
-  transition: transform 0.6s ease-in-out;
+  gap: 6px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 0;
+  font-size: 1rem;
+  color: #444;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
-
-.overlay-left {
-  transform: translateX(-20%);
+.auth-social-btn:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
-
-.container.right-panel-active .overlay-left {
-  transform: translateX(0);
+.icon-google {
+  width: 20px; height: 20px; display: inline-block;
+  background: url('https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg') no-repeat center/contain;
 }
-
-.overlay-right {
-  right: 0;
-  transform: translateX(0);
-}
-
-.container.right-panel-active .overlay-right {
-  transform: translateX(20%);
-}
-
-.social-container {
-  margin: 20px 0;
-}
-
-.social-container a {
-  border: 1px solid #dddddd;
+.icon-kakao {
+  width: 20px; height: 20px; display: inline-block;
+  background: url('https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png') no-repeat center/contain;
   border-radius: 50%;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 5px;
-  height: 40px;
-  width: 40px;
+  background-color: #fee500;
+  border: 1px solid #e0e0e0;
 }
-
-footer {
-  background-color: #222;
-  color: #fff;
-  font-size: 14px;
-  bottom: 0;
-  position: fixed;
-  left: 0;
-  right: 0;
-  text-align: center;
-  z-index: 999;
+.auth-forgot {
+  margin: 8px 0 18px 0;
+  text-align: left;
 }
-
-footer p {
-  margin: 10px 0;
-}
-
-footer i {
-  color: red;
-}
-
-footer a {
-  color: #3c97bf;
+.auth-forgot a {
+  color: #888;
+  font-size: 0.98rem;
   text-decoration: none;
+}
+.auth-submit {
+  width: 100%;
+  background: #8ab191;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 0;
+  font-size: 1.15rem;
+  font-weight: bold;
+  margin-top: 8px;
+  box-shadow: 0 2px 8px rgba(138,177,145,0.08);
+  transition: background 0.2s;
+}
+.auth-submit:hover {
+  background: #7a9c7e;
+}
+.auth-error {
+  color: #d32f2f;
+  margin-top: 10px;
+  text-align: center;
+}
+.auth-side {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  width: 300px;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.auth-side p {
+  color: #888;
+  font-size: 1.15rem;
+  margin-bottom: 18px;
+}
+.auth-side-btn {
+  background: #fff;
+  color: #888;
+  border: none;
+  border-radius: 24px;
+  padding: 10px 32px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+}
+.auth-side-btn:hover {
+  background: #8ab191;
+  color: #fff;
+}
+@media (max-width: 900px) {
+  .auth-bg { flex-direction: column; gap: 20px; }
+  .auth-side { width: 90vw; height: 120px; }
 }
 </style>

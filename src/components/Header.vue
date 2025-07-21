@@ -1,6 +1,7 @@
 <script setup>
 import config from '@/config';
 </script>
+
 <template>
   <!-- <div class="jumbotron p-5 bg-primary text-white">
     <h1>{{ config.title }}</h1>
