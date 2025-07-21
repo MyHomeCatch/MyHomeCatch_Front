@@ -21,6 +21,10 @@ const goToSignIn = () => {
 
 <template>
   <div class="auth-bg">
+    <div class="auth-side">
+      <p>Already have an account?</p>
+      <button class="auth-side-btn" @click="goToSignIn">Log In</button>
+    </div>
     <div class="auth-card">
       <div class="auth-card-bar"></div>
       <h2 class="auth-title">SIGN UP</h2>
@@ -52,10 +56,6 @@ const goToSignIn = () => {
         <div v-if="errorMessage" class="auth-error">{{ errorMessage }}</div>
       </form>
     </div>
-    <div class="auth-side">
-      <p>Already have an account?</p>
-      <button class="auth-side-btn" @click="goToSignIn">Log In</button>
-    </div>
   </div>
 </template>
 
@@ -65,18 +65,21 @@ const goToSignIn = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fafbfa;
-  gap: 40px;
+  gap: 0;
 }
 .auth-card {
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-  width: 400px;
-  padding: 40px 36px 32px 36px;
+  width: 520px;
+  height: auto;
+  padding: 60px 48px 48px 48px;
   position: relative;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  min-width: 0;
 }
 .auth-card-bar {
   height: 10px;
@@ -185,8 +188,10 @@ const goToSignIn = () => {
   font-size: 1.15rem;
   font-weight: bold;
   margin-top: 8px;
+  margin-bottom: 8px;
   box-shadow: 0 2px 8px rgba(138,177,145,0.08);
   transition: background 0.2s;
+  min-width: 0;
 }
 .auth-submit:hover {
   background: #7a9c7e;
@@ -200,8 +205,8 @@ const goToSignIn = () => {
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-  width: 300px;
-  height: 400px;
+  width: 380px;
+  height: 600px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -228,8 +233,14 @@ const goToSignIn = () => {
   background: #8ab191;
   color: #fff;
 }
-@media (max-width: 900px) {
-  .auth-bg { flex-direction: column; gap: 20px; }
-  .auth-side { width: 90vw; height: 120px; }
+form {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
-</style>>
+@media (max-width: 900px) {
+  .auth-bg { flex-direction: column; gap: 10px; }
+  .auth-side { width: 95vw; height: 120px; }
+  .auth-card { width: 95vw; height: auto; padding: 32px 10vw; }
+}
+</style>
