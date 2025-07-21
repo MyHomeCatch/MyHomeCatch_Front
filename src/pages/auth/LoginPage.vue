@@ -13,11 +13,15 @@ const authStore = useAuthStore();
 
 const handleLogin = async () => {
   errorMessage.value = '';
-  const success = await authStore.login({
+  const result = await authStore.login({
     email: email.value,
     password: password.value,
-  });
-  if (!success) errorMessage.value = '로그인 실패';
+  })
+  if (result.success) {
+    router.push('/');
+  } else {
+    errorMessage.value = result.message;
+  }
 };
 
 
