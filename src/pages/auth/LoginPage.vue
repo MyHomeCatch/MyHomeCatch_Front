@@ -3,7 +3,9 @@ import { ref } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { useRouter } from 'vue-router';
 
+
 const router = useRouter();
+
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
@@ -18,8 +20,10 @@ const handleLogin = async () => {
   if (!success) errorMessage.value = '로그인 실패';
 };
 
+
 const goToSignUp = () => {
   router.push('/join');
+
 };
 </script>
 
