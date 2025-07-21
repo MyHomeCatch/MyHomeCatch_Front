@@ -3,8 +3,8 @@ import { loginRequest } from '../api/auth';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    token: null,
-    isLoggedIn: false,
+    token: localStorage.getItem('token') || null,
+    isLoggedIn: !!localStorage.getItem('token'),
   }),
   actions: {
     async login(credentials) {
@@ -12,11 +12,19 @@ export const useAuthStore = defineStore('auth', {
         const response = await loginRequest(credentials);
         this.token = response.data.token;
         this.isLoggedIn = true;
-        return true;
+        localStorage.setItem('token', response.data.token); // 토큰 저장
+        return { success: true };
       } catch (err) {
-        console.error('로그인 실패:', err.response?.data || err.message);
-        return false;
+        return {
+          success: false,
+          message: err.response?.data?.message || '로그인 실패',
+        };
       }
     },
-  },
+    logout() {
+      this.token = null;
+      this.isLoggedIn = false;
+      localStorage.removeItem('token');
+    }
+  }
 });
