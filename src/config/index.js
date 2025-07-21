@@ -31,5 +31,10 @@ export default {
       title: '회원가입',
       icon: 'fa-solid fa-user-plus',
     },
+    logout: {
+      url: '/logout',
+      title: '로그아웃',
+      icon: 'fa-solid fa-right-from-bracket',
+    },
   },
 };
