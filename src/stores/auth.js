@@ -39,5 +39,11 @@ export const useAuthStore = defineStore('auth', {
       this.profile = payload.profile;
       this.birthday = payload.birthday;
     },
+    resetInfo() {
+      this.nickname = '';
+      this.email = '';
+      this.profile = '';
+      this.birthday = '';
+    },
   },
 });

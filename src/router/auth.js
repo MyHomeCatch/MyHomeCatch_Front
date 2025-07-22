@@ -12,6 +12,6 @@ export default [
   {
     path: '/auth/loading',
     name: 'Loading',
-    component: () => import('../pages/auth/LoadingPage.vue'),
+    component: () => import('../pages/auth/KakaoLoadingPage.vue'),
   },
 ];
