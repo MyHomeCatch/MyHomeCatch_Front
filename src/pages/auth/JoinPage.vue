@@ -3,10 +3,12 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import './auth.css';
 import { checkEmailRequest } from '../../api/auth';
+// 닉네임 중복확인 API도 import 필요
+import { checkNicknameRequest } from '../../api/auth';
 
 const router = useRouter();
 const name = ref('');
-const nickname = ref('');
+
 const address = ref('');
 const password = ref('');
 const errorMessage = ref('');
@@ -16,6 +18,12 @@ const emailInput = ref(null);
 const emailCheckMessage = ref('');
 const emailChecking = ref(false);
 const emailChecked = ref(false); // 중복확인 성공 여부
+
+const nickname = ref('');
+const nicknameInput = ref(null);
+const nicknameCheckMessage = ref('');
+const nicknameChecking = ref(false);
+const nicknameChecked = ref(false);
 
 
 const checkEmail = async () => {
@@ -41,8 +49,29 @@ const checkEmail = async () => {
     emailChecking.value = false;
   }
 };
-const checkNickname = () => {
-  // 닉네임 중복 확인 로직
+
+const checkNickname = async() => {
+  if (!nicknameInput.value.checkValidity()) {
+    emailInput.value.reportValidity();
+    return;
+  }
+  nicknameCheckMessage.value = '';
+  nicknameChecking.value = true;
+  try {
+    const response = await checkNicknameRequest(nickname.value);
+    if(response.data.available) {
+      nicknameCheckMessage.value = '사용 가능한 닉네임입니다.';
+      nicknameChecked.value = true;
+    } else {
+      nicknameCheckMessage.value = '이미 사용 중인 닉네임입니다.';
+      nicknameChecked.value = false;
+    }
+  } catch (err) {
+    nicknameCheckMessage.value = '오류가 발생했습니다.';
+    nicknameChecked.value = false;
+  } finally {
+    nicknameChecking.value = false;
+  }
 };
 const inputAddress = () => {
   // 주소 입력 로직
@@ -63,6 +92,12 @@ const resetEmail = () => {
   email.value = '';
   emailCheckMessage.value = '';
 };
+
+const resetNickname = () => {
+  nicknameChecked.value = false;
+  nickname.value = '';
+  nicknameCheckMessage.value = '';
+};
 </script>
 
 <template>
@@ -82,9 +117,35 @@ const resetEmail = () => {
         <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px;">
           <div style="flex: 1;">
             <label>Nickname</label>
-            <input type="text" v-model="nickname" required />
+            <input
+            ref="nicknameInput"
+            type="text"
+            v-model="nickname"
+            required
+            :readonly="nicknameChecked"
+            :class="{'input-checked': nicknameChecked}" 
+            />
+            <!-- 메시지 표시 -->
+            <div v-if="nicknameCheckMessage" class="auth-error" style="margin-top: 4px;">{{ nicknameCheckMessage }}</div>
           </div>
-          <button type="button" class="auth-check-btn" @click="checkNickname">중복 확인</button>
+          <button
+            v-if="!nicknameChecked"
+            type="button"
+            class="auth-check-btn"
+            @click="checkNickname"
+            :disabled="nicknameChecking"
+          >
+            중복 확인
+          </button>
+          <button
+            v-else
+            type="button"
+            class="auth-check-btn"
+            @click="resetNickname"
+            style="background: #fff; color: #8ab191; border: 1.5px solid #8ab191;"
+          >
+            재입력
+          </button>
         </div>
         <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px;">
           <div style="flex: 1;">
