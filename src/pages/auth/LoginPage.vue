@@ -9,9 +9,13 @@ const router = useRouter();
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
+const emailError = ref('');
+const passwordError = ref('');
 const authStore = useAuthStore();
 
 const handleLogin = async () => {
+  emailError.value = '';
+  passwordError.value = '';
   errorMessage.value = '';
   const result = await authStore.login({
     email: email.value,
@@ -20,10 +24,15 @@ const handleLogin = async () => {
   if (result.success) {
     router.push('/');
   } else {
-    errorMessage.value = result.message;
+    if (result.message && result.message.includes('이메일')) {
+      emailError.value = result.message;
+    } else if (result.message && result.message.includes('비밀번호')) {
+      passwordError.value = result.message;
+    } else {
+      errorMessage.value = result.message;
+    }
   }
 };
-
 
 const goToSignUp = () => {
   router.push('/join');
@@ -39,26 +48,20 @@ const goToSignUp = () => {
       <form @submit.prevent="handleLogin">
         <div class="auth-input-group">
           <label>Email</label>
-          <input type="email" v-model="email" required autocomplete="username" />
+          <input type="email" v-model="email" required />
+          <div v-if="emailError" class="auth-error">{{ emailError }}</div>
         </div>
         <div class="auth-input-group">
           <label>Password</label>
-          <input type="password" v-model="password" required autocomplete="current-password" />
+          <input type="password" v-model="password" required />
+          <div v-if="passwordError" class="auth-error">{{ passwordError }}</div>
         </div>
-        <div class="auth-divider">
-          <span>Social LogIn</span>
-        </div>
+        <div class="auth-divider"><span>Social LogIn</span></div>
         <div class="auth-social-row">
-          <button type="button" class="auth-social-btn">
-            <span class="icon-google"></span> Google
-          </button>
-          <button type="button" class="auth-social-btn">
-            <span class="icon-kakao"></span> Kakao
-          </button>
+          <button type="button" class="auth-social-btn"><span class="icon-google"></span> Google</button>
+          <button type="button" class="auth-social-btn"><span class="icon-kakao"></span> Kakao</button>
         </div>
-        <div class="auth-forgot">
-          <a href="#">Forgot Password</a>
-        </div>
+        <div class="auth-forgot"><a href="#">Forgot Password</a></div>
         <button type="submit" class="auth-submit">Log In</button>
         <div v-if="errorMessage" class="auth-error">{{ errorMessage }}</div>
       </form>

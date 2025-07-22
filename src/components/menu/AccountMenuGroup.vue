@@ -1,5 +1,4 @@
 <script setup>
-import { computed } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import MenuItem from './MenuItem.vue';
 import config from '@/config';
