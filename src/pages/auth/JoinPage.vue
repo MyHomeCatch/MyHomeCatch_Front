@@ -4,6 +4,7 @@ import { useRouter, onBeforeRouteLeave } from 'vue-router';
 import './auth.css';
 import { doList, sigugunMap } from '../../assets/addressData';
 import { useAuthStore } from '../../stores/auth';
+import AddressModal from '../../components/modals/AddressModal.vue';
 
 const authStore = useAuthStore();
 
@@ -29,18 +30,6 @@ const checkNickname = async () => {
 
 const openAddressModal = () => {
   authStore.openAddressModal();
-};
-
-const onSelectDo = (doName) => {
-  authStore.onSelectDo(doName);
-};
-
-const onSelectSigugun = (sigugunName) => {
-  authStore.onSelectSigugun(sigugunName);
-};
-
-const inputAddress = () => {
-  openAddressModal();
 };
 
 const handleSignUp = async () => {
@@ -101,6 +90,16 @@ onBeforeRouteLeave(() => {
   authStore.resetInfo();
   authStore.resetJoinLoginState();
 });
+
+const handleModalClose = () => {
+  authStore.showAddressModal = false;
+};
+const handleSelectDo = (doName) => {
+  authStore.onSelectDo(doName);
+};
+const handleSelectSigugun = (sigugunName) => {
+  authStore.onSelectSigugun(sigugunName);
+};
 </script>
 
 <template>
@@ -215,46 +214,20 @@ onBeforeRouteLeave(() => {
             <label>Address</label>
             <input type="text" v-model="authStore.address" required readonly />
           </div>
-          <button type="button" class="auth-check-btn" @click="inputAddress">
+          <button type="button" class="auth-check-btn" @click="openAddressModal">
             주소 입력
           </button>
         </div>
-        <div v-if="authStore.showAddressModal" class="modal-backdrop">
-          <div class="modal-content">
-            <button class="modal-close" @click="authStore.showAddressModal = false">
-              &times;
-            </button>
-            <div v-if="!authStore.selectedDo">
-              <div class="modal-title">거주지(시/도) 선택</div>
-              <div class="modal-btn-group">
-                <button
-                  v-for="doName in doList"
-                  :key="doName"
-                  @click="onSelectDo(doName)"
-                  class="modal-btn"
-                >
-                  {{ doName }}
-                </button>
-              </div>
-            </div>
-            <div v-else>
-              <div class="modal-title">{{ authStore.selectedDo }}의 구/군 선택</div>
-              <div class="modal-btn-group">
-                <button
-                  v-for="sigugun in sigugunMap[authStore.selectedDo]"
-                  :key="sigugun"
-                  @click="onSelectSigugun(sigugun)"
-                  class="modal-btn"
-                >
-                  {{ sigugun }}
-                </button>
-              </div>
-              <button class="modal-back-btn" @click="authStore.selectedDo = ''">
-                이전
-              </button>
-            </div>
-          </div>
-        </div>
+        <AddressModal
+          :do-list="doList"
+          :sigugun-map="sigugunMap"
+          :selected-do="authStore.selectedDo"
+          :selected-sigugun="authStore.selectedSigugun"
+          :show="authStore.showAddressModal"
+          @close="handleModalClose"
+          @selectDo="handleSelectDo"
+          @selectSigugun="handleSelectSigugun"
+        />
         <div class="auth-input-group">
           <label>Password</label>
           <input type="password" v-model="authStore.password" required />
