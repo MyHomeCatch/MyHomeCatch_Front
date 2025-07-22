@@ -38,11 +38,11 @@ const goToSignUp = () => {
       <form @submit.prevent="handleLogin">
         <div class="auth-input-group">
           <label>Email</label>
-          <input type="email" v-model="email" required autocomplete="username" />
+          <input type="email" v-model="email" required  />
         </div>
         <div class="auth-input-group">
           <label>Password</label>
-          <input type="password" v-model="password" required autocomplete="current-password" />
+          <input type="password" v-model="password" required  />
         </div>
         <div class="auth-divider">
           <span>Social LogIn</span>

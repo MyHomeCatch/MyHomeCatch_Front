@@ -3,8 +3,9 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import './auth.css';
 import { checkEmailRequest } from '../../api/auth';
-// 닉네임 중복확인 API도 import 필요
 import { checkNicknameRequest } from '../../api/auth';
+import { signupRequest } from '../../api/auth';
+import { doList, sigugunMap } from '../../assets/addressData';
 
 const router = useRouter();
 const name = ref('');
@@ -12,6 +13,8 @@ const name = ref('');
 const address = ref('');
 const password = ref('');
 const errorMessage = ref('');
+const successMessage = ref('');
+const loading = ref(false);
 
 const email = ref('');
 const emailInput = ref(null);
@@ -25,6 +28,9 @@ const nicknameCheckMessage = ref('');
 const nicknameChecking = ref(false);
 const nicknameChecked = ref(false);
 
+const showAddressModal = ref(false);
+const selectedDo = ref('');
+const selectedSigugun = ref('');
 
 const checkEmail = async () => {
   if (!emailInput.value.checkValidity()) {
@@ -52,7 +58,7 @@ const checkEmail = async () => {
 
 const checkNickname = async() => {
   if (!nicknameInput.value.checkValidity()) {
-    emailInput.value.reportValidity();
+    nicknameInput.value.reportValidity();
     return;
   }
   nicknameCheckMessage.value = '';
@@ -73,18 +79,59 @@ const checkNickname = async() => {
     nicknameChecking.value = false;
   }
 };
+
+const openAddressModal = () => {
+  showAddressModal.value = true;
+  selectedDo.value = '';
+  selectedSigugun.value = '';
+};
+
+const onSelectDo = (doName) => {
+  selectedDo.value = doName;
+  selectedSigugun.value = '';
+};
+
+const onSelectSigugun = (sigugunName) => {
+  selectedSigugun.value = sigugunName;
+  address.value = `${selectedDo.value} ${sigugunName}`;
+  showAddressModal.value = false;
+};
+
 const inputAddress = () => {
-  // 주소 입력 로직
+  openAddressModal();
 };
 
 const handleSignUp = async () => {
   errorMessage.value = '';
-  // 회원가입 API 호출 등 구현
-  router.push('/login');
-};
+  successMessage.value = '';
+  loading.value = true;
 
-const goToSignIn = () => {
-  router.push('/login');
+  if (!emailChecked.value) {
+    errorMessage.value = '이메일 중복확인을 해주세요.';
+    loading.value = false;
+    return;
+  }
+  if (!nicknameChecked.value) {
+    errorMessage.value = '닉네임 중복확인을 해주세요.';
+    loading.value = false;
+    return;
+  }
+
+  try {
+    const response = await signupRequest({
+      name: name.value,
+      nickname: nickname.value,
+      email: email.value,
+      address: address.value,
+      password: password.value,
+    });
+    successMessage.value = response.data.message;
+    setTimeout(() => router.push('/login'), 1000);
+  } catch (err) {
+    errorMessage.value = err.response?.data?.message || '회원가입 실패';
+  } finally {
+    loading.value = false;
+  }
 };
 
 const resetEmail = () => {
@@ -97,6 +144,10 @@ const resetNickname = () => {
   nicknameChecked.value = false;
   nickname.value = '';
   nicknameCheckMessage.value = '';
+};
+
+const goToSignIn = () => {
+  router.push('/login');
 };
 </script>
 
@@ -155,7 +206,6 @@ const resetNickname = () => {
               type="email"
               v-model="email"
               required
-              autocomplete="username"
               :readonly="emailChecked"
               :class="{'input-checked': emailChecked}"
             />
@@ -188,12 +238,42 @@ const resetNickname = () => {
           </div>
           <button type="button" class="auth-check-btn" @click="inputAddress">주소 입력</button>
         </div>
+        <!-- Address Modal -->
+        <div v-if="showAddressModal" class="modal-backdrop">
+          <div class="modal-content">
+            <button class="modal-close" @click="showAddressModal = false">&times;</button>
+            <div v-if="!selectedDo">
+              <div class="modal-title">거주지(시/도) 선택</div>
+              <div class="modal-btn-group">
+                <button
+                  v-for="doName in doList"
+                  :key="doName"
+                  @click="onSelectDo(doName)"
+                  class="modal-btn"
+                >{{ doName }}</button>
+              </div>
+            </div>
+            <div v-else>
+              <div class="modal-title">{{ selectedDo }}의 구/군 선택</div>
+              <div class="modal-btn-group">
+                <button
+                  v-for="sigugun in sigugunMap[selectedDo]"
+                  :key="sigugun"
+                  @click="onSelectSigugun(sigugun)"
+                  class="modal-btn"
+                >{{ sigugun }}</button>
+              </div>
+              <button class="modal-back-btn" @click="selectedDo = ''">이전</button>
+            </div>
+          </div>
+        </div>
         <div class="auth-input-group">
           <label>Password</label>
-          <input type="password" v-model="password" required autocomplete="new-password" />
+          <input type="password" v-model="password" required />
         </div>        
-        <button type="submit" class="auth-submit">Sign Up</button>
+        <button type="submit" class="auth-submit" :disabled="loading">Sign Up</button>
         <div v-if="errorMessage" class="auth-error">{{ errorMessage }}</div>
+        <div v-if="successMessage" class="auth-success" style="color: #7a9c7e; text-align: center; margin-top: 10px;">{{ successMessage }}</div>
       </form>
     </div>
   </div>
