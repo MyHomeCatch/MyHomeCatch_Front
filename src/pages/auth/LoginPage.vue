@@ -46,13 +46,14 @@ const kakaoLogin = () => {
 };
 
 const google_redirect_uri = 'http://localhost:5173/auth/googleloading';
-const googleURL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=621454264251-e7vmm3ltoi2p27krvctie68fjtnjhfub.apps.googleusercontent.com&redirect_uri=${encodeURIComponent(
-  google_redirect_uri
-)}&response_type=code&scope=email%20profile`;
+// const googleURL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=621454264251-e7vmm3ltoi2p27krvctie68fjtnjhfub.apps.googleusercontent.com&redirect_uri=${encodeURIComponent(
+// google_redirect_uri
+// )}&response_type=code&scope=email%20profile`;
 
+const googleURL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=621454264251-e7vmm3ltoi2p27krvctie68fjtnjhfub.apps.googleusercontent.com&redirect_uri=${google_redirect_uri}&response_type=code&scope=email%20profile`;
 const handleGoogleLogin = () => {
   console.log('Google login clicked');
-  alert('구글 로그인 버튼 클릭됨!');
+  // alert('구글 로그인 버튼 클릭됨!');
   window.location.href = googleURL;
 };
 
