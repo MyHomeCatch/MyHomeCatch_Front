@@ -12,13 +12,12 @@ const router = useRouter();
 const emailInput = ref(null);
 const nicknameInput = ref(null);
 
-const checkEmail = async () => {
-  if (!emailInput.value.checkValidity()) {
-    emailInput.value.reportValidity();
-    return;
-  }
-  await authStore.checkEmail(authStore.email);
-};
+const emailVerified = ref(false);
+const showSendVerification = ref(false);
+const showVerificationInput = ref(false); // 인증번호 입력란 노출 여부
+const verificationCode = ref('');
+const verificationSent = ref(false);
+const verificationError = ref('');
 
 const checkNickname = async () => {
   if (!nicknameInput.value.checkValidity()) {
@@ -62,6 +61,11 @@ const handleSignUp = async () => {
 
 const resetEmail = () => {
   authStore.resetEmail();
+  showSendVerification.value = false;
+  showVerificationInput.value = false;
+  verificationCode.value = '';
+  verificationError.value = '';
+  emailVerified.value = false;
 };
 
 const resetNickname = () => {
@@ -99,6 +103,29 @@ const handleSelectDo = (doName) => {
 };
 const handleSelectSigugun = (sigugunName) => {
   authStore.onSelectSigugun(sigugunName);
+};
+
+// 이메일 중복확인 후 인증 버튼 노출
+const checkEmail = async () => {
+  if (!emailInput.value.checkValidity()) {
+    emailInput.value.reportValidity();
+    return;
+  }
+  await authStore.checkEmail(authStore.email);
+  if (authStore.emailChecked) {
+    showSendVerification.value = true;
+  }
+};
+
+// 인증하기 버튼 클릭 시 인증번호 입력란 노출
+const handleShowVerificationInput = () => {
+  showVerificationInput.value = true;
+};
+
+// 인증번호 확인 (기능 미구현)
+const verifyCode = async () => {
+  // 실제 인증 기능은 추후 구현
+  // 예시: 인증 성공 시 emailVerified.value = true;
 };
 </script>
 
@@ -206,6 +233,28 @@ const handleSelectSigugun = (sigugunName) => {
             재입력
           </button>
         </div>
+
+        <!-- 이메일 인증하기 버튼 -->
+        <div v-if="showSendVerification && !emailVerified && !showVerificationInput" style="margin-bottom: 8px;">
+          <button type="button" class="auth-check-btn" @click="handleShowVerificationInput">
+            이메일 인증하기
+          </button>
+        </div>
+
+        <!-- 인증번호 입력 및 확인 (기능 미구현) -->
+        <div v-if="showVerificationInput && !emailVerified" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+          <input
+            type="text"
+            v-model="verificationCode"
+            placeholder="인증번호 입력"
+            style="flex: 1"
+          />
+          <button type="button" class="auth-check-btn" @click="verifyCode">
+            인증 확인
+          </button>
+        </div>
+        <div v-if="verificationError" class="auth-error">{{ verificationError }}</div>
+        <div v-if="emailVerified" class="auth-success" style="color: #7a9c7e;">이메일 인증 완료!</div>
         <div
           class="auth-input-group"
           style="display: flex; align-items: center; gap: 8px"
