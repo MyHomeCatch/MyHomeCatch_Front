@@ -7,11 +7,12 @@ import { checkEmailRequest } from '../../api/auth';
 const router = useRouter();
 const name = ref('');
 const nickname = ref('');
-const email = ref('');
-const emailInput = ref(null);
 const address = ref('');
 const password = ref('');
 const errorMessage = ref('');
+
+const email = ref('');
+const emailInput = ref(null);
 const emailCheckMessage = ref('');
 const emailChecking = ref(false);
 const emailChecked = ref(false); // 중복확인 성공 여부
@@ -129,18 +130,7 @@ const resetEmail = () => {
         <div class="auth-input-group">
           <label>Password</label>
           <input type="password" v-model="password" required autocomplete="new-password" />
-        </div>
-        <div class="auth-divider">
-          <span>Social SignUp</span>
-        </div>
-        <div class="auth-social-row">
-          <button type="button" class="auth-social-btn">
-            <span class="icon-google"></span> Google
-          </button>
-          <button type="button" class="auth-social-btn">
-            <span class="icon-kakao"></span> Kakao
-          </button>
-        </div>
+        </div>        
         <button type="submit" class="auth-submit">Sign Up</button>
         <div v-if="errorMessage" class="auth-error">{{ errorMessage }}</div>
       </form>

@@ -10,7 +10,7 @@
   border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.12);
   width: 494px;
-  height: 836px;
+  height: 750px;
   padding: 38px 46px 34px 46px;
   position: relative;
   display: flex;
@@ -40,7 +40,6 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* align-items: center;  // uncomment if you want horizontal centering too */
 }
 .auth-input-group {
   margin-bottom: 24px;
