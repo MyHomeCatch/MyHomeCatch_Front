@@ -124,6 +124,7 @@ export const useAuthStore = defineStore('auth', {
     },
     resetJoinLoginState() {
       this.name = '';
+      this.email = '';
       this.address = '';
       this.password = '';
       this.errorMessage = '';
@@ -143,6 +144,7 @@ export const useAuthStore = defineStore('auth', {
       this.token = null;
       this.isLoggedIn = false;
       localStorage.removeItem('token');
+      this.resetJoinLoginState();
     },
     setInfo(payload) {
       this.id = payload.id;

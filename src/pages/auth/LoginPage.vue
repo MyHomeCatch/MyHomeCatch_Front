@@ -2,9 +2,16 @@
 import { useAuthStore } from '../../stores/auth';
 import { useRouter } from 'vue-router';
 import './auth.css';
+import { onMounted } from 'vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
+
+onMounted(() => {
+  authStore.email = '';
+  authStore.password = '';
+  authStore.errorMessage = '';
+});
 
 const handleLogin = async () => {
   authStore.errorMessage = '';
@@ -26,6 +33,7 @@ const handleLogin = async () => {
 };
 
 const goToSignUp = () => {
+  authStore.resetJoinLoginState();
   router.push('/join');
 };
 

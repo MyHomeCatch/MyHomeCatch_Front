@@ -80,13 +80,19 @@ const resetNickname = () => {
 };
 
 const goToSignIn = () => {
+  authStore.resetJoinLoginState();
   router.push('/login');
 };
 
 // 카카오 소셜 회원가입 일 경우 받아온 정보로 세팅
 onMounted(async () => {
-  authStore.email = authStore.email || '';
-  if (authStore.email !== '') {
+  // 카카오 소셜 회원가입이 아닐 때는 email을 무조건 초기화
+  if (!authStore.id) {
+    authStore.email = '';
+    authStore.emailChecked = false;
+    authStore.password = '';
+  } else {
+    // 카카오 소셜 회원가입일 때만 기존 로직 유지
     authStore.emailChecked = true;
     authStore.password = 'KAKAO ' + authStore.id;
   }
