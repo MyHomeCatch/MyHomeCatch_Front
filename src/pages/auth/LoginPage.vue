@@ -16,7 +16,7 @@ const handleLogin = async () => {
   const result = await authStore.login({
     email: email.value,
     password: password.value,
-  })
+  });
   if (result.success) {
     router.push('/');
   } else {
@@ -24,11 +24,18 @@ const handleLogin = async () => {
   }
 };
 
-
 const goToSignUp = () => {
   router.push('/join');
-
 };
+
+const redirect_uri = 'http://localhost:5173/auth/loading';
+const kakaoURL = `https://kauth.kakao.com/oauth/authorize?client_id=88bfa8b4d388fa64195c1c13747bc0ff&redirect_uri=${redirect_uri}&response_type=code&prompt=select_account`;
+
+const kakaoLogin = () => {
+  window.location.href = kakaoURL;
+};
+
+console.log('hello');
 </script>
 
 <template>
@@ -39,11 +46,21 @@ const goToSignUp = () => {
       <form @submit.prevent="handleLogin">
         <div class="auth-input-group">
           <label>Email</label>
-          <input type="email" v-model="email" required autocomplete="username" />
+          <input
+            type="email"
+            v-model="email"
+            required
+            autocomplete="username"
+          />
         </div>
         <div class="auth-input-group">
           <label>Password</label>
-          <input type="password" v-model="password" required autocomplete="current-password" />
+          <input
+            type="password"
+            v-model="password"
+            required
+            autocomplete="current-password"
+          />
         </div>
         <div class="auth-divider">
           <span>Social LogIn</span>
@@ -52,7 +69,7 @@ const goToSignUp = () => {
           <button type="button" class="auth-social-btn">
             <span class="icon-google"></span> Google
           </button>
-          <button type="button" class="auth-social-btn">
+          <button @click="kakaoLogin" type="button" class="auth-social-btn">
             <span class="icon-kakao"></span> Kakao
           </button>
         </div>
