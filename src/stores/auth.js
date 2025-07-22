@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import loginRequest from '../api/auth';
+import { loginRequest } from '../api/auth';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
