@@ -117,7 +117,7 @@ const resetEmail = () => {
             @click="resetEmail"
             style="background: #fff; color: #8ab191; border: 1.5px solid #8ab191;"
           >
-            이메일 다시 입력
+            재입력
           </button>
         </div>
         <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px;">
