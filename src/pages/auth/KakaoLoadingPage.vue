@@ -23,7 +23,8 @@ const kakaoFunc = async () => {
     if (res.token) {
       // ✅ 토큰이 있으면 로그인 완료 → 토큰 저장 + 이동
       localStorage.setItem('token', res.token);
-
+      authStore.token = res.token;
+      authStore.isLoggedIn = true;
       router.replace('/');
     } else {
       authStore.setInfo({
