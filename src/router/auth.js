@@ -14,4 +14,9 @@ export default [
     name: 'Loading',
     component: () => import('../pages/auth/KakaoLoadingPage.vue'),
   },
+  {
+    path: '/auth/googleloading',
+    name: 'GoogleLoading',
+    component: () => import('../pages/auth/GoogleLoadingPage.vue'),
+  },
 ];

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { loginRequest } from '../api/auth';
+import axios from 'axios';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -47,3 +48,9 @@ export const useAuthStore = defineStore('auth', {
     },
   },
 });
+
+export default {
+  googleLogin(code) {
+    return axios.get(`/api/auth/google?code=${code}`).then((res) => res.data);
+  },
+};
