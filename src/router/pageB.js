@@ -14,9 +14,4 @@ export default [
     name: 'pageBThree',
     component: () => import('../pages/PageB/PageB3.vue'),
   },
-  {
-    path: '/pageB/loading',
-    name: 'Loading',
-    component: () => import('../pages/PageB/LoadingPage.vue'),
-  },
 ];

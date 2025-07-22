@@ -21,3 +21,19 @@ export default {
     return data;
   },
 };
+
+export const checkEmailRequest = (email) => {
+  return api.get('/check-email', {params: {email}});
+};
+
+export const checkNicknameRequest = (nickname) => {
+  return api.get('/check-nickname', {params: {nickname}});
+};
+
+export const signupRequets = (payload) => {
+  return api.post('/signup', payload);
+}
+
+export const signupRequest = (payload) => {
+  return api.post('/signup', payload);
+};
