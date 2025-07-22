@@ -1,11 +1,14 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRouter, onBeforeRouteLeave } from 'vue-router';
 import './auth.css';
 import { checkEmailRequest } from '../../api/auth';
 import { checkNicknameRequest } from '../../api/auth';
 import { signupRequest } from '../../api/auth';
 import { doList, sigugunMap } from '../../assets/addressData';
+import { useAuthStore } from '../../stores/auth';
+
+const authStore = useAuthStore();
 
 const router = useRouter();
 const name = ref('');
@@ -56,7 +59,7 @@ const checkEmail = async () => {
   }
 };
 
-const checkNickname = async() => {
+const checkNickname = async () => {
   if (!nicknameInput.value.checkValidity()) {
     nicknameInput.value.reportValidity();
     return;
@@ -65,7 +68,7 @@ const checkNickname = async() => {
   nicknameChecking.value = true;
   try {
     const response = await checkNicknameRequest(nickname.value);
-    if(response.data.available) {
+    if (response.data.available) {
       nicknameCheckMessage.value = '사용 가능한 닉네임입니다.';
       nicknameChecked.value = true;
     } else {
@@ -149,6 +152,20 @@ const resetNickname = () => {
 const goToSignIn = () => {
   router.push('/login');
 };
+
+// 카카오 소셜 회원가입 일 경우 받아온 정보로 세팅
+onMounted(async () => {
+  email.value = authStore.email || '';
+  if (email.value !== '') {
+    emailChecked.value = true;
+    password.value = 'KAKAO ' + authStore.id;
+  }
+});
+
+// 해당 페이지를 벗어 날 경우 정보 초기화
+onBeforeRouteLeave(() => {
+  authStore.resetInfo(); // 초기화 함수 호출
+});
 </script>
 
 <template>
@@ -165,46 +182,141 @@ const goToSignIn = () => {
           <label>Name</label>
           <input type="text" v-model="name" required />
         </div>
-        <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px;">
-          <div style="flex: 1;">
+        <div
+          class="auth-input-group"
+          style="display: flex; align-items: center; gap: 8px"
+        >
+          <div style="flex: 1">
             <label>Nickname</label>
-            <input ref="nicknameInput" type="text" v-model="nickname" required :readonly="nicknameChecked" :class="{'input-checked': nicknameChecked}" />
-            <div v-if="nicknameCheckMessage" class="auth-error" style="margin-top: 4px;">{{ nicknameCheckMessage }}</div>
+            <input
+              ref="nicknameInput"
+              type="text"
+              v-model="nickname"
+              required
+              :readonly="nicknameChecked"
+              :class="{ 'input-checked': nicknameChecked }"
+            />
+            <div
+              v-if="nicknameCheckMessage"
+              class="auth-error"
+              style="margin-top: 4px"
+            >
+              {{ nicknameCheckMessage }}
+            </div>
           </div>
-          <button v-if="!nicknameChecked" type="button" class="auth-check-btn" @click="checkNickname" :disabled="nicknameChecking">중복 확인</button>
-          <button v-else type="button" class="auth-check-btn" @click="resetNickname" style="background: #fff; color: #8ab191; border: 1.5px solid #8ab191;">재입력</button>
+          <button
+            v-if="!nicknameChecked"
+            type="button"
+            class="auth-check-btn"
+            @click="checkNickname"
+            :disabled="nicknameChecking"
+          >
+            중복 확인
+          </button>
+          <button
+            v-else
+            type="button"
+            class="auth-check-btn"
+            @click="resetNickname"
+            style="
+              background: #fff;
+              color: #8ab191;
+              border: 1.5px solid #8ab191;
+            "
+          >
+            재입력
+          </button>
         </div>
-        <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px;">
-          <div style="flex: 1;">
+        <div
+          class="auth-input-group"
+          style="display: flex; align-items: center; gap: 8px"
+        >
+          <div style="flex: 1">
             <label>Email</label>
-            <input ref="emailInput" type="email" v-model="email" required :readonly="emailChecked" :class="{'input-checked': emailChecked}" />
-            <div v-if="emailCheckMessage" class="auth-error" style="margin-top: 4px;">{{ emailCheckMessage }}</div>
+            <input
+              ref="emailInput"
+              type="email"
+              v-model="email"
+              required
+              :readonly="emailChecked"
+              :class="{ 'input-checked': emailChecked }"
+            />
+            <div
+              v-if="emailCheckMessage"
+              class="auth-error"
+              style="margin-top: 4px"
+            >
+              {{ emailCheckMessage }}
+            </div>
           </div>
-          <button v-if="!emailChecked" type="button" class="auth-check-btn" @click="checkEmail" :disabled="emailChecking">중복 확인</button>
-          <button v-else type="button" class="auth-check-btn" @click="resetEmail" style="background: #fff; color: #8ab191; border: 1.5px solid #8ab191;">재입력</button>
+          <button
+            v-if="!emailChecked"
+            type="button"
+            class="auth-check-btn"
+            @click="checkEmail"
+            :disabled="emailChecking"
+          >
+            중복 확인
+          </button>
+          <button
+            v-else
+            type="button"
+            class="auth-check-btn"
+            @click="resetEmail"
+            style="
+              background: #fff;
+              color: #8ab191;
+              border: 1.5px solid #8ab191;
+            "
+          >
+            재입력
+          </button>
         </div>
-        <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px;">
-          <div style="flex: 1;">
+        <div
+          class="auth-input-group"
+          style="display: flex; align-items: center; gap: 8px"
+        >
+          <div style="flex: 1">
             <label>Address</label>
             <input type="text" v-model="address" required readonly />
           </div>
-          <button type="button" class="auth-check-btn" @click="inputAddress">주소 입력</button>
+          <button type="button" class="auth-check-btn" @click="inputAddress">
+            주소 입력
+          </button>
         </div>
         <div v-if="showAddressModal" class="modal-backdrop">
           <div class="modal-content">
-            <button class="modal-close" @click="showAddressModal = false">&times;</button>
+            <button class="modal-close" @click="showAddressModal = false">
+              &times;
+            </button>
             <div v-if="!selectedDo">
               <div class="modal-title">거주지(시/도) 선택</div>
               <div class="modal-btn-group">
-                <button v-for="doName in doList" :key="doName" @click="onSelectDo(doName)" class="modal-btn">{{ doName }}</button>
+                <button
+                  v-for="doName in doList"
+                  :key="doName"
+                  @click="onSelectDo(doName)"
+                  class="modal-btn"
+                >
+                  {{ doName }}
+                </button>
               </div>
             </div>
             <div v-else>
               <div class="modal-title">{{ selectedDo }}의 구/군 선택</div>
               <div class="modal-btn-group">
-                <button v-for="sigugun in sigugunMap[selectedDo]" :key="sigugun" @click="onSelectSigugun(sigugun)" class="modal-btn">{{ sigugun }}</button>
+                <button
+                  v-for="sigugun in sigugunMap[selectedDo]"
+                  :key="sigugun"
+                  @click="onSelectSigugun(sigugun)"
+                  class="modal-btn"
+                >
+                  {{ sigugun }}
+                </button>
               </div>
-              <button class="modal-back-btn" @click="selectedDo = ''">이전</button>
+              <button class="modal-back-btn" @click="selectedDo = ''">
+                이전
+              </button>
             </div>
           </div>
         </div>
@@ -212,9 +324,17 @@ const goToSignIn = () => {
           <label>Password</label>
           <input type="password" v-model="password" required />
         </div>
-        <button type="submit" class="auth-submit" :disabled="loading">Sign Up</button>
+        <button type="submit" class="auth-submit" :disabled="loading">
+          Sign Up
+        </button>
         <div v-if="errorMessage" class="auth-error">{{ errorMessage }}</div>
-        <div v-if="successMessage" class="auth-success" style="color: #7a9c7e; text-align: center; margin-top: 10px;">{{ successMessage }}</div>
+        <div
+          v-if="successMessage"
+          class="auth-success"
+          style="color: #7a9c7e; text-align: center; margin-top: 10px"
+        >
+          {{ successMessage }}
+        </div>
       </form>
     </div>
   </div>
