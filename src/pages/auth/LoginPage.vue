@@ -9,9 +9,13 @@ const router = useRouter();
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
+const emailError = ref('');
+const passwordError = ref('');
 const authStore = useAuthStore();
 
 const handleLogin = async () => {
+  emailError.value = '';
+  passwordError.value = '';
   errorMessage.value = '';
   const result = await authStore.login({
     email: email.value,
@@ -20,7 +24,13 @@ const handleLogin = async () => {
   if (result.success) {
     router.push('/');
   } else {
-    errorMessage.value = result.message;
+    if (result.message && result.message.includes('이메일')) {
+      emailError.value = result.message;
+    } else if (result.message && result.message.includes('비밀번호')) {
+      passwordError.value = result.message;
+    } else {
+      errorMessage.value = result.message;
+    }
   }
 };
 
@@ -39,10 +49,12 @@ const goToSignUp = () => {
         <div class="auth-input-group">
           <label>Email</label>
           <input type="email" v-model="email" required  />
+          <div v-if="emailError" class="auth-error">{{ emailError }}</div>
         </div>
         <div class="auth-input-group">
           <label>Password</label>
           <input type="password" v-model="password" required  />
+          <div v-if="passwordError" class="auth-error">{{ passwordError }}</div>
         </div>
         <div class="auth-divider">
           <span>Social LogIn</span>
