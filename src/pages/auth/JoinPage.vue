@@ -168,68 +168,20 @@ const goToSignIn = () => {
         <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px;">
           <div style="flex: 1;">
             <label>Nickname</label>
-            <input
-            ref="nicknameInput"
-            type="text"
-            v-model="nickname"
-            required
-            :readonly="nicknameChecked"
-            :class="{'input-checked': nicknameChecked}" 
-            />
-            <!-- 메시지 표시 -->
+            <input ref="nicknameInput" type="text" v-model="nickname" required :readonly="nicknameChecked" :class="{'input-checked': nicknameChecked}" />
             <div v-if="nicknameCheckMessage" class="auth-error" style="margin-top: 4px;">{{ nicknameCheckMessage }}</div>
           </div>
-          <button
-            v-if="!nicknameChecked"
-            type="button"
-            class="auth-check-btn"
-            @click="checkNickname"
-            :disabled="nicknameChecking"
-          >
-            중복 확인
-          </button>
-          <button
-            v-else
-            type="button"
-            class="auth-check-btn"
-            @click="resetNickname"
-            style="background: #fff; color: #8ab191; border: 1.5px solid #8ab191;"
-          >
-            재입력
-          </button>
+          <button v-if="!nicknameChecked" type="button" class="auth-check-btn" @click="checkNickname" :disabled="nicknameChecking">중복 확인</button>
+          <button v-else type="button" class="auth-check-btn" @click="resetNickname" style="background: #fff; color: #8ab191; border: 1.5px solid #8ab191;">재입력</button>
         </div>
         <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px;">
           <div style="flex: 1;">
             <label>Email</label>
-            <input
-              ref="emailInput"
-              type="email"
-              v-model="email"
-              required
-              :readonly="emailChecked"
-              :class="{'input-checked': emailChecked}"
-            />
-            <!-- 메시지 표시 -->
+            <input ref="emailInput" type="email" v-model="email" required :readonly="emailChecked" :class="{'input-checked': emailChecked}" />
             <div v-if="emailCheckMessage" class="auth-error" style="margin-top: 4px;">{{ emailCheckMessage }}</div>
           </div>
-          <button
-            v-if="!emailChecked"
-            type="button"
-            class="auth-check-btn"
-            @click="checkEmail"
-            :disabled="emailChecking"
-          >
-            중복 확인
-          </button>
-          <button
-            v-else
-            type="button"
-            class="auth-check-btn"
-            @click="resetEmail"
-            style="background: #fff; color: #8ab191; border: 1.5px solid #8ab191;"
-          >
-            재입력
-          </button>
+          <button v-if="!emailChecked" type="button" class="auth-check-btn" @click="checkEmail" :disabled="emailChecking">중복 확인</button>
+          <button v-else type="button" class="auth-check-btn" @click="resetEmail" style="background: #fff; color: #8ab191; border: 1.5px solid #8ab191;">재입력</button>
         </div>
         <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px;">
           <div style="flex: 1;">
@@ -238,30 +190,19 @@ const goToSignIn = () => {
           </div>
           <button type="button" class="auth-check-btn" @click="inputAddress">주소 입력</button>
         </div>
-        <!-- Address Modal -->
         <div v-if="showAddressModal" class="modal-backdrop">
           <div class="modal-content">
             <button class="modal-close" @click="showAddressModal = false">&times;</button>
             <div v-if="!selectedDo">
               <div class="modal-title">거주지(시/도) 선택</div>
               <div class="modal-btn-group">
-                <button
-                  v-for="doName in doList"
-                  :key="doName"
-                  @click="onSelectDo(doName)"
-                  class="modal-btn"
-                >{{ doName }}</button>
+                <button v-for="doName in doList" :key="doName" @click="onSelectDo(doName)" class="modal-btn">{{ doName }}</button>
               </div>
             </div>
             <div v-else>
               <div class="modal-title">{{ selectedDo }}의 구/군 선택</div>
               <div class="modal-btn-group">
-                <button
-                  v-for="sigugun in sigugunMap[selectedDo]"
-                  :key="sigugun"
-                  @click="onSelectSigugun(sigugun)"
-                  class="modal-btn"
-                >{{ sigugun }}</button>
+                <button v-for="sigugun in sigugunMap[selectedDo]" :key="sigugun" @click="onSelectSigugun(sigugun)" class="modal-btn">{{ sigugun }}</button>
               </div>
               <button class="modal-back-btn" @click="selectedDo = ''">이전</button>
             </div>
@@ -270,7 +211,7 @@ const goToSignIn = () => {
         <div class="auth-input-group">
           <label>Password</label>
           <input type="password" v-model="password" required />
-        </div>        
+        </div>
         <button type="submit" class="auth-submit" :disabled="loading">Sign Up</button>
         <div v-if="errorMessage" class="auth-error">{{ errorMessage }}</div>
         <div v-if="successMessage" class="auth-success" style="color: #7a9c7e; text-align: center; margin-top: 10px;">{{ successMessage }}</div>

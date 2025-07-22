@@ -48,28 +48,20 @@ const goToSignUp = () => {
       <form @submit.prevent="handleLogin">
         <div class="auth-input-group">
           <label>Email</label>
-          <input type="email" v-model="email" required  />
+          <input type="email" v-model="email" required />
           <div v-if="emailError" class="auth-error">{{ emailError }}</div>
         </div>
         <div class="auth-input-group">
           <label>Password</label>
-          <input type="password" v-model="password" required  />
+          <input type="password" v-model="password" required />
           <div v-if="passwordError" class="auth-error">{{ passwordError }}</div>
         </div>
-        <div class="auth-divider">
-          <span>Social LogIn</span>
-        </div>
+        <div class="auth-divider"><span>Social LogIn</span></div>
         <div class="auth-social-row">
-          <button type="button" class="auth-social-btn">
-            <span class="icon-google"></span> Google
-          </button>
-          <button type="button" class="auth-social-btn">
-            <span class="icon-kakao"></span> Kakao
-          </button>
+          <button type="button" class="auth-social-btn"><span class="icon-google"></span> Google</button>
+          <button type="button" class="auth-social-btn"><span class="icon-kakao"></span> Kakao</button>
         </div>
-        <div class="auth-forgot">
-          <a href="#">Forgot Password</a>
-        </div>
+        <div class="auth-forgot"><a href="#">Forgot Password</a></div>
         <button type="submit" class="auth-submit">Log In</button>
         <div v-if="errorMessage" class="auth-error">{{ errorMessage }}</div>
       </form>
