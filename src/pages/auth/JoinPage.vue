@@ -139,12 +139,23 @@ const checkEmail = async () => {
   }
 };
 
+// 이메일인증
 const handleShowVerificationInput = () => {
+  authStore.sendEmail(authStore.user.email);
   showVerificationInput.value = true;
 };
 
 const verifyCode = async () => {
   // 실제 인증 기능은 추후 구현
+
+  if (!/^\d+$/.test(verificationCode.value)) {
+    return;
+  }
+
+  authStore.checkEmailCode(
+    authStore.user.email,
+    parseInt(verificationCode.value)
+  );
 };
 </script>
 
@@ -162,7 +173,10 @@ const verifyCode = async () => {
           <label>Name</label>
           <input type="text" v-model="authStore.user.name" required />
         </div>
-        <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px">
+        <div
+          class="auth-input-group"
+          style="display: flex; align-items: center; gap: 8px"
+        >
           <div style="flex: 1">
             <label>Nickname</label>
             <input
@@ -173,7 +187,11 @@ const verifyCode = async () => {
               :readonly="authStore.nicknameChecked"
               :class="{ 'input-checked': authStore.nicknameChecked }"
             />
-            <div v-if="authStore.nicknameCheckMessage" class="auth-error" style="margin-top: 4px">
+            <div
+              v-if="authStore.nicknameCheckMessage"
+              class="auth-error"
+              style="margin-top: 4px"
+            >
               {{ authStore.nicknameCheckMessage }}
             </div>
           </div>
@@ -191,12 +209,19 @@ const verifyCode = async () => {
             type="button"
             class="auth-check-btn"
             @click="resetNickname"
-            style="background: #fff; color: #8ab191; border: 1.5px solid #8ab191;"
+            style="
+              background: #fff;
+              color: #8ab191;
+              border: 1.5px solid #8ab191;
+            "
           >
             재입력
           </button>
         </div>
-        <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px">
+        <div
+          class="auth-input-group"
+          style="display: flex; align-items: center; gap: 8px"
+        >
           <div style="flex: 1">
             <label>Email</label>
             <input
@@ -207,7 +232,11 @@ const verifyCode = async () => {
               :readonly="authStore.emailChecked"
               :class="{ 'input-checked': authStore.emailChecked }"
             />
-            <div v-if="authStore.emailCheckMessage" class="auth-error" style="margin-top: 4px">
+            <div
+              v-if="authStore.emailCheckMessage"
+              class="auth-error"
+              style="margin-top: 4px"
+            >
               {{ authStore.emailCheckMessage }}
             </div>
           </div>
@@ -225,17 +254,38 @@ const verifyCode = async () => {
             type="button"
             class="auth-check-btn"
             @click="resetEmail"
-            style="background: #fff; color: #8ab191; border: 1.5px solid #8ab191;"
+            style="
+              background: #fff;
+              color: #8ab191;
+              border: 1.5px solid #8ab191;
+            "
           >
             재입력
           </button>
         </div>
-        <div v-if="showSendVerification && !emailVerified && !showVerificationInput" style="margin-bottom: 8px;">
-          <button type="button" class="auth-check-btn" @click="handleShowVerificationInput">
+        <div
+          v-if="
+            showSendVerification && !emailVerified && !showVerificationInput
+          "
+          style="margin-bottom: 8px"
+        >
+          <button
+            type="button"
+            class="auth-check-btn"
+            @click="handleShowVerificationInput"
+          >
             이메일 인증하기
           </button>
         </div>
-        <div v-if="showVerificationInput && !emailVerified" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+        <div
+          v-if="showVerificationInput && !emailVerified"
+          style="
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+          "
+        >
           <input
             type="text"
             v-model="verificationCode"
@@ -246,14 +296,30 @@ const verifyCode = async () => {
             인증 확인
           </button>
         </div>
-        <div v-if="verificationError" class="auth-error">{{ verificationError }}</div>
-        <div v-if="emailVerified" class="auth-success" style="color: #7a9c7e;">이메일 인증 완료!</div>
-        <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px">
+        <div v-if="verificationError" class="auth-error">
+          {{ verificationError }}
+        </div>
+        <div v-if="emailVerified" class="auth-success" style="color: #7a9c7e">
+          이메일 인증 완료!
+        </div>
+        <div
+          class="auth-input-group"
+          style="display: flex; align-items: center; gap: 8px"
+        >
           <div style="flex: 1">
             <label>Address</label>
-            <input type="text" v-model="authStore.user.address" required readonly />
+            <input
+              type="text"
+              v-model="authStore.user.address"
+              required
+              readonly
+            />
           </div>
-          <button type="button" class="auth-check-btn" @click="openAddressModal">
+          <button
+            type="button"
+            class="auth-check-btn"
+            @click="openAddressModal"
+          >
             주소 입력
           </button>
         </div>
@@ -271,11 +337,21 @@ const verifyCode = async () => {
           <label>Password</label>
           <input type="password" v-model="authStore.password" required />
         </div>
-        <button type="submit" class="auth-submit" :disabled="authStore.loading || !canSubmit">
+        <button
+          type="submit"
+          class="auth-submit"
+          :disabled="authStore.loading || !canSubmit"
+        >
           Sign Up
         </button>
-        <div v-if="authStore.errorMessage" class="auth-error">{{ authStore.errorMessage }}</div>
-        <div v-if="authStore.successMessage" class="auth-success" style="color: #7a9c7e; text-align: center; margin-top: 10px">
+        <div v-if="authStore.errorMessage" class="auth-error">
+          {{ authStore.errorMessage }}
+        </div>
+        <div
+          v-if="authStore.successMessage"
+          class="auth-success"
+          style="color: #7a9c7e; text-align: center; margin-top: 10px"
+        >
           {{ authStore.successMessage }}
         </div>
       </form>
