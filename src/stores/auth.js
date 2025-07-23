@@ -73,7 +73,15 @@ export const useAuthStore = defineStore('auth', {
 
     // 소셜 로그인 정보 세팅
     setSocialInfo({ id, name, nickname, email, profile, birthday, type }) {
-      this.user = { ...this.user, id, name, nickname, email, profile, birthday };
+      this.user = {
+        ...this.user,
+        id,
+        name,
+        nickname,
+        email,
+        profile,
+        birthday,
+      };
       this.socialType = type || '';
       this.emailChecked = true;
       // 소셜 로그인 시 비밀번호 자동 세팅
@@ -120,10 +128,15 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await authApi.checkEmail(email);
         this.emailChecked = response.available;
-        this.emailCheckMessage = response.message || (response.available ? '사용 가능한 이메일입니다.' : '이미 사용 중인 이메일입니다.');
+        this.emailCheckMessage =
+          response.message ||
+          (response.available
+            ? '사용 가능한 이메일입니다.'
+            : '이미 사용 중인 이메일입니다.');
       } catch (error) {
         this.emailChecked = false;
-        this.emailCheckMessage = error.response?.data?.message || '이메일 중복 확인에 실패했습니다.';
+        this.emailCheckMessage =
+          error.response?.data?.message || '이메일 중복 확인에 실패했습니다.';
       } finally {
         this.emailChecking = false;
       }
@@ -135,15 +148,52 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await authApi.checkNickname(nickname);
         this.nicknameChecked = response.available;
-        this.nicknameCheckMessage = response.message || (response.available ? '사용 가능한 닉네임입니다.' : '이미 사용 중인 닉네임입니다.');
+        this.nicknameCheckMessage =
+          response.message ||
+          (response.available
+            ? '사용 가능한 닉네임입니다.'
+            : '이미 사용 중인 닉네임입니다.');
       } catch (error) {
         this.nicknameChecked = false;
-        this.nicknameCheckMessage = error.response?.data?.message || '닉네임 중복 확인에 실패했습니다.';
+        this.nicknameCheckMessage =
+          error.response?.data?.message || '닉네임 중복 확인에 실패했습니다.';
       } finally {
         this.nicknameChecking = false;
       }
     },
 
+    async sendEmail(email) {
+      try {
+        const response = await authApi.sendToEmail({ email }); // 👈 이렇게 JSON으로!
+        console.log(response.data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        // any cleanup
+      }
+    },
+
+    async checkEmailCode(email, code) {
+      try {
+        const response = await authApi.checkEmailCode({ email, code });
+        console.log('응답은??');
+        console.log(response);
+        console.log('응답은??');
+
+        if (response.success) {
+          console.log('✅ 이메일 인증 성공');
+          // 추가 성공 로직
+        } else {
+          console.warn('❌ 이메일 인증 실패:', response.data.message);
+          // 실패 처리 (예: 사용자에게 메시지 보여주기)
+        }
+      } catch (error) {
+        console.error('🚨 서버 에러 발생', error);
+        // 네트워크 오류나 예외 처리
+      } finally {
+        // any cleanup
+      }
+    },
     // 주소 모달
     openAddressModal() {
       this.showAddressModal = true;
@@ -172,7 +222,8 @@ export const useAuthStore = defineStore('auth', {
         this.successMessage = response.message || '회원가입이 완료되었습니다!';
         return { success: true };
       } catch (error) {
-        this.errorMessage = error.response?.data?.message || '회원가입에 실패했습니다.';
+        this.errorMessage =
+          error.response?.data?.message || '회원가입에 실패했습니다.';
         return { success: false };
       } finally {
         this.loading = false;
