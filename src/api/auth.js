@@ -58,7 +58,8 @@ export default {
   
   // 비밀번호 재설정
   async resetPassword(payload) {
-    const { data } = await api.post('/password/reset', payload);
+    console.log('resetPassword payload:', payload); // 추가
+    const { data } = await api.post('/auth/password/reset', payload);
     return data;
   },
 };

@@ -10,6 +10,7 @@ const authStore = useAuthStore();
 
 const step = ref('email'); // 'email' | 'verify' | 'reset' | 'done'
 const email = ref('');
+const verifiedEmail = ref(''); // 인증된 이메일 저장
 const code = ref('');
 const codeSent = ref(false);
 const codeVerified = ref(false);
@@ -58,6 +59,7 @@ async function verifyCode() {
       codeVerified.value = true;
       step.value = 'reset';
       message.value = '이메일 인증 성공!';
+      verifiedEmail.value = email.value; // 인증된 이메일 저장
     } else {
       message.value = '인증번호가 올바르지 않습니다.';
     }
@@ -69,6 +71,7 @@ async function verifyCode() {
 }
 
 async function resetPassword() {
+  console.log('resetPassword 함수 진입'); // 이 로그가 찍히는지 확인
   if (!newPassword.value || newPassword.value !== confirmPassword.value) {
     message.value = '비밀번호가 일치하지 않습니다.';
     return;
@@ -76,10 +79,12 @@ async function resetPassword() {
   loading.value = true;
   message.value = '';
   try {
+    console.log('비밀번호 변경 요청:', verifiedEmail.value, newPassword.value); // 추가
     const data = await authStore.resetPassword({
-      email: email.value,
+      email: verifiedEmail.value,
       newPassword: newPassword.value,
     });
+    console.log('비밀번호 변경 응답:', data); // 추가
     if (data.success) {
       step.value = 'done';
       message.value = '비밀번호가 성공적으로 변경되었습니다.';
@@ -88,6 +93,7 @@ async function resetPassword() {
     }
   } catch (e) {
     message.value = '비밀번호 변경 요청에 실패했습니다.';
+    console.error(e); // 추가
   } finally {
     loading.value = false;
   }
@@ -108,6 +114,7 @@ async function resetPassword() {
         <button class="modal-btn" @click="verifyCode" :disabled="loading || !code">인증 확인</button>
       </div>
       <div v-else-if="step === 'reset'">
+        <input v-model="email" type="email" placeholder="이메일 입력" :readonly="codeVerified" style="width:100%;margin-bottom:8px;" />
         <input v-model="newPassword" type="password" placeholder="새 비밀번호 입력" style="width:100%;margin-bottom:8px;" />
         <input v-model="confirmPassword" type="password" placeholder="비밀번호 확인" style="width:100%;margin-bottom:8px;" />
         <button class="modal-btn" @click="resetPassword" :disabled="loading || !newPassword || !confirmPassword">비밀번호 변경</button>

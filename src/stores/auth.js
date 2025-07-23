@@ -235,5 +235,15 @@ export const useAuthStore = defineStore('auth', {
         this.loading = false;
       }
     },
+
+    // 비밀번호 재설정
+    async resetPassword({ email, newPassword }) {
+      try {
+        const res = await authApi.resetPassword({ email, newPassword });
+        return res;
+      } catch (e) {
+        return { success: false, message: '비밀번호 변경 요청에 실패했습니다.' };
+      }
+    },
   },
 });
