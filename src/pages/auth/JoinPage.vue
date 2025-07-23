@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter, onBeforeRouteLeave } from 'vue-router';
 import './auth.css';
 import { doList, sigugunMap } from '../../assets/addressData';
@@ -18,16 +18,28 @@ const verificationCode = ref('');
 const verificationSent = ref(false);
 const verificationError = ref('');
 
+const canSubmit = computed(() => {
+  return (
+    !!authStore.user.name &&
+    !!authStore.user.nickname &&
+    !!authStore.user.email &&
+    !!authStore.password &&
+    !!authStore.user.address &&
+    authStore.emailChecked &&
+    authStore.nicknameChecked
+  );
+});
+
 const checkNickname = async () => {
   if (!nicknameInput.value.checkValidity()) {
     nicknameInput.value.reportValidity();
     return;
   }
-  if (!authStore.nickname || authStore.nickname.trim() === '') {
+  if (!authStore.user.nickname || authStore.user.nickname.trim() === '') {
     authStore.nicknameCheckMessage = '닉네임을 입력해주세요.';
     return;
   }
-  await authStore.checkNickname(authStore.nickname);
+  await authStore.checkNickname(authStore.user.nickname);
 };
 
 const openAddressModal = () => {
@@ -36,19 +48,19 @@ const openAddressModal = () => {
 
 const handleSignUp = async () => {
   // 유효성 검사
-  if (!authStore.name || authStore.name.trim() === '') {
+  if (!authStore.user.name || authStore.user.name.trim() === '') {
     authStore.errorMessage = '이름을 입력해주세요.';
     return;
   }
-  if (!authStore.nickname || authStore.nickname.trim() === '') {
+  if (!authStore.user.nickname || authStore.user.nickname.trim() === '') {
     authStore.errorMessage = '닉네임을 입력해주세요.';
     return;
   }
-  if (!authStore.email || authStore.email.trim() === '') {
+  if (!authStore.user.email || authStore.user.email.trim() === '') {
     authStore.errorMessage = '이메일을 입력해주세요.';
     return;
   }
-  if (!authStore.address || authStore.address.trim() === '') {
+  if (!authStore.user.address || authStore.user.address.trim() === '') {
     authStore.errorMessage = '주소를 입력해주세요.';
     return;
   }
@@ -56,7 +68,6 @@ const handleSignUp = async () => {
     authStore.errorMessage = '비밀번호를 입력해주세요.';
     return;
   }
-
   if (!authStore.emailChecked) {
     authStore.errorMessage = '이메일 중복확인을 해주세요.';
     return;
@@ -65,21 +76,16 @@ const handleSignUp = async () => {
     authStore.errorMessage = '닉네임 중복확인을 해주세요.';
     return;
   }
-
-  const result = await authStore.signup({
-    name: authStore.name,
-    nickname: authStore.nickname,
-    email: authStore.email,
-    address: authStore.address,
-    password: authStore.password,
-  });
+  const result = await authStore.signup();
   if (result.success) {
     setTimeout(() => router.push('/login'), 1000);
   }
 };
 
 const resetEmail = () => {
-  authStore.resetEmail();
+  authStore.setUserField('email', '');
+  authStore.emailChecked = false;
+  authStore.emailCheckMessage = '';
   showSendVerification.value = false;
   showVerificationInput.value = false;
   verificationCode.value = '';
@@ -88,30 +94,22 @@ const resetEmail = () => {
 };
 
 const resetNickname = () => {
-  authStore.resetNickname();
+  authStore.setUserField('nickname', '');
+  authStore.nicknameChecked = false;
+  authStore.nicknameCheckMessage = '';
 };
 
 const goToSignIn = () => {
-  authStore.resetJoinLoginState();
+  authStore.resetAll();
   router.push('/login');
 };
 
-// 카카오 소셜 회원가입 일 경우 받아온 정보로 세팅
-onMounted(async () => {
-  if (!authStore.id) {
-    authStore.email = '';
-    authStore.emailChecked = false;
-    authStore.password = '';
-  } else {
-    authStore.emailChecked = true;
-    authStore.password = 'KAKAO ' + authStore.id;
-  }
+onMounted(() => {
+  // 소셜 로그인 정보가 있으면 자동 세팅됨
 });
 
-// 해당 페이지를 벗어 날 경우 정보 초기화
 onBeforeRouteLeave(() => {
-  authStore.resetInfo();
-  authStore.resetJoinLoginState();
+  authStore.resetAll();
 });
 
 const handleModalClose = () => {
@@ -126,32 +124,27 @@ const handleSelectSigugun = (sigugunName) => {
   authStore.onSelectSigugun(sigugunName);
 };
 
-// 이메일 중복확인 후 인증 버튼 노출
 const checkEmail = async () => {
   if (!emailInput.value.checkValidity()) {
     emailInput.value.reportValidity();
     return;
   }
-  if (!authStore.email || authStore.email.trim() === '') {
+  if (!authStore.user.email || authStore.user.email.trim() === '') {
     authStore.emailCheckMessage = '이메일을 입력해주세요.';
     return;
   }
-  
-  await authStore.checkEmail(authStore.email);
+  await authStore.checkEmail(authStore.user.email);
   if (authStore.emailChecked) {
     showSendVerification.value = true;
   }
 };
 
-// 인증하기 버튼 클릭 시 인증번호 입력란 노출
 const handleShowVerificationInput = () => {
   showVerificationInput.value = true;
 };
 
-// 인증번호 확인 (기능 미구현)
 const verifyCode = async () => {
   // 실제 인증 기능은 추후 구현
-  // 예시: 인증 성공 시 emailVerified.value = true;
 };
 </script>
 
@@ -167,27 +160,20 @@ const verifyCode = async () => {
       <form @submit.prevent="handleSignUp">
         <div class="auth-input-group">
           <label>Name</label>
-          <input type="text" v-model="authStore.name" required />
+          <input type="text" v-model="authStore.user.name" required />
         </div>
-        <div
-          class="auth-input-group"
-          style="display: flex; align-items: center; gap: 8px"
-        >
+        <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px">
           <div style="flex: 1">
             <label>Nickname</label>
             <input
               ref="nicknameInput"
               type="text"
-              v-model="authStore.nickname"
+              v-model="authStore.user.nickname"
               required
               :readonly="authStore.nicknameChecked"
               :class="{ 'input-checked': authStore.nicknameChecked }"
             />
-            <div
-              v-if="authStore.nicknameCheckMessage"
-              class="auth-error"
-              style="margin-top: 4px"
-            >
+            <div v-if="authStore.nicknameCheckMessage" class="auth-error" style="margin-top: 4px">
               {{ authStore.nicknameCheckMessage }}
             </div>
           </div>
@@ -205,34 +191,23 @@ const verifyCode = async () => {
             type="button"
             class="auth-check-btn"
             @click="resetNickname"
-            style="
-              background: #fff;
-              color: #8ab191;
-              border: 1.5px solid #8ab191;
-            "
+            style="background: #fff; color: #8ab191; border: 1.5px solid #8ab191;"
           >
             재입력
           </button>
         </div>
-        <div
-          class="auth-input-group"
-          style="display: flex; align-items: center; gap: 8px"
-        >
+        <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px">
           <div style="flex: 1">
             <label>Email</label>
             <input
               ref="emailInput"
               type="email"
-              v-model="authStore.email"
+              v-model="authStore.user.email"
               required
               :readonly="authStore.emailChecked"
               :class="{ 'input-checked': authStore.emailChecked }"
             />
-            <div
-              v-if="authStore.emailCheckMessage"
-              class="auth-error"
-              style="margin-top: 4px"
-            >
+            <div v-if="authStore.emailCheckMessage" class="auth-error" style="margin-top: 4px">
               {{ authStore.emailCheckMessage }}
             </div>
           </div>
@@ -250,24 +225,16 @@ const verifyCode = async () => {
             type="button"
             class="auth-check-btn"
             @click="resetEmail"
-            style="
-              background: #fff;
-              color: #8ab191;
-              border: 1.5px solid #8ab191;
-            "
+            style="background: #fff; color: #8ab191; border: 1.5px solid #8ab191;"
           >
             재입력
           </button>
         </div>
-
-        <!-- 이메일 인증하기 버튼 -->
         <div v-if="showSendVerification && !emailVerified && !showVerificationInput" style="margin-bottom: 8px;">
           <button type="button" class="auth-check-btn" @click="handleShowVerificationInput">
             이메일 인증하기
           </button>
         </div>
-
-        <!-- 인증번호 입력 및 확인 (기능 미구현) -->
         <div v-if="showVerificationInput && !emailVerified" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
           <input
             type="text"
@@ -281,13 +248,10 @@ const verifyCode = async () => {
         </div>
         <div v-if="verificationError" class="auth-error">{{ verificationError }}</div>
         <div v-if="emailVerified" class="auth-success" style="color: #7a9c7e;">이메일 인증 완료!</div>
-        <div
-          class="auth-input-group"
-          style="display: flex; align-items: center; gap: 8px"
-        >
+        <div class="auth-input-group" style="display: flex; align-items: center; gap: 8px">
           <div style="flex: 1">
             <label>Address</label>
-            <input type="text" v-model="authStore.address" required readonly />
+            <input type="text" v-model="authStore.user.address" required readonly />
           </div>
           <button type="button" class="auth-check-btn" @click="openAddressModal">
             주소 입력
@@ -307,15 +271,11 @@ const verifyCode = async () => {
           <label>Password</label>
           <input type="password" v-model="authStore.password" required />
         </div>
-        <button type="submit" class="auth-submit" :disabled="authStore.loading">
+        <button type="submit" class="auth-submit" :disabled="authStore.loading || !canSubmit">
           Sign Up
         </button>
         <div v-if="authStore.errorMessage" class="auth-error">{{ authStore.errorMessage }}</div>
-        <div
-          v-if="authStore.successMessage"
-          class="auth-success"
-          style="color: #7a9c7e; text-align: center; margin-top: 10px"
-        >
+        <div v-if="authStore.successMessage" class="auth-success" style="color: #7a9c7e; text-align: center; margin-top: 10px">
           {{ authStore.successMessage }}
         </div>
       </form>

@@ -18,25 +18,19 @@ onMounted(async () => {
 const kakaoFunc = async () => {
   try {
     const code = new URL(window.location.href).searchParams.get('code');
-    
-    if (!code) {
-      throw new Error('인증 코드가 없습니다.');
-    }
-    
+    if (!code) throw new Error('인증 코드가 없습니다.');
     const res = await authApi.kakaoLogin(code);
-
     if (res.token) {
-      // ✅ 토큰이 있으면 로그인 완료 → 토큰 저장 + 이동
       authStore.setToken(res.token);
       router.replace('/');
     } else {
-      // ✅ 토큰이 없으면 회원가입 페이지로 값 전달
-      authStore.setInfo({
+      authStore.setSocialInfo({
         id: res.id,
         nickname: res.nickname,
         email: res.email,
         profile: res.profile,
         birthday: res.birthday,
+        type: 'kakao',
       });
       router.push('/join');
     }
@@ -59,7 +53,6 @@ const kakaoFunc = async () => {
       <p>로그인 페이지로 이동합니다...</p>
     </div>
     <div v-else>
-      <!-- 실제 컨텐츠 -->
       <h1>페이지 본문입니다</h1>
     </div>
   </div>

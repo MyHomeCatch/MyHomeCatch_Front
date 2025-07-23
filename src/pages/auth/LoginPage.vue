@@ -5,13 +5,13 @@ import { useRouter } from 'vue-router';
 import './auth.css';
 
 const router = useRouter();
+const authStore = useAuthStore();
 
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
 const emailError = ref('');
 const passwordError = ref('');
-const authStore = useAuthStore();
 
 const handleLogin = async () => {
   // 입력값 초기화
@@ -48,6 +48,7 @@ const handleLogin = async () => {
 };
 
 const goToSignUp = () => {
+  authStore.resetAll();
   router.push('/join');
 };
 
@@ -62,11 +63,8 @@ const google_redirect_uri = 'http://localhost:5173/auth/googleloading';
 const googleURL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=621454264251-e7vmm3ltoi2p27krvctie68fjtnjhfub.apps.googleusercontent.com&redirect_uri=${google_redirect_uri}&response_type=code&scope=email%20profile`;
 
 const handleGoogleLogin = () => {
-  console.log('Google login clicked');
   window.location.href = googleURL;
 };
-
-console.log('hello');
 </script>
 
 <template>
@@ -87,11 +85,7 @@ console.log('hello');
         </div>
         <div class="auth-divider"><span>Social LogIn</span></div>
         <div class="auth-social-row">
-          <button
-            type="button"
-            class="auth-social-btn"
-            @click="handleGoogleLogin"
-          >
+          <button type="button" class="auth-social-btn" @click="handleGoogleLogin">
             <span class="icon-google"></span> Google
           </button>
           <button @click="kakaoLogin" type="button" class="auth-social-btn">
