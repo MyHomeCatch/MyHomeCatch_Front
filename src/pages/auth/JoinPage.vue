@@ -154,7 +154,7 @@ const verifyCode = async () => {
 
   authStore.checkEmailCode(
     authStore.user.email,
-    parseInt(verificationCode.value)
+    verificationCode.value
   );
 };
 </script>
@@ -264,9 +264,7 @@ const verifyCode = async () => {
           </button>
         </div>
         <div
-          v-if="
-            showSendVerification && !emailVerified && !showVerificationInput
-          "
+          v-if="showSendVerification && !authStore.emailVerified && !showVerificationInput"
           style="margin-bottom: 8px"
         >
           <button
@@ -278,7 +276,7 @@ const verifyCode = async () => {
           </button>
         </div>
         <div
-          v-if="showVerificationInput && !emailVerified"
+          v-if="showVerificationInput && !authStore.emailVerified"
           style="
             display: flex;
             gap: 8px;
@@ -296,11 +294,11 @@ const verifyCode = async () => {
             인증 확인
           </button>
         </div>
+        <div v-if="authStore.emailVerified" style="margin-bottom: 8px; color: #8ab191; font-weight: bold;">
+          이메일 인증 완료
+        </div>
         <div v-if="verificationError" class="auth-error">
           {{ verificationError }}
-        </div>
-        <div v-if="emailVerified" class="auth-success" style="color: #7a9c7e">
-          이메일 인증 완료!
         </div>
         <div
           class="auth-input-group"

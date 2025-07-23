@@ -55,8 +55,14 @@ export default {
     const { data } = await api.post('/email/check', payload);
     return data;
   },
+  
+  // 비밀번호 재설정
+  async resetPassword(payload) {
+    const { data } = await api.post('/password/reset', payload);
+    return data;
+  },
 };
 
 export const loginRequest = (payload) => {
-  return api.post('/login', payload);
+  return api.post('/auth/login', payload);
 };

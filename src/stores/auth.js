@@ -41,6 +41,7 @@ export const useAuthStore = defineStore('auth', {
     loading: false,
     errorMessage: '',
     successMessage: '',
+    emailVerified: false, // 이메일 인증 상태 추가
   }),
 
   actions: {
@@ -119,6 +120,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = false;
       this.errorMessage = '';
       this.successMessage = '';
+      this.emailVerified = false; // 초기화 시 이메일 인증 상태도 초기화
     },
 
     // 이메일/닉네임 중복확인
@@ -182,13 +184,17 @@ export const useAuthStore = defineStore('auth', {
 
         if (response.success) {
           console.log('✅ 이메일 인증 성공');
+          this.emailVerified = true; // <-- 인증 성공 시 상태 저장
+          this.emailCheckMessage = ''; // 인증 성공 시 메시지 제거
           // 추가 성공 로직
         } else {
           console.warn('❌ 이메일 인증 실패:', response.data.message);
+          this.emailVerified = false; // 인증 실패 시 false
           // 실패 처리 (예: 사용자에게 메시지 보여주기)
         }
       } catch (error) {
         console.error('🚨 서버 에러 발생', error);
+        this.emailVerified = false; // 에러 시 false
         // 네트워크 오류나 예외 처리
       } finally {
         // any cleanup

@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { useRouter } from 'vue-router';
 import './auth.css';
+import PasswordResetModal from '../../components/modals/PasswordResetModal.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -12,6 +13,8 @@ const password = ref('');
 const errorMessage = ref('');
 const emailError = ref('');
 const passwordError = ref('');
+
+const showPwModal = ref(false);
 
 const handleLogin = async () => {
   // 입력값 초기화
@@ -92,7 +95,7 @@ const handleGoogleLogin = () => {
             <span class="icon-kakao"></span> Kakao
           </button>
         </div>
-        <div class="auth-forgot"><a href="#">Forgot Password</a></div>
+        <div class="auth-forgot"><a href="#" @click.prevent="showPwModal = true">Forgot Password</a></div>
         <button type="submit" class="auth-submit">Log In</button>
         <div v-if="errorMessage" class="auth-error">{{ errorMessage }}</div>
       </form>
@@ -101,5 +104,6 @@ const handleGoogleLogin = () => {
       <p>Don't have an account?</p>
       <button class="auth-side-btn" @click="goToSignUp">Sign Up</button>
     </div>
+    <PasswordResetModal :show="showPwModal" @close="showPwModal = false" />
   </div>
 </template>
