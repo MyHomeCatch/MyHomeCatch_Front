@@ -10,6 +10,14 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'selectDo', 'selectSigugun']);
+
+const handleSelectSigugun = (sigugun) => {
+  emit('selectSigugun', sigugun);
+  // 구/군 선택 후 모달 닫기
+  setTimeout(() => {
+    emit('close');
+  }, 100);
+};
 </script>
 
 <template>
@@ -35,7 +43,7 @@ const emit = defineEmits(['close', 'selectDo', 'selectSigugun']);
           <button
             v-for="sigugun in sigugunMap[selectedDo]"
             :key="sigugun"
-            @click="$emit('selectSigugun', sigugun)"
+            @click="handleSelectSigugun(sigugun)"
             class="modal-btn"
           >
             {{ sigugun }}

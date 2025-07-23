@@ -7,7 +7,6 @@ import { useAuthStore } from '../../stores/auth';
 import AddressModal from '../../components/modals/AddressModal.vue';
 
 const authStore = useAuthStore();
-
 const router = useRouter();
 const emailInput = ref(null);
 const nicknameInput = ref(null);
@@ -24,6 +23,10 @@ const checkNickname = async () => {
     nicknameInput.value.reportValidity();
     return;
   }
+  if (!authStore.nickname || authStore.nickname.trim() === '') {
+    authStore.nicknameCheckMessage = '닉네임을 입력해주세요.';
+    return;
+  }
   await authStore.checkNickname(authStore.nickname);
 };
 
@@ -32,18 +35,34 @@ const openAddressModal = () => {
 };
 
 const handleSignUp = async () => {
-  authStore.errorMessage = '';
-  authStore.successMessage = '';
-  authStore.loading = true;
+  // 유효성 검사
+  if (!authStore.name || authStore.name.trim() === '') {
+    authStore.errorMessage = '이름을 입력해주세요.';
+    return;
+  }
+  if (!authStore.nickname || authStore.nickname.trim() === '') {
+    authStore.errorMessage = '닉네임을 입력해주세요.';
+    return;
+  }
+  if (!authStore.email || authStore.email.trim() === '') {
+    authStore.errorMessage = '이메일을 입력해주세요.';
+    return;
+  }
+  if (!authStore.address || authStore.address.trim() === '') {
+    authStore.errorMessage = '주소를 입력해주세요.';
+    return;
+  }
+  if (!authStore.password || authStore.password.trim() === '') {
+    authStore.errorMessage = '비밀번호를 입력해주세요.';
+    return;
+  }
 
   if (!authStore.emailChecked) {
     authStore.errorMessage = '이메일 중복확인을 해주세요.';
-    authStore.loading = false;
     return;
   }
   if (!authStore.nicknameChecked) {
     authStore.errorMessage = '닉네임 중복확인을 해주세요.';
-    authStore.loading = false;
     return;
   }
 
@@ -98,9 +117,11 @@ onBeforeRouteLeave(() => {
 const handleModalClose = () => {
   authStore.showAddressModal = false;
 };
+
 const handleSelectDo = (doName) => {
   authStore.onSelectDo(doName);
 };
+
 const handleSelectSigugun = (sigugunName) => {
   authStore.onSelectSigugun(sigugunName);
 };
@@ -111,6 +132,11 @@ const checkEmail = async () => {
     emailInput.value.reportValidity();
     return;
   }
+  if (!authStore.email || authStore.email.trim() === '') {
+    authStore.emailCheckMessage = '이메일을 입력해주세요.';
+    return;
+  }
+  
   await authStore.checkEmail(authStore.email);
   if (authStore.emailChecked) {
     showSendVerification.value = true;

@@ -11,9 +11,7 @@ export default {
   // 카카오 로그인
   async kakaoLogin(code) {
     let body = { code: code };
-
     const { data } = await api.post('/kakao', body);
-
     console.log('AUTH POST: ', data);
     return data;
   },
@@ -25,24 +23,26 @@ export default {
     console.log('AUTH POST (Google): ', data);
     return data;
   },
+
+  // 이메일 중복 확인
+  async checkEmail(email) {
+    const { data } = await api.get('/check-email', { params: { email } });
+    return data;
+  },
+
+  // 닉네임 중복 확인
+  async checkNickname(nickname) {
+    const { data } = await api.get('/check-nickname', { params: { nickname } });
+    return data;
+  },
+
+  // 회원가입
+  async signup(payload) {
+    const { data } = await api.post('/signup', payload);
+    return data;
+  },
 };
 
 export const loginRequest = (payload) => {
   return api.post('/login', payload);
-};
-
-export const checkEmailRequest = (email) => {
-  return api.get('/check-email', { params: { email } });
-};
-
-export const checkNicknameRequest = (nickname) => {
-  return api.get('/check-nickname', { params: { nickname } });
-};
-
-export const signupRequets = (payload) => {
-  return api.post('/signup', payload);
-};
-
-export const signupRequest = (payload) => {
-  return api.post('/signup', payload);
 };
