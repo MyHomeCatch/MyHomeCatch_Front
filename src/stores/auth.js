@@ -166,8 +166,7 @@ export const useAuthStore = defineStore('auth', {
 
     async sendEmail(email) {
       try {
-        const response = await authApi.sendToEmail({ email }); // 👈 이렇게 JSON으로!
-        console.log(response.data);
+        const response = await authApi.sendToEmail({ email });
       } catch (error) {
         console.error(error);
       } finally {
@@ -178,22 +177,16 @@ export const useAuthStore = defineStore('auth', {
     async checkEmailCode(email, code) {
       try {
         const response = await authApi.checkEmailCode({ email, code });
-        console.log('응답은??');
-        console.log(response);
-        console.log('응답은??');
 
         if (response.success) {
-          console.log('✅ 이메일 인증 성공');
           this.emailVerified = true; // <-- 인증 성공 시 상태 저장
           this.emailCheckMessage = ''; // 인증 성공 시 메시지 제거
           // 추가 성공 로직
         } else {
-          console.warn('❌ 이메일 인증 실패:', response.data.message);
           this.emailVerified = false; // 인증 실패 시 false
           // 실패 처리 (예: 사용자에게 메시지 보여주기)
         }
       } catch (error) {
-        console.error('🚨 서버 에러 발생', error);
         this.emailVerified = false; // 에러 시 false
         // 네트워크 오류나 예외 처리
       } finally {
@@ -242,7 +235,10 @@ export const useAuthStore = defineStore('auth', {
         const res = await authApi.resetPassword({ email, newPassword });
         return res;
       } catch (e) {
-        return { success: false, message: '비밀번호 변경 요청에 실패했습니다.' };
+        return {
+          success: false,
+          message: '비밀번호 변경 요청에 실패했습니다.',
+        };
       }
     },
   },

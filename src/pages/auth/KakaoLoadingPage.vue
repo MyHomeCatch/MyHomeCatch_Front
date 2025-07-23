@@ -35,8 +35,8 @@ const kakaoFunc = async () => {
       router.push('/join');
     }
   } catch (e) {
-    console.error('카카오 로그인 실패:', e);
-    errorMessage.value = e.response?.data?.message || '카카오 로그인에 실패했습니다.';
+    errorMessage.value =
+      e.response?.data?.message || '카카오 로그인에 실패했습니다.';
     setTimeout(() => {
       router.replace('/login');
     }, 2000);

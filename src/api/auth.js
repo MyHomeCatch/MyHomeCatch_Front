@@ -13,7 +13,6 @@ export default {
   async kakaoLogin(code) {
     let body = { code: code };
     const { data } = await api.post('/auth/kakao', body);
-    console.log('AUTH POST: ', data);
     return data;
   },
 
@@ -21,7 +20,6 @@ export default {
   async googleLogin(code) {
     const body = { code };
     const { data } = await api.post('/auth/login/google', body);
-    console.log('AUTH POST (Google): ', data);
     return data;
   },
 
@@ -55,10 +53,9 @@ export default {
     const { data } = await api.post('/email/check', payload);
     return data;
   },
-  
+
   // 비밀번호 재설정
   async resetPassword(payload) {
-    console.log('resetPassword payload:', payload); // 추가
     const { data } = await api.post('/auth/password/reset', payload);
     return data;
   },

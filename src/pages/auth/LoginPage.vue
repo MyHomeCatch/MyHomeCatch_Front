@@ -21,7 +21,7 @@ const handleLogin = async () => {
   emailError.value = '';
   passwordError.value = '';
   errorMessage.value = '';
-  
+
   // 유효성 검사
   if (!email.value || email.value.trim() === '') {
     emailError.value = '이메일을 입력해주세요.';
@@ -31,12 +31,12 @@ const handleLogin = async () => {
     passwordError.value = '비밀번호를 입력해주세요.';
     return;
   }
-  
+
   const result = await authStore.login({
     email: email.value,
     password: password.value,
   });
-  
+
   if (result.success) {
     router.push('/');
   } else {
@@ -88,14 +88,20 @@ const handleGoogleLogin = () => {
         </div>
         <div class="auth-divider"><span>Social LogIn</span></div>
         <div class="auth-social-row">
-          <button type="button" class="auth-social-btn" @click="handleGoogleLogin">
+          <button
+            type="button"
+            class="auth-social-btn"
+            @click="handleGoogleLogin"
+          >
             <span class="icon-google"></span> Google
           </button>
           <button @click="kakaoLogin" type="button" class="auth-social-btn">
             <span class="icon-kakao"></span> Kakao
           </button>
         </div>
-        <div class="auth-forgot"><a href="#" @click.prevent="showPwModal = true">Forgot Password</a></div>
+        <div class="auth-forgot">
+          <a href="#" @click.prevent="showPwModal = true">Forgot Password</a>
+        </div>
         <button type="submit" class="auth-submit">Log In</button>
         <div v-if="errorMessage" class="auth-error">{{ errorMessage }}</div>
       </form>
