@@ -17,6 +17,14 @@ export default {
     console.log('AUTH POST: ', data);
     return data;
   },
+
+  // 구글 로그인
+  async googleLogin(code) {
+    const body = { code };
+    const { data } = await api.post('/login/google', body);
+    console.log('AUTH POST (Google): ', data);
+    return data;
+  },
 };
 
 export const loginRequest = (payload) => {
