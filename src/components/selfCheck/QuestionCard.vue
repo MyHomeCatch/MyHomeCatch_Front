@@ -138,7 +138,7 @@ function toggleDropdown(idx) {
   font-weight: 500;
   background: #f3f3f3;
   border-radius: 32px;
-  min-height: 56px;
+  min-height: 40px;
   padding: 0 28px 0 20px;
   cursor: pointer;
   user-select: none;
