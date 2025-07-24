@@ -1,11 +1,6 @@
 <template>
   <div class="self-check-container">
-    <div v-if="showStartModal" class="modal-backdrop">
-      <div class="start-modal">
-        <h2>자가진단을 시작하시겠습니까?</h2>
-        <button class="start-btn" @click="startSelfCheck">자가진단 시작</button>
-      </div>
-    </div>
+    <SelfCheckStartModal :visible="showStartModal" @start="startSelfCheck" />
     <div :class="['book-bg', { 'blurred': showStartModal }]">
       <div class="questions-row">
         <QuestionCard
@@ -42,6 +37,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import QuestionCard from '../../components/selfCheck/QuestionCard.vue';
 import NavigationButtons from '../../components/selfCheck/NavigationButtons.vue';
+import SelfCheckStartModal from '../../components/modals/SelfCheckStartModal.vue';
 
 // 예시 질문 데이터
 const questions = [
