@@ -1,6 +1,6 @@
 <template>
   <div class="self-check-container">
-    <SelfCheckStartModal :visible="showStartModal" @start="startSelfCheck" />
+    <SelfCheckStartModal :visible="showStartModal" @start="startSelfCheck" @cancel="router.back()" />
     <div :class="['book-bg', { 'blurred': showStartModal }]">
       <div class="questions-row">
         <QuestionCard
@@ -35,6 +35,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 import QuestionCard from '../../components/selfCheck/QuestionCard.vue';
 import NavigationButtons from '../../components/selfCheck/NavigationButtons.vue';
 import SelfCheckStartModal from '../../components/modals/SelfCheckStartModal.vue';
@@ -152,6 +153,7 @@ const answers = ref(Array(questions.length).fill(null));
 const currentIndex = ref(0);
 const lastIndex = Math.floor((questions.length - 1) / 2);
 const showStartModal = ref(true);
+const router = useRouter();
 
 function startSelfCheck() {
   showStartModal.value = false;

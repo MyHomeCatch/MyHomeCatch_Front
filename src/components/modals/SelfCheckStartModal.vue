@@ -2,7 +2,10 @@
   <div v-if="visible" class="modal-backdrop">
     <div class="start-modal">
       <h2>자가진단을 시작하시겠습니까?</h2>
-      <button class="start-btn" @click="$emit('start')">자가진단 시작</button>
+      <div class="modal-btns">
+        <button class="start-btn" @click="$emit('start')">예</button>
+        <button class="cancel-btn" @click="$emit('cancel')">아니오</button>
+      </div>
     </div>
   </div>
 </template>
@@ -11,7 +14,7 @@
 const props = defineProps({
   visible: Boolean,
 });
-const emit = defineEmits(['start']);
+const emit = defineEmits(['start', 'cancel']);
 </script>
 
 <style scoped>
@@ -39,6 +42,10 @@ const emit = defineEmits(['start']);
   font-weight: bold;
   margin-bottom: 12px;
 }
+.modal-btns {
+  display: flex;
+  gap: 32px;
+}
 .start-btn {
   font-size: 1.15rem;
   background: #a6bfa0;
@@ -52,5 +59,19 @@ const emit = defineEmits(['start']);
 }
 .start-btn:hover {
   background: #7fa87f;
+}
+.cancel-btn {
+  font-size: 1.15rem;
+  background: #e0e0e0;
+  color: #555;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 48px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cancel-btn:hover {
+  background: #bdbdbd;
 }
 </style> 
