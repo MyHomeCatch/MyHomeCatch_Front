@@ -18,6 +18,11 @@ export default {
       url: '/pageC/one',
       icon: 'fa-regular fa-images',
     },
+    {
+      title: '자가진단',
+      url: '/self-Check',
+      icon: 'fa-solid fa-check',
+    },
   ],
   accoutMenus: {
     // 인증 관련 메뉴 정보
