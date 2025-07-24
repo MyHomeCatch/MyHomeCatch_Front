@@ -1,6 +1,12 @@
 <template>
   <div class="self-check-container">
-    <div class="book-bg">
+    <div v-if="showStartModal" class="modal-backdrop">
+      <div class="start-modal">
+        <h2>자가진단을 시작하시겠습니까?</h2>
+        <button class="start-btn" @click="startSelfCheck">자가진단 시작</button>
+      </div>
+    </div>
+    <div :class="['book-bg', { 'blurred': showStartModal }]">
       <div class="questions-row">
         <QuestionCard
           v-if="questions[currentIndex * 2]"
@@ -33,7 +39,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import QuestionCard from '../../components/selfCheck/QuestionCard.vue';
 import NavigationButtons from '../../components/selfCheck/NavigationButtons.vue';
 
@@ -149,6 +155,26 @@ const questions = [
 const answers = ref(Array(questions.length).fill(null));
 const currentIndex = ref(0);
 const lastIndex = Math.floor((questions.length - 1) / 2);
+const showStartModal = ref(true);
+
+function startSelfCheck() {
+  showStartModal.value = false;
+}
+
+// 모달이 열릴 때 스크롤 막기
+watch(showStartModal, (val) => {
+  if (val) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+});
+onMounted(() => {
+  if (showStartModal.value) document.body.style.overflow = 'hidden';
+});
+onUnmounted(() => {
+  document.body.style.overflow = '';
+});
 
 const pageAllAnswered = computed(() => {
   // 현재 페이지(2개) 모두 답변했는지 체크
@@ -265,5 +291,48 @@ function submit() {
   display: flex;
   justify-content: center;
   margin-top: 40px;
+}
+.modal-backdrop {
+  position: fixed;
+  z-index: 2000;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.start-modal {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.13);
+  padding: 48px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+.start-modal h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+.start-btn {
+  font-size: 1.15rem;
+  background: #a6bfa0;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 48px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.start-btn:hover {
+  background: #7fa87f;
+}
+.blurred {
+  filter: blur(6px) grayscale(10%);
+  pointer-events: none;
+  user-select: none;
 }
 </style> 
