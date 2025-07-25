@@ -26,7 +26,7 @@ const regionMap = {
 };
 
 // 추후 수정 후 사용
-//  const props = defineProps({ region: String })
+//  const props = defineProps({ regionName: String });
 
 const apartments = ref([]);
 
@@ -34,7 +34,7 @@ const fetchApartments = async () => {
   try {
     const { data } = await axios.get('/api/winner-stats/low-score', {
       params: { region },
-      // test 이후 region → props.region 으로 바꿀 것
+      // test 이후 region → region: regionCode 으로 바꿀 것
     });
     apartments.value = data;
   } catch (error) {
@@ -51,6 +51,7 @@ onMounted(() => {
   <div>
     <h2 class="title">
       {{ regionMap[region] }} 지역 가점 부담이 적은 아파트 목록 (Top 5)
+      <!-- {{ props.regionName }} 로 테스트 이후 바꿀 것 -->
     </h2>
 
     <ul v-if="apartments.length" class="grid-container">
