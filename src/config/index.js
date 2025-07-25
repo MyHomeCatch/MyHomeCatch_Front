@@ -9,7 +9,7 @@ export default {
       icon: 'fa-solid fa-paste',
     },
     {
-      title: 'PageB1',
+      title: '마이페이지',
       url: '/pageB/one',
       icon: 'fa-solid fa-plane-departure',
     },

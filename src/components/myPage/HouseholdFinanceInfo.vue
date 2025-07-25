@@ -1,6 +1,5 @@
 <template>
   <div class="info-wrapper position-relative mt-4 mx-4">
-    <!-- ✅ 흐림처리되는 세대 / 자금 정보 -->
     <div :class="['row', !showInfo && 'blurred']">
       <div class="col-md-6">
         <h3 class="fw-bold">세대 정보 ✏️</h3>
@@ -18,12 +17,7 @@
       </div>
     </div>
 
-    <!-- ✅ 중앙 버튼 -->
-    <button
-      v-if="!showInfo"
-      class="btn btn-outline-success center-button"
-      @click="showInfo = true"
-    >
+    <button v-if="!showInfo" class="center-button" @click="showInfo = true">
       자격진단 하러가기
     </button>
   </div>
@@ -42,10 +36,9 @@ const showInfo = ref(false);
   transition: filter 0.3s ease;
 }
 
-/* ✅ 버튼을 row 정중앙에 띄우기 위한 스타일 */
 .info-wrapper {
   position: relative;
-  min-height: 300px; /* 정보 높이만큼 */
+  min-height: 300px;
 }
 
 .center-button {
@@ -57,5 +50,14 @@ const showInfo = ref(false);
   padding: 0.8rem 2rem;
   font-weight: bold;
   background-color: white;
+  color: #198754;
+  border: 1px solid #198754;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.center-button:hover {
+  background-color: #198754;
+  color: white;
 }
 </style>

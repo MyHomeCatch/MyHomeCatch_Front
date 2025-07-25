@@ -14,6 +14,16 @@ import logoImage from '@/assets/images/MyHomeCatchLogo.png';
 
 // 🎯 상태 정의
 const showModal = ref(false);
+const score = ref(0); // ✅ 점수 상태 추가
+
+const myUserInfo = ref({
+  name: '유저1',
+  residence: '대구광역시 수성구',
+  preferredRegions: ['인천', '울산', '부산'],
+  noHousePeriod: '3년',
+  hasSubscriptionAccount: '미보유',
+  isMarried: '미혼',
+});
 
 const favorites = [
   {
@@ -57,16 +67,20 @@ const 지원리스트 = [
     <div class="col-md-3">
       <ProfileCard />
       <SupportableCard :list="지원리스트" />
-      <ScoreCard :score="84" @openModal="showModal = true" />
+      <ScoreCard :score="score" @openModal="showModal = true" />
     </div>
 
     <div class="col-md-9">
-      <UserInfoSection />
+      <UserInfoSection :userInfo="myUserInfo" />
       <HouseholdFinanceInfo />
       <FavoritesCarousel :items="favorites" />
     </div>
     <!-- ✅ 모달 위치는 최상단에 -->
-    <SubscriptionScoreModal v-if="showModal" @close="showModal = false" />
+    <SubscriptionScoreModal
+      v-if="showModal"
+      @close="showModal = false"
+      @calculated="score = $event"
+    />
   </div>
 </template>
 
