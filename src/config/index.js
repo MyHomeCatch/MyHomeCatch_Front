@@ -14,8 +14,8 @@ export default {
       icon: 'fa-solid fa-plane-departure',
     },
     {
-      title: 'PageC1',
-      url: '/pageC/one',
+      title: '통계',
+      url: '/statics',
       icon: 'fa-regular fa-images',
     },
   ],
