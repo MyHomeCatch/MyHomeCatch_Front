@@ -1,22 +1,73 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import LoadingSpinner from '@/components/ui/LoadingSpinner.vue';
+import { ref } from 'vue';
 
-const isLoading = ref(true);
+// 📦 컴포넌트 import
+import ProfileCard from '@/components/mypage/ProfileCard.vue';
+import SupportableCard from '@/components/mypage/SupportableCard.vue';
+import ScoreCard from '@/components/mypage/ScoreCard.vue';
+import UserInfoSection from '@/components/mypage/UserInfoSection.vue';
+import HouseholdFinanceInfo from '@/components/mypage/HouseholdFinanceInfo.vue';
+import FavoritesCarousel from '@/components/mypage/FavoritesCarousel.vue';
+import SubscriptionScoreModal from '@/components/mypage/SubscriptionScoreModal.vue'; // ✅ 추가
 
-onMounted(async () => {
-  // 예시: 2초 후 로딩 종료
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  isLoading.value = false;
-});
+import logoImage from '@/assets/images/MyHomeCatchLogo.png';
+
+// 🎯 상태 정의
+const showModal = ref(false);
+
+const favorites = [
+  {
+    title: 'Title A',
+    desc: 'Lorem ipsum dolor.',
+    image: logoImage,
+  },
+  {
+    title: 'Title B',
+    desc: 'Lorem ipsum dolor.',
+    image: logoImage,
+  },
+  {
+    title: 'Title C',
+    desc: 'Lorem ipsum dolor.',
+    image: logoImage,
+  },
+  {
+    title: 'Title D',
+    desc: 'Lorem ipsum dolor.',
+    image: logoImage,
+  },
+  {
+    title: 'Title E',
+    desc: 'Lorem ipsum dolor.',
+    image: logoImage,
+  },
+];
+
+const 지원리스트 = [
+  { name: 'LH 청년매입임대', available: true },
+  { name: 'SH 청년매입임대', available: true },
+  { name: 'LH 청년전세임대', available: true },
+  { name: 'LH 청년채플주택', available: false },
+  { name: 'LH 청년동주택', available: false },
+];
 </script>
 
 <template>
-  <div>
-    <LoadingSpinner v-if="isLoading" />
-    <div v-else>
-      <!-- 실제 컨텐츠 -->
-      <h1>페이지 본문입니다</h1>
+  <div class="row">
+    <div class="col-md-3">
+      <ProfileCard />
+      <SupportableCard :list="지원리스트" />
+      <ScoreCard :score="84" @openModal="showModal = true" />
     </div>
+
+    <div class="col-md-9">
+      <UserInfoSection />
+      <HouseholdFinanceInfo />
+      <FavoritesCarousel :items="favorites" />
+    </div>
+    <!-- ✅ 모달 위치는 최상단에 -->
+    <SubscriptionScoreModal v-if="showModal" @close="showModal = false" />
   </div>
 </template>
+
+<style scoped></style>
