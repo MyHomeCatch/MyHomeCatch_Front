@@ -43,13 +43,26 @@ export const useAuthStore = defineStore('auth', {
     successMessage: '',
     emailVerified: false, // 이메일 인증 상태 추가
   }),
-
+  // getters: {
+  //   isLoggedIn: (state) => !!state.token,
+  // },
   actions: {
     // 로그인
     async login({ email, password }) {
       try {
         const response = await loginRequest({ email, password });
         this.setToken(response.data.token);
+
+        if (response.data.user) {
+          this.user = {
+            ...this.user,
+            ...response.data.user,
+          };
+        }
+
+        await this.fetchUserInfo();
+        console.log('로그인 응답:', response.data.nickname);
+
         return { success: true };
       } catch (err) {
         return {
@@ -239,6 +252,17 @@ export const useAuthStore = defineStore('auth', {
           success: false,
           message: '비밀번호 변경 요청에 실패했습니다.',
         };
+      }
+    },
+
+    async fetchUserInfo() {
+      if (!this.token) return;
+      try {
+        const data = await authApi.getUserInfo(this.token);
+        this.user = { ...this.user, ...data };
+        console.log('유저 정보 불러옴:', data);
+      } catch (err) {
+        console.error('유저 정보 불러오기 실패', err);
       }
     },
   },

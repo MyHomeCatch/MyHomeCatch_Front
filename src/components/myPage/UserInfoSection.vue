@@ -17,7 +17,11 @@ defineProps({
 
 <template>
   <div class="info-section border-top border-bottom py-3 mt-2">
-    <h3 class="fw-bold">내 정보 ✏️</h3>
+    <h3 class="fw-bold">
+      <router-link to="/profile/edit" class="text-decoration-none text-dark">
+        내 정보 ✏️
+      </router-link>
+    </h3>
     <div class="row">
       <div class="col-md-6">
         <p>이름: {{ userInfo.name }}</p>

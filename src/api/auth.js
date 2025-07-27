@@ -59,6 +59,15 @@ export default {
     const { data } = await api.post('/auth/password/reset', payload);
     return data;
   },
+
+  async getUserInfo(token) {
+    const response = await axios.get('/api/auth/me', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  },
 };
 
 export const loginRequest = (payload) => {
