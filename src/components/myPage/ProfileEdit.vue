@@ -57,6 +57,28 @@ const cancel = () => {
 <template>
   <div class="container mt-4">
     <div class="row">
+      <div class="col-md-3 border-end pe-4">
+        <router-link to="/profile/edit" class="text-decoration-none text-dark">
+          <h5 class="fw-bold text-danger">프로필 수정</h5>
+        </router-link>
+        <hr />
+
+        <router-link
+          to="/profile/edit/passwordEdit"
+          class="text-decoration-none text-dark"
+        >
+          <h5 class="fw-bold mt-3">비밀번호 변경</h5>
+        </router-link>
+        <hr />
+
+        <router-link
+          to="/profile/edit/delete"
+          class="text-decoration-none text-dark"
+        >
+          <h5 class="fw-bold mt-3">회원 탈퇴</h5>
+        </router-link>
+        <hr />
+      </div>
       <div class="col-md-9">
         <router-view />
       </div>

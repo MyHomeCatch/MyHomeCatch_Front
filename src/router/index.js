@@ -34,7 +34,7 @@ const router = createRouter({
           component: ProfileForm,
         },
         {
-          path: '/passwordEdit',
+          path: 'passwordEdit',
           name: 'PasswordEdit',
           component: PasswordEdit,
         },

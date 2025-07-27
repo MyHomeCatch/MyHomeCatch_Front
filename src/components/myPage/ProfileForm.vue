@@ -58,7 +58,7 @@ const cancel = () => {
   <div class="container mt-4">
     <div class="row">
       <!-- Sidebar -->
-      <div class="col-md-3 border-end pe-4">
+      <!-- <div class="col-md-3 border-end pe-4">
         <router-link to="/profile/edit" class="text-decoration-none text-dark">
           <h5 class="fw-bold text-danger">프로필 수정</h5>
         </router-link>
@@ -79,7 +79,7 @@ const cancel = () => {
           <h5 class="fw-bold mt-3">회원 탈퇴</h5>
         </router-link>
         <hr />
-      </div>
+      </div> -->
 
       <!-- Main content -->
       <div class="col-md-9">
