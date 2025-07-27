@@ -8,6 +8,7 @@ import SelfCheckPage from '../pages/selfCheck/SelfCheckPage.vue';
 import ProfileEdit from '../components/myPage/ProfileEdit.vue';
 import ProfileForm from '../components/myPage/ProfileForm.vue';
 import PasswordEdit from '../components/myPage/PasswordEdit.vue';
+import ByeBye from '../components/myPage/ByeBye.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,6 +38,11 @@ const router = createRouter({
           path: 'passwordEdit',
           name: 'PasswordEdit',
           component: PasswordEdit,
+        },
+        {
+          path: 'byeBye',
+          name: 'ByeBye',
+          component: ByeBye,
         },
       ],
     },

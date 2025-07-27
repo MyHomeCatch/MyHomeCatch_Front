@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { storeToRefs } from 'pinia';
 
@@ -38,79 +38,54 @@ const cancel = () => {
 </script>
 
 <template>
-  <div class="container mt-4">
-    <div class="row">
-      <!-- Sidebar -->
-      <!-- <div class="col-md-3 border-end pe-4">
-        <router-link to="/profile/edit" class="text-decoration-none text-dark">
-          <h5 class="fw-bold mt-3">프로필 수정</h5>
-        </router-link>
-        <hr />
+  <div>
+    <h4 class="fw-bold mb-3">비밀번호 변경</h4>
 
-        <router-link
-          to="/profile/edit/passwordEdit"
-          class="text-decoration-none text-dark"
-        >
-          <h5 class="fw-bold text-danger">비밀번호 변경</h5>
-        </router-link>
-        <hr />
+    <div class="mb-3">
+      <label class="form-label">현재 비밀번호</label>
+      <input
+        :type="showOldPassword ? 'text' : 'password'"
+        class="form-control"
+        v-model="currentPassword"
+      />
+    </div>
 
-        <router-link
-          to="/profile/edit/delete"
-          class="text-decoration-none text-dark"
-        >
-          <h5 class="fw-bold mt-3">회원 탈퇴</h5>
-        </router-link>
-        <hr />
-      </div> -->
-      <h4 class="fw-bold mb-3">비밀번호 변경</h4>
+    <div class="mb-3">
+      <label class="form-label">새 비밀번호</label>
+      <input
+        :type="showNewPassword ? 'text' : 'password'"
+        class="form-control"
+        v-model="newPassword"
+      />
+    </div>
 
-      <div class="mb-3">
-        <label class="form-label">현재 비밀번호</label>
-        <input
-          :type="showOldPassword ? 'text' : 'password'"
-          class="form-control"
-          v-model="currentPassword"
-        />
+    <div class="mb-3">
+      <label class="form-label">새 비밀번호 확인</label>
+      <input
+        :type="showConfirmPassword ? 'text' : 'password'"
+        class="form-control"
+        v-model="confirmPassword"
+      />
+      <div v-if="passwordError" class="text-danger small mt-1">
+        {{ passwordError }}
       </div>
+    </div>
 
-      <div class="mb-3">
-        <label class="form-label">새 비밀번호</label>
-        <input
-          :type="showNewPassword ? 'text' : 'password'"
-          class="form-control"
-          v-model="newPassword"
-        />
-      </div>
+    <div class="form-check mb-3">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        id="toggleVisibility"
+        v-model="showAllPasswords"
+      />
+      <label class="form-check-label" for="toggleVisibility"
+        >비밀번호 표시</label
+      >
+    </div>
 
-      <div class="mb-3">
-        <label class="form-label">새 비밀번호 확인</label>
-        <input
-          :type="showConfirmPassword ? 'text' : 'password'"
-          class="form-control"
-          v-model="confirmPassword"
-        />
-        <div v-if="passwordError" class="text-danger small mt-1">
-          {{ passwordError }}
-        </div>
-      </div>
-
-      <div class="form-check mb-3">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          id="toggleVisibility"
-          v-model="showAllPasswords"
-        />
-        <label class="form-check-label" for="toggleVisibility"
-          >비밀번호 표시</label
-        >
-      </div>
-
-      <div class="mt-4">
-        <button class="btn btn-secondary me-2" @click="cancel">취소</button>
-        <button class="btn btn-primary" @click="updatePassword">변경</button>
-      </div>
+    <div class="mt-4">
+      <button class="btn btn-secondary me-2" @click="cancel">취소</button>
+      <button class="btn btn-primary" @click="updatePassword">변경</button>
     </div>
   </div>
 </template>

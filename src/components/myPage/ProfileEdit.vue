@@ -1,8 +1,10 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { storeToRefs } from 'pinia';
 
+const route = useRoute();
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
 
@@ -52,30 +54,55 @@ const saveChanges = () => {
 const cancel = () => {
   history.back();
 };
+
+// 현재 라우트에 따른 활성 메뉴 계산
+const isProfileActive = computed(() => route.path === '/profile/edit');
+const isPasswordActive = computed(
+  () => route.path === '/profile/edit/passwordEdit'
+);
+const isDeleteActive = computed(() => route.path === '/profile/edit/byeBye');
 </script>
 
 <template>
   <div class="container mt-4">
     <div class="row">
       <div class="col-md-3 border-end pe-4">
-        <router-link to="/profile/edit" class="text-decoration-none text-dark">
-          <h5 class="fw-bold text-danger">프로필 수정</h5>
+        <router-link
+          to="/profile/edit"
+          class="text-decoration-none"
+          :class="isProfileActive ? 'text-danger' : 'text-dark'"
+        >
+          <h5
+            class="fw-bold mt-3"
+            :class="isProfileActive ? 'text-danger' : ''"
+          >
+            프로필 수정
+          </h5>
         </router-link>
         <hr />
 
         <router-link
           to="/profile/edit/passwordEdit"
-          class="text-decoration-none text-dark"
+          class="text-decoration-none"
+          :class="isPasswordActive ? 'text-danger' : 'text-dark'"
         >
-          <h5 class="fw-bold mt-3">비밀번호 변경</h5>
+          <h5
+            class="fw-bold mt-3"
+            :class="isPasswordActive ? 'text-danger' : ''"
+          >
+            비밀번호 변경
+          </h5>
         </router-link>
         <hr />
 
         <router-link
-          to="/profile/edit/delete"
-          class="text-decoration-none text-dark"
+          to="/profile/edit/byeBye"
+          class="text-decoration-none"
+          :class="isDeleteActive ? 'text-danger' : 'text-dark'"
         >
-          <h5 class="fw-bold mt-3">회원 탈퇴</h5>
+          <h5 class="fw-bold mt-3" :class="isDeleteActive ? 'text-danger' : ''">
+            회원 탈퇴
+          </h5>
         </router-link>
         <hr />
       </div>
