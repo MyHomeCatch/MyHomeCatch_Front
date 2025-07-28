@@ -17,19 +17,20 @@ defineProps({
 
 <template>
   <div class="info-section border-top border-bottom py-3 mt-2">
-    <h3 class="fw-bold">내 정보 ✏️</h3>
+    <h3 class="fw-bold mb-3">내 정보 ✏️</h3>
     <div class="row">
+      <!-- 왼쪽 컬럼 -->
       <div class="col-md-6">
         <p>이름: {{ userInfo.name }}</p>
+        <p>닉네임: {{ userInfo.nickname }}</p>
+        <p>이메일: {{ userInfo.email }}</p>
+      </div>
+
+      <!-- 오른쪽 컬럼 -->
+      <div class="col-md-6">
         <p>거주지: {{ userInfo.residence }}</p>
         <p>선호 지역: {{ userInfo.preferredRegions.join(', ') }}</p>
-      </div>
-      <div class="col-md-6">
-        <p>
-          무주택 기간: <strong>{{ userInfo.noHousePeriod }}</strong>
-        </p>
-        <p class="mt-2">청약통장: {{ userInfo.hasSubscriptionAccount }}</p>
-        <p>혼인 여부: {{ userInfo.isMarried }}</p>
+        <p>청약통장: {{ userInfo.hasSubscriptionAccount }}</p>
       </div>
     </div>
   </div>

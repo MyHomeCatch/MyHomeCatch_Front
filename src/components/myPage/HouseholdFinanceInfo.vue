@@ -2,18 +2,18 @@
   <div class="info-wrapper position-relative mt-4 mx-4">
     <div :class="['row', !showInfo && 'blurred']">
       <div class="col-md-6">
-        <h3 class="fw-bold">세대 정보 ✏️</h3>
-        <p>세대 구성: 4인</p>
-        <p>월 소득: 80% 이하</p>
-        <p>총 자산: 3억 5,000만 원 이하</p>
-        <p>자동차: TESLA X</p>
-        <p>세대 유형: 청년</p>
+        <h3 class="fw-bold">세대 정보</h3>
+        <p>세대 구성: {{ householdInfo.householdSize }}</p>
+        <p>월 소득: {{ householdInfo.incomeLevel }}</p>
+        <p>총 자산: {{ householdInfo.totalAssets }}</p>
+        <p>자동차: {{ householdInfo.vehicle }}</p>
+        <p>세대 유형: {{ householdInfo.type }}</p>
       </div>
       <div class="col-md-6">
         <h3 class="fw-bold">자금</h3>
-        <p>월 소득: 999만</p>
-        <p>보유 현금: 9,999만</p>
-        <p>월 저축액: 99만</p>
+        <p>월 소득: {{ financialInfo.monthlyIncome }}</p>
+        <p>보유 현금: {{ financialInfo.cash }}</p>
+        <p>월 저축액: {{ financialInfo.monthlySaving }}</p>
       </div>
     </div>
 
@@ -25,6 +25,13 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useMyPageStore } from '@/stores/mypage';
+import { storeToRefs } from 'pinia';
+
+const store = useMyPageStore();
+const { userInfo, householdInfo, financialInfo, profileImage } =
+  storeToRefs(store);
+
 const showInfo = ref(false);
 </script>
 
