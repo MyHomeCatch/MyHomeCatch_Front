@@ -9,6 +9,7 @@ import ProfileEdit from '../components/myPage/ProfileEdit.vue';
 import ProfileForm from '../components/myPage/ProfileForm.vue';
 import PasswordEdit from '../components/myPage/PasswordEdit.vue';
 import ByeBye from '../components/myPage/ByeBye.vue';
+import ByeComplete from '../components/myPage/ByeComplete.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -46,6 +47,7 @@ const router = createRouter({
         },
       ],
     },
+    { path: '/byeComplete', name: 'ByeComplete', component: ByeComplete },
   ],
 });
 
