@@ -1,0 +1,259 @@
+.calendar {
+    margin: 3rem;
+    background: var(--calendar-bg-color, white);
+    box-shadow: 0.25rem 0.25rem 2rem rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    font-family: 'Helvetica Neue', sans-serif;
+}
+
+.schelDate {
+    display: flex;
+    flex-direction: column;
+    /* 세로 정렬 */
+    gap: 0.5rem;
+    /* 위아래 간격 */
+    user-select: none;
+}
+
+.year {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: center;
+    /* ⬅️ year 내부 요소들도 가운데로 */
+    width: 100%;
+    /* ⬅️ 부모 기준 가운데 정렬되게 */
+    background-color: #86A788;
+    padding: 0.5rem;
+    box-shadow: 0.25rem 0.25rem 0.8rem rgba(0, 0, 0, 0.15);
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #ffffff;
+    padding: 0 0.5rem;
+}
+
+.year-select {
+    font-size: 1.2rem;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    border: none;
+    color: white;
+    font-weight: 600;
+    background-color: #86A788;
+}
+
+/* 드롭다운 열렸을 때 (포커스) */
+.year-select:focus {
+    background-color: white;
+    color: black;
+    outline: none;
+    /* 기본 파란 테두리 제거하려면 */
+}
+
+.months {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.month {
+    flex: 1;
+    text-align: center;
+    min-width: 50px;
+    /* 너무 작아지지 않도록 */
+    padding: 0.5rem 0.8rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    color: #555;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.month.active {
+    color: #86A788;
+    border-color: #86A788;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+th {
+    width: calc(100% / 7);
+    padding: 1rem;
+    vertical-align: top;
+    border: 1px solid #f0f0f0;
+    text-align: left;
+}
+
+td {
+    width: 140px;
+    /* 너비 픽셀 고정 */
+    box-sizing: border-box;
+    padding: 1rem;
+    vertical-align: top;
+    border: 1px solid #f0f0f0;
+    text-align: left;
+    height: 190px;
+    /* 높이 고정 */
+    max-height: 190px;
+    /* 높이 고정 */
+    min-height: 190px;
+    /* 높이 고정 */
+}
+
+thead th {
+    background-color: #f8fbf7;
+    color: black;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* 일요일 (첫 번째 열) */
+thead th:first-child,
+tbody td:first-child {
+    color: rgb(251, 83, 83);
+}
+
+/* 토요일 (마지막 열, 7번째) */
+thead th:last-child,
+tbody td:last-child {
+    color: rgb(91, 91, 255);
+}
+
+.date {
+    font-weight: bold;
+    font-size: 0.875em;
+    margin-bottom: 0.5em;
+}
+
+.outside .date {
+    opacity: 0.4;
+}
+
+.cal-event {
+    /* --dot-color: var(--primary-color); */
+    /* box-shadow: 0.25em 0.25em 1em 0 hsla(0, 0%, 0%, 0.05) inset; */
+    font-size: 0.75rem;
+    padding: 0 0.75em;
+    line-height: 2em;
+    white-space: nowrap;
+    overflow: hidden;
+    border-radius: 1em;
+    display: flex;
+    align-items: center;
+    border: 1px solid #86A788;
+    color: black;
+    margin-bottom: 0.3em;
+
+    /* flex 컨테이너는 이렇게 해두고 */
+    max-width: 150px;
+    /* 원하는 너비 지정 */
+}
+
+.search-btn {
+    margin-left: auto;
+    /* 오른쪽 끝으로 밀기 */
+    padding: 0.5rem 1.2rem;
+    background-color: #86A788;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+}
+
+.search-btn:hover {
+    background-color: #5A7A5F;
+}
+
+.dot {
+    width: 0.5em;
+    height: 0.5em;
+    background-color: var(--dot-color, #86A788);
+    border-radius: 50%;
+    margin-right: 0.5em;
+    flex-shrink: 0;
+    /* 점 크기 고정 */
+}
+
+.event-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    /* flex 아이템에 필수 */
+    flex-grow: 1;
+    /* 남는 공간 다 차지 */
+}
+
+.filter-wrapper {
+    border: 1px solid #86a788;
+    border-radius: 0.2em;
+    padding: 1rem;
+    margin: 1rem 0rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background-color: #f8fbf7;
+    box-shadow: 0.2rem 0.2rem 0.8rem rgba(0, 0, 0, 0.05);
+}
+
+.filter-box {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.cal-button {
+    border: 1px solid #ccc;
+    border-radius: 1.5rem;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    background-color: white;
+    color: #333;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.cal-button.active {
+    background-color: #e9f5ea;
+    border-color: #86a788;
+    color: #455746;
+}
+
+.choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding-left: 0.2rem;
+}
+
+.choice-block {
+    padding: 0.45rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 1.5rem;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    background-color: white;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.choice-block.selected {
+    background-color: #e9f5ea;
+    border-color: #86a788;
+    color: #455746;
+}
