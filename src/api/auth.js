@@ -61,7 +61,7 @@ export default {
   },
 
   async getUserInfo(token) {
-    const response = await axios.get('/api/auth/me', {
+    const response = await axios.get('/auth/me', {
       headers: {
         Authorization: `Bearer ${token}`,
       },

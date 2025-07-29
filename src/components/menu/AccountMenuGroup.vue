@@ -7,9 +7,6 @@ const { login, join, logout } = config.accoutMenus;
 const authStore = useAuthStore();
 
 const { isLoggedIn, user } = storeToRefs(authStore);
-
-console.log('로그인 정보 확인', user.nickname);
-console.log('로그인 정보 확인', authStore.user.name);
 </script>
 
 <template>

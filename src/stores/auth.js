@@ -61,7 +61,7 @@ export const useAuthStore = defineStore('auth', {
         }
 
         await this.fetchUserInfo();
-        console.log('로그인 응답:', response.data.nickname);
+        // console.log('로그인 응답:', response.data.nickname);
 
         return { success: true };
       } catch (err) {
@@ -260,7 +260,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         const data = await authApi.getUserInfo(this.token);
         this.user = { ...this.user, ...data };
-        console.log('유저 정보 불러옴:', data);
+        // console.log('유저 정보 불러옴:', data);
       } catch (err) {
         console.error('유저 정보 불러오기 실패', err);
       }
