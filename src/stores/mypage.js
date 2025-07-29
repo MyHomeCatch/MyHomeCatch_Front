@@ -30,8 +30,10 @@ export const useMyPageStore = defineStore('mypage', {
     },
 
     // 🌄 프로필 이미지
-    profileImage: new URL('@/assets/images/background1.png', import.meta.url)
-      .href,
+    profileImage: new URL(
+      '@/assets/images/userProfileImage.png',
+      import.meta.url
+    ).href,
 
     // ⭐ 관심 공고
     favorites: [

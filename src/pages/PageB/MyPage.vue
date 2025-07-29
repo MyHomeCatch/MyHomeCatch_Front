@@ -26,9 +26,8 @@ const score = ref(0); // ✅ 점수 상태 추가
 <template>
   <div class="mypage-wrapper">
     <div class="row">
-      <div class="col-md-3">
+      <div class="col-md-3 d-flex flex-column align-items-center">
         <ProfileCard />
-        <!-- <SupportableCard :list="지원리스트" /> -->
         <ScoreCard :score="score" @openModal="showModal = true" />
       </div>
 

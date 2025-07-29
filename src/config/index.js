@@ -10,7 +10,7 @@ export default {
     },
     {
       title: '마이페이지',
-      url: '/pageB/one',
+      url: '/mypage',
       icon: 'fa-solid fa-plane-departure',
     },
     {

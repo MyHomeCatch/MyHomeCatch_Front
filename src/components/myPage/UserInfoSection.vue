@@ -1,36 +1,47 @@
 <script setup>
-defineProps({
+import { computed } from 'vue';
+
+const props = defineProps({
   userInfo: {
     type: Object,
     required: true,
     default: () => ({
       name: '',
+      nickname: '',
+      email: '',
       residence: '',
       preferredRegions: [],
-      noHousePeriod: '',
       hasSubscriptionAccount: '',
-      isMarried: '',
     }),
   },
 });
+
+const infoRows = computed(() => [
+  [
+    { label: '이름', value: props.userInfo.name },
+    { label: '거주지', value: props.userInfo.residence },
+  ],
+  [
+    { label: '닉네임', value: props.userInfo.nickname },
+    { label: '선호 지역', value: props.userInfo.preferredRegions.join(', ') },
+  ],
+  [
+    { label: '이메일', value: props.userInfo.email },
+    { label: '청약통장', value: props.userInfo.hasSubscriptionAccount },
+  ],
+]);
 </script>
 
 <template>
-  <div class="info-section border-top border-bottom py-3 mt-2">
-    <h3 class="fw-bold mb-3">내 정보 ✏️</h3>
-    <div class="row">
-      <!-- 왼쪽 컬럼 -->
-      <div class="col-md-6">
-        <p>이름: {{ userInfo.name }}</p>
-        <p>닉네임: {{ userInfo.nickname }}</p>
-        <p>이메일: {{ userInfo.email }}</p>
-      </div>
+  <div class="info-section py-3 mt-4">
+    <h4 class="section-title mb-4">내 정보 ✏️</h4>
 
-      <!-- 오른쪽 컬럼 -->
-      <div class="col-md-6">
-        <p>거주지: {{ userInfo.residence }}</p>
-        <p>선호 지역: {{ userInfo.preferredRegions.join(', ') }}</p>
-        <p>청약통장: {{ userInfo.hasSubscriptionAccount }}</p>
+    <div class="info-table">
+      <div class="info-row" v-for="(row, rowIndex) in infoRows" :key="rowIndex">
+        <div class="info-col" v-for="(item, colIndex) in row" :key="colIndex">
+          <div class="label">{{ item.label }}</div>
+          <div class="value">{{ item.value }}</div>
+        </div>
       </div>
     </div>
   </div>
@@ -38,16 +49,47 @@ defineProps({
 
 <style scoped>
 .info-section {
-  margin-left: 2rem;
-  margin-right: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  background-color: transparent;
+  border-color: #e0e0e0 !important;
 }
 
-.border-top,
-.border-bottom {
-  border-color: #dee2e6 !important;
+.section-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.5rem;
 }
 
-small.text-danger {
-  font-size: 0.75rem;
+.info-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.info-col {
+  display: flex;
+  gap: 0.5rem;
+  min-width: 45%;
+}
+
+.label {
+  font-weight: 600;
+  width: 90px;
+  color: #666;
+}
+
+.value {
+  font-weight: 500;
+  color: #222;
+  word-break: break-word;
 }
 </style>
