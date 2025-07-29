@@ -18,15 +18,13 @@ const currentPassword = ref('');
 const currentPasswordError = ref('');
 const message = ref('');
 
-// 닉네임 중복확인 관련 상태
 const nicknameChecked = ref(false);
 const nicknameCheckMessage = ref('');
 const nicknameChecking = ref(false);
 
 const showPassword = ref(false);
-const showAddressModal = ref(false); // 주소 모달 표시 여부
+const showAddressModal = ref(false);
 
-// 토큰 헤더 반환 함수
 const getAuthConfig = () => {
   if (token.value) {
     return {
@@ -38,7 +36,6 @@ const getAuthConfig = () => {
   return {};
 };
 
-// 닉네임 변경 시 중복확인 초기화
 watch(nickname, (newVal, oldVal) => {
   if (newVal !== oldVal) {
     nicknameChecked.value = false;
@@ -46,7 +43,6 @@ watch(nickname, (newVal, oldVal) => {
   }
 });
 
-// 닉네임 중복확인 API 호출 (여기선 임시 로직)
 const checkNickname = async () => {
   if (!nickname.value || nickname.value.trim() === '') {
     nicknameCheckMessage.value = '닉네임을 입력해주세요.';
@@ -57,7 +53,6 @@ const checkNickname = async () => {
   nicknameCheckMessage.value = '';
 
   try {
-    // 실제 API 호출 대신 임시 예시
     const fakeCheck = (name) => {
       const takenNames = ['admin', 'user', 'test'];
       return !takenNames.includes(name.toLowerCase());
@@ -80,7 +75,6 @@ const checkNickname = async () => {
   }
 };
 
-// 닉네임 재입력 시 값 초기화 함수
 const resetNickname = () => {
   nicknameChecked.value = false;
   nicknameCheckMessage.value = '';
@@ -96,12 +90,11 @@ const saveChanges = async () => {
     return;
   }
 
-  // 닉네임 중복확인 필수
   if (!nicknameChecked.value) {
     message.value = '닉네임 중복확인을 해주세요.';
     return;
   }
-  // 주소 입력 필수
+
   if (!address.value || address.value.trim() === '') {
     message.value = '주소를 입력해주세요.';
     return;
@@ -110,7 +103,7 @@ const saveChanges = async () => {
   try {
     const updateData = {
       nickname: nickname.value,
-      email: email.value, // 이메일은 disabled지만, 백엔드 식별용으로 보냄
+      email: email.value,
       address: address.value,
       currentPassword: currentPassword.value,
     };
@@ -119,9 +112,7 @@ const saveChanges = async () => {
 
     if (res.status === 200) {
       message.value = '회원 정보가 성공적으로 수정되었습니다.';
-      currentPassword.value = ''; // 현재 비밀번호 필드 초기화
-      // 필요하다면 Pinia 스토어의 사용자 정보도 업데이트
-      // authStore.setUser({ ...authStore.user, nickname: nickname.value, address: address.value });
+      currentPassword.value = '';
     } else {
       message.value = '회원 정보 수정에 실패했습니다. 다시 시도해주세요.';
     }
@@ -150,7 +141,6 @@ onMounted(async () => {
     nickname.value = data.nickname;
     email.value = data.email;
     address.value = data.address;
-    // 초기 로드 시 닉네임 중복확인 상태 초기화
     nicknameChecked.value = false;
     nicknameCheckMessage.value = '';
   } catch (err) {
@@ -178,22 +168,18 @@ const handleModalClose = () => {
   showAddressModal.value = false;
 };
 
-// AddressModal에서 '도' 선택 시 호출
 const handleSelectDo = (doName) => {
-  authStore.selectedDo = doName; // Pinia 스토어 업데이트
+  authStore.selectedDo = doName;
 };
 
-// AddressModal에서 '시/군' 선택 시 호출
 const handleSelectSigugun = (sigugunName) => {
-  authStore.selectedSigugun = sigugunName; // Pinia 스토어 업데이트
+  authStore.selectedSigugun = sigugunName;
 };
 
-// AddressModal에서 최종 주소 선택 완료 후 호출될 함수
-// AddressModal에서 이 이벤트를 emit 해야 합니다.
 const updateAddress = () => {
   if (authStore.selectedDo && authStore.selectedSigugun) {
     address.value = `${authStore.selectedDo} ${authStore.selectedSigugun}`;
-    showAddressModal.value = false; // 주소 선택 완료 후 모달 닫기
+    showAddressModal.value = false;
   }
 };
 </script>
@@ -318,7 +304,7 @@ const updateAddress = () => {
         class="position-absolute end-0 me-3 text-secondary"
         style="
           top: 50%;
-          transform: translateY(-50%); /* 수직 중앙 정렬 */
+          transform: translateY(10%);
           cursor: pointer;
           z-index: 10;
         "
