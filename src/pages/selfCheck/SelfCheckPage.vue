@@ -200,9 +200,7 @@ async function startSelfCheck() {
     }
 
     // 자가진단 시작 시 기존 진단 결과 초기화
-    console.log('자가진단 시작 - 기존 진단 결과 초기화 중...');
     await selfCheckApi.initializeDiagnosis();
-    console.log('기존 진단 결과 초기화 완료');
     
     showStartModal.value = false;
   } catch (error) {
@@ -272,9 +270,6 @@ async function submit() {
 
   try {
     // 모든 주택 유형 진단 실행
-    console.log('모든 주택 유형 진단 시작...');
-    
-    // 각 API를 개별적으로 호출하여 디버깅
     const houseTypes = ['국민임대', '행복주택', '공공임대', '09공공임대'];
     const apiCalls = [
       selfCheckApi.getKookminDiagnosis(diagnosisData),
@@ -286,22 +281,16 @@ async function submit() {
     const results = [];
     for (let i = 0; i < apiCalls.length; i++) {
       try {
-        console.log(`${houseTypes[i]} 진단 시작...`);
-        console.log(`${houseTypes[i]} 전송 데이터:`, diagnosisData);
         const result = await apiCalls[i];
-        console.log(`${houseTypes[i]} 진단 완료:`, result);
         results.push({ status: 'fulfilled', value: result });
         
         // 각 API 호출 후 잠시 대기 (데이터베이스 저장 확인용)
         await new Promise(resolve => setTimeout(resolve, 500));
       } catch (error) {
         console.error(`${houseTypes[i]} 진단 실패:`, error);
-        console.error(`${houseTypes[i]} 오류 상세:`, error.response?.data);
         results.push({ status: 'rejected', reason: error });
       }
     }
-
-    console.log('모든 진단 결과:', results);
 
     // 3. 결과 정리
     const qualifiedHouses = [];
@@ -310,9 +299,8 @@ async function submit() {
     results.forEach((result, index) => {
       if (result.status === 'fulfilled') {
         const qualified = result.value.qualified;
-        // qualified가 문자열인 경우 "가능", "우선공급", "특별공급" 등이 포함되어 있으면 자격 충족으로 판단
         if (typeof qualified === 'string' && 
-            (qualified.includes('가능') || qualified.includes('우선공급') || qualified.includes('특별공급'))) {
+            (!qualified.includes('불가능'))) {
           qualifiedHouses.push(`${houseTypes[index]} (${qualified})`);
         } else {
           failedHouses.push(`${houseTypes[index]} (${qualified})`);
