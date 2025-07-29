@@ -43,7 +43,6 @@ import SelfCheckStartModal from '../../components/modals/SelfCheckStartModal.vue
 import selfCheckApi from '../../api/selfCheck.js';
 import { useAuthStore } from '../../stores/auth';
 
-// 예시 질문 데이터
 const questions = [
   {
     id: 1,
@@ -210,12 +209,10 @@ async function startSelfCheck() {
     } else {
       alert('초기화 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
-    // 초기화 실패해도 모달은 닫고 진행
     showStartModal.value = false;
   }
 }
 
-// 모달이 열릴 때 스크롤 막기
 watch(showStartModal, (val) => {
   if (val) {
     document.body.style.overflow = 'hidden';
@@ -231,7 +228,6 @@ onUnmounted(() => {
 });
 
 const pageAllAnswered = computed(() => {
-  // 현재 페이지(2개) 모두 답변했는지 체크
   const idx = currentIndex.value * 2;
   return [0, 1].every(i => {
     const q = questions[idx + i];
@@ -269,7 +265,6 @@ async function submit() {
   };
 
   try {
-    // 모든 주택 유형 진단 실행
     const houseTypes = ['국민임대', '행복주택', '공공임대', '09공공임대'];
     const apiCalls = [
       selfCheckApi.getKookminDiagnosis(diagnosisData),
