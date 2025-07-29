@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
+import userApi from '../api/user';
+
 export const useMyPageStore = defineStore('mypage', {
   state: () => ({
     // 🧍 기본 유저 정보
@@ -116,12 +118,8 @@ export const useMyPageStore = defineStore('mypage', {
     },
     async getUserInfo(getAuthConfig) {
       try {
-        const res = await axios.get(
-          'http://localhost:8080/api/user',
-          getAuthConfig
-        );
-        const data = res.data;
-        console.log(res);
+        const data = await userApi.getUserInfo(getAuthConfig);
+        console.log(data);
 
         this.userInfo.name = data.name;
         this.userInfo.nickname = data.nickname;

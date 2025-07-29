@@ -62,7 +62,7 @@ export default {
 
   // 유저정보 조회
   async getUserInfo() {
-    const { data } = await axios.get('/api/user');
+    const { data } = await axios.get('/user');
     return data;
   },
 };
