@@ -115,13 +115,11 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import HouseFilter from '../components/house/HouseFilter.vue';
 import HouseCard from '../components/house/HouseCard.vue';
 import HousePagination from '../components/house/HousePagination.vue';
-
-import { ref, computed } from 'vue';
 import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
 
 const basicAddressInput = ref('');
