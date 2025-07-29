@@ -15,6 +15,11 @@ const errorMessage = ref('');
 const showPassword = ref(false);
 
 const deleteAccount = () => {
+  if (!password.value) {
+    errorMessage.value = '비밀번호를 입력해주세요.';
+    return;
+  }
+
   if (!confirm.value) {
     errorMessage.value = '계정 삭제에 동의해주세요.';
     return;
