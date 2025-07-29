@@ -28,6 +28,20 @@ api.interceptors.request.use(
   }
 );
 
+// 응답 인터셉터 - 401 오류 처리
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      // 401 오류 시 로그인 페이지로 리다이렉트
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default {
   // 국민임대 자체진단
   async getKookminDiagnosis(diagnosisData) {

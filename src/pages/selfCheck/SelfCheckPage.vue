@@ -195,6 +195,7 @@ async function startSelfCheck() {
     const authStore = useAuthStore();
     if (!authStore.token) {
       alert('로그인이 필요합니다. 로그인 후 다시 시도해주세요.');
+      router.push('/login');
       return;
     }
 
@@ -206,6 +207,7 @@ async function startSelfCheck() {
     console.error('초기화 실패:', error);
     if (error.response?.status === 401) {
       alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+      router.push('/login');
     } else {
       alert('초기화 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
@@ -324,7 +326,12 @@ async function submit() {
     alert(message);
   } catch (error) {
     console.error('전송 실패:', error);
-    alert('서버 연결에 실패했습니다. 백엔드 서버가 실행 중인지 확인해주세요.');
+    if (error.response?.status === 401) {
+      alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+      router.push('/login');
+    } else {
+      alert('서버 연결에 실패했습니다. 백엔드 서버가 실행 중인지 확인해주세요.');
+    }
   } finally {
     isSubmitting.value = false;
   }
