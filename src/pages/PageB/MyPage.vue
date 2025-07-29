@@ -1,6 +1,8 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useMyPageStore } from '@/stores/mypage';
+import { useAuthStore } from '@/stores/auth';
+
 import { storeToRefs } from 'pinia';
 
 // 📦 컴포넌트 import
@@ -18,9 +20,28 @@ const store = useMyPageStore();
 const { userInfo, favorites, supportableList, subscriptionScore } =
   storeToRefs(store);
 
+const authStore = useAuthStore();
+const { user, token } = storeToRefs(authStore);
+
 // 🎯 상태 정의
 const showModal = ref(false);
 const score = ref(0); // ✅ 점수 상태 추가
+
+const getAuthConfig = () => {
+  if (token.value) {
+    return {
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+      },
+    };
+  }
+  return {};
+};
+
+// ✅ 마운트 시 사용자 정보 가져오기
+onMounted(() => {
+  store.getUserInfo(getAuthConfig()); // 사용자 정보 조회
+});
 </script>
 
 <template>

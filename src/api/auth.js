@@ -59,6 +59,12 @@ export default {
     const { data } = await api.post('/auth/password/reset', payload);
     return data;
   },
+
+  // 유저정보 조회
+  async getUserInfo() {
+    const { data } = await axios.get('/api/user');
+    return data;
+  },
 };
 
 export const loginRequest = (payload) => {

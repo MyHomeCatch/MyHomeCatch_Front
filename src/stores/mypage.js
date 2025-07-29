@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import axios from 'axios';
 
 export const useMyPageStore = defineStore('mypage', {
   state: () => ({
@@ -112,6 +113,33 @@ export const useMyPageStore = defineStore('mypage', {
     },
     setProfileImage(imageUrl) {
       this.profileImage = imageUrl;
+    },
+    async getUserInfo(getAuthConfig) {
+      try {
+        const res = await axios.get(
+          'http://localhost:8080/api/user',
+          getAuthConfig
+        );
+        const data = res.data;
+        console.log(res);
+
+        this.userInfo.name = data.name;
+        this.userInfo.nickname = data.nickname;
+        this.userInfo.email = data.email;
+        this.userInfo.residence = data.address; // 매핑
+        this.userInfo.preferredRegions = data.preferredRegions || [];
+        this.userInfo.hasSubscriptionAccount = data.hasSubscriptionAccount;
+      } catch (err) {
+        console.error('사용자 정보 조회 실패:', err);
+        this.message = '사용자 정보를 불러오는 데 실패했습니다.';
+        if (
+          err.response &&
+          (err.response.status === 401 || err.response.status === 403)
+        ) {
+          this.message =
+            '인증 정보가 만료되었거나 유효하지 않습니다. 다시 로그인해주세요.';
+        }
+      }
     },
   },
 });
