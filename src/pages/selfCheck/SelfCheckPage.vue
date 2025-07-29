@@ -24,6 +24,7 @@
           :isFirst="currentIndex === 0"
           :isLast="currentIndex === lastIndex"
           :allAnswered="pageAllAnswered"
+          :isSubmitting="isSubmitting"
           @prev="goPrev"
           @next="goNext"
           @submit="submit"
@@ -39,6 +40,8 @@ import { useRouter } from 'vue-router';
 import QuestionCard from '../../components/selfCheck/QuestionCard.vue';
 import NavigationButtons from '../../components/selfCheck/NavigationButtons.vue';
 import SelfCheckStartModal from '../../components/modals/SelfCheckStartModal.vue';
+import selfCheckApi from '../../api/selfCheck.js';
+import { useAuthStore } from '../../stores/auth';
 
 // 예시 질문 데이터
 const questions = [
@@ -167,7 +170,6 @@ const questions = [
       '노부모부양',
       '대학생 계층',
       '청년 계층',
-      '신혼부부, 한부모 가족 계층',
       '고령자 계층',
       '주거급여수급자계층',
       '기초생활수급자',
@@ -185,10 +187,34 @@ const answers = ref(Array(questions.length).fill(null));
 const currentIndex = ref(0);
 const lastIndex = Math.floor((questions.length - 1) / 2);
 const showStartModal = ref(true);
+const isSubmitting = ref(false);
 const router = useRouter();
 
-function startSelfCheck() {
-  showStartModal.value = false;
+async function startSelfCheck() {
+  try {
+    // 토큰 상태 확인
+    const authStore = useAuthStore();
+    if (!authStore.token) {
+      alert('로그인이 필요합니다. 로그인 후 다시 시도해주세요.');
+      return;
+    }
+
+    // 자가진단 시작 시 기존 진단 결과 초기화
+    console.log('자가진단 시작 - 기존 진단 결과 초기화 중...');
+    await selfCheckApi.initializeDiagnosis();
+    console.log('기존 진단 결과 초기화 완료');
+    
+    showStartModal.value = false;
+  } catch (error) {
+    console.error('초기화 실패:', error);
+    if (error.response?.status === 401) {
+      alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+    } else {
+      alert('초기화 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
+    // 초기화 실패해도 모달은 닫고 진행
+    showStartModal.value = false;
+  }
 }
 
 // 모달이 열릴 때 스크롤 막기
@@ -225,9 +251,100 @@ function goPrev() {
 function goNext() {
   if (currentIndex.value < lastIndex) currentIndex.value++;
 }
-function submit() {
-  // 결과 처리 로직
-  console.log('선택된 답변:', answers.value);
+
+async function submit() {
+  if (isSubmitting.value) return;
+  
+  isSubmitting.value = true;
+  
+  const diagnosisData = {
+    residencePeriod: Number(answers.value[0]),
+    isHomeless: answers.value[1],
+    houseHoldMembers: Array.isArray(answers.value[2]) ? answers.value[2].join(',') : String(answers.value[2]),
+    maritalStatus: answers.value[3],
+    monthlyIncome: answers.value[4],
+    totalAssets: answers.value[5],
+    carValue: answers.value[6],
+    realEstateValue: answers.value[7],
+    subscriptionPeriod: answers.value[8],
+    targetGroups: Array.isArray(answers.value[9]) ? answers.value[9] : [answers.value[9]],
+  };
+
+  try {
+    // 모든 주택 유형 진단 실행
+    console.log('모든 주택 유형 진단 시작...');
+    
+    // 각 API를 개별적으로 호출하여 디버깅
+    const houseTypes = ['국민임대', '행복주택', '공공임대', '09공공임대'];
+    const apiCalls = [
+      selfCheckApi.getKookminDiagnosis(diagnosisData),
+      selfCheckApi.getHengBokDiagnosis(diagnosisData),
+      selfCheckApi.getGongGongDiagnosis(diagnosisData),
+      selfCheckApi.get09Diagnosis(diagnosisData)
+    ];
+    
+    const results = [];
+    for (let i = 0; i < apiCalls.length; i++) {
+      try {
+        console.log(`${houseTypes[i]} 진단 시작...`);
+        console.log(`${houseTypes[i]} 전송 데이터:`, diagnosisData);
+        const result = await apiCalls[i];
+        console.log(`${houseTypes[i]} 진단 완료:`, result);
+        results.push({ status: 'fulfilled', value: result });
+        
+        // 각 API 호출 후 잠시 대기 (데이터베이스 저장 확인용)
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } catch (error) {
+        console.error(`${houseTypes[i]} 진단 실패:`, error);
+        console.error(`${houseTypes[i]} 오류 상세:`, error.response?.data);
+        results.push({ status: 'rejected', reason: error });
+      }
+    }
+
+    console.log('모든 진단 결과:', results);
+
+    // 3. 결과 정리
+    const qualifiedHouses = [];
+    const failedHouses = [];
+
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        const qualified = result.value.qualified;
+        // qualified가 문자열인 경우 "가능", "우선공급", "특별공급" 등이 포함되어 있으면 자격 충족으로 판단
+        if (typeof qualified === 'string' && 
+            (qualified.includes('가능') || qualified.includes('우선공급') || qualified.includes('특별공급'))) {
+          qualifiedHouses.push(`${houseTypes[index]} (${qualified})`);
+        } else {
+          failedHouses.push(`${houseTypes[index]} (${qualified})`);
+        }
+      } else if (result.status === 'rejected') {
+        failedHouses.push(`${houseTypes[index]} (오류)`);
+      } else {
+        failedHouses.push(houseTypes[index]);
+      }
+    });
+
+    // 4. 결과 표시
+    let message = '';
+    if (qualifiedHouses.length > 0) {
+      message += `✅ 자격 요건을 충족하는 주택:\n${qualifiedHouses.join('\n')}\n\n`;
+    }
+    if (failedHouses.length > 0) {
+      message += `❌ 자격 요건을 충족하지 못하는 주택:\n${failedHouses.join('\n')}`;
+    }
+    
+    if (qualifiedHouses.length === 0) {
+      message = '모든 주택 유형에서 자격 요건을 충족하지 못합니다.';
+    }
+
+    message += '\n\n진단 결과가 데이터베이스에 저장되었습니다.';
+    alert(message);
+  } catch (error) {
+    console.error('전송 실패:', error);
+    alert('서버 연결에 실패했습니다. 백엔드 서버가 실행 중인지 확인해주세요.');
+  } finally {
+    isSubmitting.value = false;
+  }
 }
 </script>
 
