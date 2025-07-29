@@ -49,6 +49,68 @@
       <p>다른 조건으로 검색해보세요.</p>
       <button @click="clearAllFilters" class="clear-button">필터 초기화</button>
     </div>
+
+    <div style="display: flex; width: 100%; height: 100vh">
+      <div style="flex: 1; padding: 20px; overflow-y: auto">
+        <h1>LH 주택 단지 검색</h1>
+        <div>
+          <input
+            type="text"
+            v-model="basicAddressInput"
+            placeholder="기본 주소 (예: 경기도 양주시 덕계동)"
+            @keyup.enter="searchBasicAddress"
+            style="width: 70%; padding: 8px; margin-right: 5px"
+          />
+          <button @click="searchBasicAddress" style="padding: 8px 15px">
+            검색
+          </button>
+        </div>
+
+        <div
+          v-if="filteredComplexes.length > 0"
+          style="
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            padding: 10px;
+          "
+        >
+          <h3>검색 결과 ({{ filteredComplexes.length }}개)</h3>
+          <ul style="list-style: none; padding: 0">
+            <li
+              v-for="complex in filteredComplexes"
+              :key="complex.id"
+              @click="moveMapToComplex(complex)"
+              style="
+                padding: 8px;
+                border-bottom: 1px solid #eee;
+                cursor: pointer;
+                transition: background-color 0.2s;
+              "
+              @mouseover="
+                (event) => (event.target.style.backgroundColor = '#f0f0f0')
+              "
+              @mouseout="
+                (event) => (event.target.style.backgroundColor = 'white')
+              "
+            >
+              <strong>{{ complex.complexName }}</strong
+              ><br />
+              <small
+                >{{ complex.lct_ara_adr }} {{ complex.lct_ara_dtl_adr }}</small
+              >
+            </li>
+          </ul>
+        </div>
+        <div v-else-if="basicAddressInput.length > 0" style="margin-top: 20px">
+          <p>검색 결과가 없습니다.</p>
+        </div>
+      </div>
+      <div style="flex: 1; height: 100%">
+        <KakaoMapViewer ref="mapViewerRef" :lhComplexes="filteredComplexes" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -58,6 +120,35 @@ import axios from 'axios';
 import HouseFilter from '../components/house/HouseFilter.vue';
 import HouseCard from '../components/house/HouseCard.vue';
 import HousePagination from '../components/house/HousePagination.vue';
+
+import { ref, computed } from 'vue';
+import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
+
+const basicAddressInput = ref('');
+const filteredComplexes = computed(() => {
+  if (!basicAddressInput.value) {
+    return [];
+  }
+  const searchTerm = basicAddressInput.value.trim();
+  return lhHousingData.value.filter((complex) =>
+    complex.lct_ara_adr.includes(searchTerm)
+  );
+});
+
+const mapViewerRef = ref(null); // KakaoMapViewer 컴포넌트의 ref
+
+const searchBasicAddress = () => {
+  if (filteredComplexes.value.length > 0) {
+    // 필터링된 첫 번째 단지의 상세 주소로 지도 이동 및 주변 시설 검색 요청
+    mapViewerRef.value.updateMapWithComplex(filteredComplexes.value[0]);
+  } else {
+    alert('해당 기본 주소에 대한 단지 정보가 없습니다.');
+  }
+};
+
+const moveMapToComplex = (complex) => {
+  mapViewerRef.value.updateMapWithComplex(complex);
+};
 
 // State
 const loading = ref(false);
