@@ -42,4 +42,16 @@ export default {
     const { data } = await api.delete('/self-check/init');
     return data;
   },
+
+  // 진단 내용 저장
+  async saveContent(diagnosisData) {
+    const { data } = await api.post('/self-check/content/save', diagnosisData);
+    return data;
+  },
+
+  // 진단 내용 삭제
+  async deleteContent() {
+    const { data } = await api.delete('/self-check/content/delete');
+    return data;
+  },
 };

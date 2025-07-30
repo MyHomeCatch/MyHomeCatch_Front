@@ -198,18 +198,15 @@ async function startSelfCheck() {
       router.push('/login');
       return;
     }
-
-    // 자가진단 시작 시 기존 진단 결과 초기화
-    await selfCheckApi.initializeDiagnosis();
     
     showStartModal.value = false;
   } catch (error) {
-    console.error('초기화 실패:', error);
+    console.error('자가진단 시작 실패:', error);
     if (error.response?.status === 401) {
       alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
       router.push('/login');
     } else {
-      alert('초기화 중 오류가 발생했습니다. 다시 시도해주세요.');
+      alert('자가진단 시작 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
     showStartModal.value = false;
   }
@@ -267,6 +264,17 @@ async function submit() {
   };
 
   try {
+    // 1. 기존 자가진단 결과 삭제
+    console.log('기존 자가진단 결과 삭제 중...');
+    await selfCheckApi.initializeDiagnosis();
+    console.log('기존 자가진단 결과 삭제 완료');
+
+    // 2. 기존 진단 내용 삭제
+    console.log('기존 진단 내용 삭제 중...');
+    await selfCheckApi.deleteContent();
+    console.log('기존 진단 내용 삭제 완료');
+
+    // 2. 진단 실행
     const houseTypes = ['국민임대', '행복주택', '공공임대', '09공공임대'];
     const apiCalls = [
       selfCheckApi.getKookminDiagnosis(diagnosisData),
@@ -289,7 +297,12 @@ async function submit() {
       }
     }
 
-    // 3. 결과 정리
+    // 3. 진단 내용 저장
+    console.log('진단 내용 저장 중...');
+    await selfCheckApi.saveContent(diagnosisData);
+    console.log('진단 내용 저장 완료');
+
+    // 4. 결과 정리
     const qualifiedHouses = [];
     const failedHouses = [];
 
@@ -309,7 +322,7 @@ async function submit() {
       }
     });
 
-    // 4. 결과 표시
+    // 5. 결과 표시
     let message = '';
     if (qualifiedHouses.length > 0) {
       message += `✅ 자격 요건을 충족하는 주택:\n${qualifiedHouses.join('\n')}\n\n`;
