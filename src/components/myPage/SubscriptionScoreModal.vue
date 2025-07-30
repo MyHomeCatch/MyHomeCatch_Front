@@ -1,6 +1,16 @@
 <script setup>
 import { reactive } from 'vue';
 
+import { useMyPageStore } from '@/stores/mypage';
+import { useAuthStore } from '@/stores/auth';
+import { storeToRefs } from 'pinia';
+
+const store = useMyPageStore();
+const { userInfo } = storeToRefs(store);
+
+const authStore = useAuthStore();
+const { token } = storeToRefs(authStore);
+
 const emit = defineEmits(['close', 'calculated']);
 
 const questions = reactive([
@@ -72,10 +82,29 @@ function extractScore(text) {
 }
 
 function calculateScore() {
+  const isAllSelected = questions.every((q) => q.selected !== '');
+
+  if (!isAllSelected) {
+    alert('모든 항목을 선택해주세요.');
+    return;
+  }
+
   const total = questions.reduce((sum, q) => sum + extractScore(q.selected), 0);
-  emit('calculated', total);
+  store.updateAdditionalPoint(getAuthConfig(), total);
+  // emit('calculated', total);
   emit('close');
 }
+
+const getAuthConfig = () => {
+  if (token.value) {
+    return {
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+      },
+    };
+  }
+  return {};
+};
 </script>
 
 <template>

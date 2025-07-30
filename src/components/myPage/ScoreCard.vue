@@ -3,7 +3,7 @@
     <div class="score-body">
       <p class="score-title">나의 청약 가점</p>
       <small class="score-date">📅 2025-07-18일 기준</small>
-      <div class="score-value">{{ score }}점</div>
+      <div class="score-value">{{ userInfo.additionalPoint }}점</div>
       <button class="score-button" @click="$emit('openModal')">
         가점 계산
       </button>
@@ -12,7 +12,12 @@
 </template>
 
 <script setup>
-defineProps({ score: Number });
+import { useMyPageStore } from '@/stores/mypage';
+import { storeToRefs } from 'pinia';
+
+const store = useMyPageStore();
+
+const { userInfo } = storeToRefs(store);
 </script>
 
 <style scoped>

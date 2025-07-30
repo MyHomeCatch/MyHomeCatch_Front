@@ -13,10 +13,11 @@ export const useMyPageStore = defineStore('mypage', {
       residence: '대구 수성구',
       preferredRegions: ['대구'],
       hasSubscriptionAccount: '보유',
+      additionalPoint: 0,
     },
 
-    // 💰 청약 가점
-    subscriptionScore: 0,
+    // // 💰 청약 가점
+    // subscriptionScore: 0,
 
     // 🏠 세대/자금 관련 정보
     householdInfo: {
@@ -127,6 +128,29 @@ export const useMyPageStore = defineStore('mypage', {
         this.userInfo.residence = data.address; // 매핑
         this.userInfo.preferredRegions = data.preferredRegions || [];
         this.userInfo.hasSubscriptionAccount = data.hasSubscriptionAccount;
+        this.userInfo.additionalPoint = data.additionalPoint;
+      } catch (err) {
+        console.error('사용자 정보 조회 실패:', err);
+        this.message = '사용자 정보를 불러오는 데 실패했습니다.';
+        if (
+          err.response &&
+          (err.response.status === 401 || err.response.status === 403)
+        ) {
+          this.message =
+            '인증 정보가 만료되었거나 유효하지 않습니다. 다시 로그인해주세요.';
+        }
+      }
+    },
+    async updateAdditionalPoint(getAuthConfig, additionalPoint) {
+      const body = {
+        email: this.userInfo.email,
+        additionalPoint: additionalPoint,
+      };
+      try {
+        const data = await userApi.updateAdditionalPoint(getAuthConfig, body);
+
+        // ✅ 업데이트 후 사용자 정보 재조회
+        await this.getUserInfo(getAuthConfig);
       } catch (err) {
         console.error('사용자 정보 조회 실패:', err);
         this.message = '사용자 정보를 불러오는 데 실패했습니다.';
