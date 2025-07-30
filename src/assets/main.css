@@ -3,6 +3,8 @@
   font-family: 'Noto Sans KR';
 }
 
+@import 'tailwindcss';
+
 .avatar {
   border-radius: 50%;
   border-color: gray;
