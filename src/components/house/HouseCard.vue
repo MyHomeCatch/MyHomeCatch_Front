@@ -58,41 +58,6 @@
           <span class="area-unit">m<sup>2</sup></span>
         </div>
       </div>
-
-      <!-- <div class="supply-info">
-        <div class="supply-detail">
-          <span class="label">
-            {{ house.housingType === 'housing' ? '분양세대' : '임대세대' }}
-          </span>
-          <span class="value">{{ house.totalHouseCount }}세대</span>
-        </div>
-        <div class="supply-detail">
-          <span class="label">공고유형</span>
-          <span class="value">{{ house.noticeType }}</span>
-        </div>
-        <div class="supply-detail">
-          <span class="label">공고상태</span>
-          <span
-            class="value notice-status"
-            :class="getStatusClass(house.noticeStatus)"
-          >
-            {{ house.noticeStatus }}
-          </span>
-        </div>
-        <div class="supply-detail">
-          <span class="label">적용면적</span>
-          <div>
-            <span class="value">{{ house.exclusiveArea }}</span>
-            <span class="area-unit">m<sup>2</sup></span>
-          </div>
-        </div>
-      </div> -->
-
-      <!-- <div class="date-info">
-        <span class="apply-date">
-          공고일: {{ formatDate(house.noticeStartDate) }}
-        </span>
-      </div> -->
     </div>
   </div>
 </template>

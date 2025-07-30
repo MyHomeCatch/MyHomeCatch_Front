@@ -1,94 +1,150 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-import { KakaoMap, KakaoMapMarker, KakaoMapInfoWindow } from "vue3-kakao-maps";
+import { ref, watch } from 'vue';
+import {
+  KakaoMap,
+  KakaoMapMarker,
+  KakaoMapInfoWindow,
+  KakaoMapCustomOverlay,
+} from 'vue3-kakao-maps';
+import HouseCard from './house/HouseCard.vue';
+import HouseInfoOverlay from './house/HouseInfoOverlay.vue';
 
 const props = defineProps({
   initialLat: { type: Number, default: 33.450701 },
   initialLng: { type: Number, default: 126.570667 },
-  lhComplexes: { type: Array, default: () => [] }, // LH 단지 데이터 (DTO 형태)
-  searchRadius: { type: Number, default: 2000 }, // 주변 시설 검색 반경 (미터)
-  initialCategory: { type: String, default: 'PO3' }, // 초기 검색 카테고리
+  houses: { type: Array, default: () => [] }, // LH 단지 데이터 (DTO 형태)
 });
 
-const mapRef = ref(null);
+const map = ref(null);
 const coordinate = ref({ lat: props.initialLat, lng: props.initialLng });
 const markers = ref([]); // LH 단지 마커
 const publicFacilityMarkers = ref([]); // 공공시설 마커
 const selectedPlaceInfo = ref(null); // 인포윈도우에 표시될 장소 정보
-
-let geocoder = null;
-let places = null; // Places 객체
-
-// 카테고리별 마커 이미지 스프라이트 정보 (Kakao Map Places API 샘플 기준)
-const categoryMap = {
-  'PO3': { name: '공공기관', order: 0 },
-  'SC4': { name: '학교', order: 3 },
-  'HP8': { name: '병원', order: 7 },
-  'PM9': { name: '약국', order: 8 },
-  'MT1': { name: '대형마트', order: 1 },
-  'CS2': { name: '편의점', order: 2 },
-  'BK9': { name: '은행', order: 4 },
-  'CT1': { name: '문화시설', order: 5 },
-  'AD5': { name: '숙박', order: 6 },
-  'FD6': { name: '음식점', order: 9 },
-  'CE7': { name: '카페', order: 10 },
-  'AT4': { name: '관광명소', order: 11 },
-  // 필요한 다른 카테고리 추가
-};
-
+const selectedMarker = ref(null); // LH 단지 인포윈도우 정보
 const currentCategory = ref(props.initialCategory); // 현재 선택된 카테고리
+let customOverlay = null;
+let geocoder = null;
 
-onMounted(() => {
+watch(map, () => {
   if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
     geocoder = new window.kakao.maps.services.Geocoder();
-    places = new window.kakao.maps.services.Places();
-    // 초기 LH 단지 마커 및 주변 시설 검색
-    if (props.lhComplexes.length > 0) {
-      updateMapWithComplex(props.lhComplexes[0]);
+    // 초기 모든 LH 단지 마커 표시
+    if (props.houses.length > 0) {
+      loadAllComplexes();
     }
   } else {
-    console.error("Kakao maps services library not loaded.");
+    console.error('Kakao maps services library not loaded.');
   }
 });
 
-// lhComplexes prop이 변경될 때 지도 업데이트
-watch(() => props.lhComplexes, (newComplexes) => {
-  if (newComplexes.length > 0) {
-    updateMapWithComplex(newComplexes[0]);
-  } else {
-    markers.value = [];
-    publicFacilityMarkers.value = [];
-    selectedPlaceInfo.value = null;
-  }
-}, { deep: true });
+// houses prop이 변경될 때 지도 업데이트
+watch(
+  () => props.houses,
+  (newHouses) => {
+    console.log('  ⚠️  : ', newHouses);
 
-// 특정 단지 정보로 지도 업데이트 (중심 이동, 마커 표시, 주변 시설 검색)
-const updateMapWithComplex = (complex) => {
-  if (!geocoder) {
-    console.error("Geocoder not initialized.");
+    if (!map.value) return;
+
+    if (newHouses.length > 0) {
+      loadAllComplexes();
+    } else {
+      markers.value = [];
+      publicFacilityMarkers.value = [];
+      selectedPlaceInfo.value = null;
+      selectedMarker.value = null;
+    }
+  },
+  { deep: true }
+);
+
+// 모든 단지를 지도에 마커로 표시
+const loadAllComplexes = async () => {
+  if (!geocoder || props.houses.length === 0) {
     return;
   }
 
-  // 주소 검색 시도 (첫 번째 조합)
-  geocodeDetailedAddress(complex, 0); // 0은 첫 번째 시도를 의미
+  markers.value = []; // 기존 마커 초기화
+  const bounds = new window.kakao.maps.LatLngBounds(); // 지도 영역 설정용
+
+  // 각 단지에 대해 지오코딩 수행
+  for (const house of props.houses) {
+    await geocodeComplex(house, bounds);
+  }
+
+  console.log('  ⚠️  : ', bounds);
+
+  if (markers.value.length === 1) {
+    // 마커가 하나뿐인 경우 해당 위치로 이동하고 적절한 줌 레벨 설정
+    const marker = markers.value[0];
+    const newLatLng = new window.kakao.maps.LatLng(marker.lat, marker.lng);
+    map.value.map.setCenter(newLatLng);
+    map.value.map.setLevel(3); // 더 가까운 줌 레벨
+  } else {
+    // 여러 마커가 있는 경우 모든 마커를 포함하는 영역으로 조정
+    map.value.setBounds(bounds);
+
+    // setBounds 후에 패딩을 추가하여 마커들이 가장자리에 붙지 않도록 함
+    setTimeout(() => {
+      if (map.value && map.value.map) {
+        const currentLevel = map.value.map.getLevel();
+        // 현재 레벨에서 1단계 더 축소하여 여백 추가
+        map.value.map.setLevel(Math.min(currentLevel + 1, 10));
+      }
+    }, 100);
+  }
 };
 
-// 상세 주소로 지오코딩 및 지도 이동/마커 추가 (재시도 로직 포함)
-const geocodeDetailedAddress = (complex, attempt, searchFacilities = true) => {
+// 단일 단지 지오코딩
+const geocodeComplex = (house, bounds) => {
+  return new Promise((resolve) => {
+    geocodeDetailedAddress(house, 0, false, (result) => {
+      if (result) {
+        const latLng = new window.kakao.maps.LatLng(result.lat, result.lng);
+        bounds.extend(latLng);
+
+        // 바운딩 박스에 약간의 패딩을 추가
+        const padding = 0.001; // 약 100m 정도의 패딩
+        bounds.extend(
+          new window.kakao.maps.LatLng(
+            result.lat + padding,
+            result.lng + padding
+          )
+        );
+        bounds.extend(
+          new window.kakao.maps.LatLng(
+            result.lat - padding,
+            result.lng - padding
+          )
+        );
+      }
+      resolve(result);
+    });
+  });
+};
+
+// 상세 주소로 지오코딩 및 마커 추가 (재시도 로직 포함)
+const geocodeDetailedAddress = (
+  house,
+  attempt,
+  searchFacilities = false,
+  callback = null
+) => {
   if (!geocoder) {
-    console.error("Geocoder not initialized.");
+    console.error('Geocoder not initialized.');
+    if (callback) callback(null);
     return;
   }
 
   let fullAddress = '';
   if (attempt === 0) {
-    fullAddress = `${complex.lct_ara_adr} ${complex.complexName}`;
+    fullAddress = `${house.address} ${house.houseName}`;
   } else if (attempt === 1) {
-    fullAddress = `${complex.lct_ara_adr} ${complex.lct_ara_dtl_adr}`;
-  } else if (attempt === 2 ){
-    fullAddress = `${complex.lct_ara_adr}`;
+    fullAddress = `${house.houseName}`;
+  } else if (attempt === 2) {
+    fullAddress = `${house.address}`;
   } else {
-    console.error("Invalid attempt number.");
+    console.error('Invalid attempt number.');
+    if (callback) callback(null);
     return;
   }
 
@@ -97,172 +153,125 @@ const geocodeDetailedAddress = (complex, attempt, searchFacilities = true) => {
       const newLat = parseFloat(result[0].y);
       const newLng = parseFloat(result[0].x);
 
-      coordinate.value = {
-        lat: newLat,
-        lng: newLng
-      };
-
-      // LH 단지 마커 업데이트
-      markers.value = [{
+      const markerData = {
+        id: house.houseId,
         lat: newLat,
         lng: newLng,
-        name: complex.complexName,
-        address: fullAddress
-      }];
+        house: house, // 원본 complex 데이터 보관
+      };
 
-      // 지도를 해당 위치로 이동
-      if (mapRef.value && mapRef.value.map) {
+      // 마커 배열에 추가
+      markers.value.push(markerData);
+
+      // 첫 번째 단지의 경우 지도 중심으로 설정하고 주변 시설 검색
+      if (searchFacilities && map.value && map.value.map) {
+        coordinate.value = { lat: newLat, lng: newLng };
         const newLatLng = new window.kakao.maps.LatLng(newLat, newLng);
-        mapRef.value.map.setCenter(newLatLng);
-
-        // 지도 이동 후 주변 시설 검색
-        if (searchFacilities) {
-          searchPublicFacilities(newLatLng, currentCategory.value);
-        }
+        map.value.map.setCenter(newLatLng);
       }
+
+      if (callback) callback(markerData);
     } else {
       console.warn(`주소 검색 실패: ${fullAddress} (${status})`);
       // 첫 번째 시도 실패 시 두 번째 시도
       if (attempt === 0) {
-        geocodeDetailedAddress(complex, 1, searchFacilities); // 두 번째 시도
+        geocodeDetailedAddress(house, 1, searchFacilities, callback);
       } else if (attempt === 1) {
-        geocodeDetailedAddress(complex, 2, searchFacilities); // 세 번째 시도
+        geocodeDetailedAddress(house, 2, searchFacilities, callback);
       } else {
-        alert(`'${complex.complexName}'에 대한 주소 검색 결과가 없습니다.`);
+        console.warn(`'${house.houseId}'에 대한 주소 검색 결과가 없습니다.`);
+        if (callback) callback(null);
       }
     }
   });
 };
 
-// 주변 공공시설 검색
-const searchPublicFacilities = (centerLatLng, categoryCode) => {
-  if (!places) {
-    console.error("Places API not initialized.");
+// 특정 단지 정보로 지도 업데이트 (중심 이동, 주변 시설 검색)
+const updateMapWithHouse = (house) => {
+  if (!geocoder) {
+    console.error('Geocoder not initialized.');
     return;
   }
 
-  publicFacilityMarkers.value = []; // 기존 공공시설 마커 초기화
-  selectedPlaceInfo.value = null; // 인포윈도우 닫기
+  // 기존 마커 중에서 해당 단지 찾기
+  const existingMarker = markers.value.find(
+    (marker) => marker.house.houseId === house.houseId
+  );
 
-  places.categorySearch(categoryCode, (data, status, pagination) => {
-    if (status === window.kakao.maps.services.Status.OK) {
-      data.forEach(place => {
-        publicFacilityMarkers.value.push({
-          lat: parseFloat(place.y),
-          lng: parseFloat(place.x),
-          name: place.place_name,
-          category: place.category_group_name, // 카테고리 그룹 이름 (예: 공공기관)
-          categoryCode: place.category_group_code, // 카테고리 코드 (예: PO3)
-          address: place.address_name,
-          roadAddress: place.road_address_name,
-          phone: place.phone,
-          placeUrl: place.place_url,
-        });
-      });
-      // 필요하다면 pagination을 사용하여 다음 페이지 결과도 가져올 수 있습니다.
-    } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
-      console.log("주변 공공시설 검색 결과가 없습니다.");
-    } else {
-      console.error("주변 공공시설 검색 중 오류 발생: " + status);
+  if (existingMarker) {
+    coordinate.value = { lat: existingMarker.lat, lng: existingMarker.lng };
+
+    if (map.value) {
+      const newLatLng = new window.kakao.maps.LatLng(
+        existingMarker.lat,
+        existingMarker.lng
+      );
+
+      console.log('  ⚠️  : ', '지도 변경');
+
+      map.value.setCenter(newLatLng);
+      map.value.setLevel(3);
+      selectedMarker.value = existingMarker;
     }
-  }, {
-    location: centerLatLng, // 현재 지도 중심 좌표
-    radius: props.searchRadius // 검색 반경 (미터 단위)
-  });
-};
-
-// 카테고리 버튼 클릭 핸들러
-const onClickCategory = (categoryCode) => {
-  currentCategory.value = categoryCode;
-  if (mapRef.value && mapRef.value.map) {
-    const center = mapRef.value.map.getCenter();
-    searchPublicFacilities(center, categoryCode);
   }
 };
 
-// 마커 이미지 옵션 생성 함수
-const getMarkerImageOptions = (categoryCode) => {
-  const imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/places_category.png';
-  const imageSize = new window.kakao.maps.Size(27, 28);
-  const categoryInfo = categoryMap[categoryCode];
-  // 스프라이트 이미지에서 해당 카테고리의 아이콘 위치 계산
-  const spriteOrigin = categoryInfo ? new window.kakao.maps.Point(46, (categoryInfo.order * 36)) : new window.kakao.maps.Point(0, 0); 
-
-  return new window.kakao.maps.MarkerImage(imageSrc, imageSize, {
-    spriteSize: new window.kakao.maps.Size(72, 208),
-    spriteOrigin: spriteOrigin,
-    offset: new window.kakao.maps.Point(11, 28)
-  });
+const onLoadKakaoMap = (newMap) => {
+  map.value = newMap;
 };
 
-// 인포윈도우 열기
-const openInfowindow = (place) => {
-  selectedPlaceInfo.value = place;
+// 인포윈도우 열기 (LH 단지) - 레거시
+const openComplexInfowindow = (marker) => {
+  console.log('LH 단지 마커 클릭:', marker);
+  selectedMarker.value = marker;
 };
 
 // 인포윈도우 닫기
-const closeInfowindow = () => {
-  selectedPlaceInfo.value = null;
+const closeOverlay = () => {
+  selectedMarker.value = null;
 };
 
 // 부모 컴포넌트에서 호출할 수 있도록 노출
 defineExpose({
-  updateMapWithComplex,
+  updateMapWithHouse,
 });
-
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; height: 100%;">
-    <div style="margin-bottom: 10px;">
-      <h3>주변 시설 카테고리</h3>
-      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-        <button v-for="(cat, code) in categoryMap" :key="code" @click="onClickCategory(code)" :class="{ 'active-category': currentCategory === code }" style="padding: 8px 15px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; background-color: #f9f9f9;">
-          {{ cat.name }}
-        </button>
-      </div>
-    </div>
-    <div style="flex-grow: 1;">
-      <KakaoMap ref="mapRef" :lat="coordinate.lat" :lng="coordinate.lng" :draggable="true" style="width: 100%; height: 100%;">
+  <div style="display: flex; flex-direction: column; height: 100%">
+    <div style="flex-grow: 1">
+      <KakaoMap
+        :lat="coordinate.lat"
+        :lng="coordinate.lng"
+        :draggable="true"
+        @on-load-kakao-map="onLoadKakaoMap"
+        style="width: 100%; height: 100%"
+      >
         <!-- LH 단지 마커 -->
-        <KakaoMapMarker v-for="(marker, index) in markers" :key="'lh-' + index" :lat="marker.lat" :lng="marker.lng" :title="marker.name"></KakaoMapMarker>
-        <!-- 공공시설 마커 -->
-        <KakaoMapMarker 
-          v-for="(marker, index) in publicFacilityMarkers" 
-          :key="'pub-' + index" 
-          :lat="marker.lat" 
-          :lng="marker.lng" 
-          :title="marker.name + ' (' + marker.category + ')'"
-          :image="getMarkerImageOptions(marker.categoryCode)"
-          @click="openInfowindow(marker)"
-        ></KakaoMapMarker>
-
-        <!-- 인포윈도우 -->
-        <KakaoMapInfoWindow
-          v-if="selectedPlaceInfo"
-          :lat="selectedPlaceInfo.lat"
-          :lng="selectedPlaceInfo.lng"
-          :infoWindowOptions="{ removable: true }"
-          @close="closeInfowindow"
+        <KakaoMapMarker
+          v-for="marker in markers"
+          :key="marker.id"
+          :lat="marker.lat"
+          :lng="marker.lng"
+          :title="marker.name"
+          :clickable="true"
+          v-on:onClickKakaoMapMarker="openComplexInfowindow(marker)"
         >
-          <div style="padding:5px;">
-            <strong>{{ selectedPlaceInfo.name }}</strong><br>
-            <span v-if="selectedPlaceInfo.roadAddress">{{ selectedPlaceInfo.roadAddress }}</span>
-            <span v-else>{{ selectedPlaceInfo.address }}</span><br>
-            <span v-if="selectedPlaceInfo.phone">{{ selectedPlaceInfo.phone }}</span><br>
-            <a :href="selectedPlaceInfo.placeUrl" target="_blank">상세보기</a>
-          </div>
-        </KakaoMapInfoWindow>
+        </KakaoMapMarker>
 
+        <KakaoMapCustomOverlay
+          v-if="selectedMarker"
+          :lat="selectedMarker.lat"
+          :lng="selectedMarker.lng"
+        >
+          <HouseInfoOverlay
+            :house="selectedMarker.house"
+            @close="closeOverlay"
+          />
+        </KakaoMapCustomOverlay>
       </KakaoMap>
     </div>
   </div>
 </template>
 
-<style scoped>
-.active-category {
-  background-color: #007bff !important;
-  color: white;
-  border-color: #007bff !important;
-}
-</style>
+<style></style>
