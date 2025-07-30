@@ -2,10 +2,11 @@
 import { ref, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { storeToRefs } from 'pinia';
-import { useRouter } from 'vue-router'; // ✅ router import
+import { useRouter } from 'vue-router';
+import axios from 'axios';
 
 const authStore = useAuthStore();
-const { user } = storeToRefs(authStore);
+const { user, token } = storeToRefs(authStore);
 
 const router = useRouter(); // ✅ router 객체 생성
 
@@ -14,7 +15,21 @@ const confirm = ref(false);
 const errorMessage = ref('');
 const showPassword = ref(false);
 
-const deleteAccount = () => {
+const getAuthConfig = () => {
+  if (token.value) {
+    return {
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+      },
+    };
+  }
+  return {};
+};
+
+const deleteAccount = async () => {
+  // ✅ async 키워드 추가
+  errorMessage.value = ''; // 에러 메시지 초기화
+
   if (!password.value) {
     errorMessage.value = '비밀번호를 입력해주세요.';
     return;
@@ -25,14 +40,41 @@ const deleteAccount = () => {
     return;
   }
 
-  // TODO: 실제 회원탈퇴 API 연동
-  alert('회원 탈퇴가 완료되었습니다.');
+  const isConfirmed = window.confirm(
+    '정말로 회원 탈퇴하시겠습니까? 탈퇴 후에는 계정을 복구할 수 없습니다.'
+  );
+  if (!isConfirmed) {
+    // 사용자가 '취소'를 눌렀을 경우, 탈퇴 절차 중단
+    return;
+  }
 
-  // ✅ 탈퇴 성공 시 완료 페이지로 이동
-  router.push('/byeComplete');
+  console.log('회원 탈퇴 요청 직전 user.value.email:', user.value.email);
+  console.log('회원 탈퇴 요청 직전 password.value:', password.value);
+
+  try {
+    // Pinia 스토어의 withdrawUser 액션 호출
+    const result = await authStore.withdrawUser({
+      email: user.value.email,
+      currentPassword: password.value,
+    });
+
+    if (result.success) {
+      alert(result.message || '회원 탈퇴가 완료되었습니다.');
+      router.push('/byeComplete'); // 탈퇴 성공 시 완료 페이지로 이동
+    } else {
+      // 실패 메시지는 authStore.errorMessage에 이미 설정되어 있음
+      errorMessage.value = result.message || '회원 탈퇴에 실패했습니다.';
+    }
+  } catch (error) {
+    // authStore.withdrawUser에서 이미 에러 처리 및 메시지 설정
+    // 여기서는 추가적인 에러 처리 로직이 필요 없을 수 있음
+    console.error('회원 탈퇴 실패 (컴포넌트 레벨 catch):', error);
+    errorMessage.value =
+      authStore.errorMessage || '회원 탈퇴 중 알 수 없는 오류가 발생했습니다.';
+  }
 };
 
-// ✅ 체크박스가 true로 바뀌면 에러 메시지 제거
+// 동의 체크박스가 true로 바뀌면 에러 메시지 제거
 watch(confirm, (newVal) => {
   if (newVal) {
     errorMessage.value = '';

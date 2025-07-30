@@ -1,11 +1,16 @@
 import { defineStore } from 'pinia';
 import authApi, { loginRequest } from '../api/auth';
+import axios from 'axios'; // axios 임포트 확인
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     // 인증 상태
     token: localStorage.getItem('token') || null,
     isLoggedIn: !!localStorage.getItem('token'),
+
+    loading: false,
+    errorMessage: '',
+    successMessage: '',
 
     // 사용자 정보
     user: {
@@ -37,17 +42,9 @@ export const useAuthStore = defineStore('auth', {
     emailCheckMessage: '',
     nicknameCheckMessage: '',
 
-    // 기타
-    loading: false,
-    errorMessage: '',
-    successMessage: '',
-    emailVerified: false, // 이메일 인증 상태 추가
+    emailVerified: false,
   }),
-  // getters: {
-  //   isLoggedIn: (state) => !!state.token,
-  // },
   actions: {
-    // 로그인
     async login({ email, password }) {
       try {
         const response = await loginRequest({ email, password });
@@ -61,10 +58,11 @@ export const useAuthStore = defineStore('auth', {
         }
 
         await this.fetchUserInfo();
-        // console.log('로그인 응답:', response.data.nickname);
+        console.log('로그인 응답 및 user 정보 최신화 완료');
 
         return { success: true };
       } catch (err) {
+        console.error('로그인 실패:', err);
         return {
           success: false,
           message: err.response?.data?.message || '로그인 실패',
@@ -85,7 +83,6 @@ export const useAuthStore = defineStore('auth', {
       localStorage.setItem('token', token);
     },
 
-    // 소셜 로그인 정보 세팅
     setSocialInfo({ id, name, nickname, email, profile, birthday, type }) {
       this.user = {
         ...this.user,
@@ -98,17 +95,14 @@ export const useAuthStore = defineStore('auth', {
       };
       this.socialType = type || '';
       this.emailChecked = true;
-      // 소셜 로그인 시 비밀번호 자동 세팅
       if (type === 'kakao') this.password = `KAKAO ${id}`;
       else if (type === 'google') this.password = `GOOGLE ${id}`;
     },
 
-    // 회원가입 입력값 세팅
     setUserField(field, value) {
       this.user[field] = value;
     },
 
-    // 상태 초기화
     resetAll() {
       this.user = {
         id: '',
@@ -133,10 +127,9 @@ export const useAuthStore = defineStore('auth', {
       this.loading = false;
       this.errorMessage = '';
       this.successMessage = '';
-      this.emailVerified = false; // 초기화 시 이메일 인증 상태도 초기화
+      this.emailVerified = false;
     },
 
-    // 이메일/닉네임 중복확인
     async checkEmail(email) {
       this.emailChecking = true;
       this.emailCheckMessage = '';
@@ -179,33 +172,26 @@ export const useAuthStore = defineStore('auth', {
 
     async sendEmail(email) {
       try {
-        const response = await authApi.sendToEmail({ email });
+        await authApi.sendToEmail({ email });
       } catch (error) {
         console.error(error);
-      } finally {
-        // any cleanup
       }
     },
 
     async checkEmailCode(email, code) {
       try {
         const response = await authApi.checkEmailCode({ email, code });
-
         if (response.success) {
-          this.emailVerified = true; // <-- 인증 성공 시 상태 저장
-          this.emailCheckMessage = ''; // 인증 성공 시 메시지 제거
-          // 추가 성공 로직
+          this.emailVerified = true;
+          this.emailCheckMessage = '';
         } else {
-          this.emailVerified = false; // 인증 실패 시 false
-          // 실패 처리 (예: 사용자에게 메시지 보여주기)
+          this.emailVerified = false;
         }
       } catch (error) {
-        this.emailVerified = false; // 에러 시 false
-        // 네트워크 오류나 예외 처리
-      } finally {
-        // any cleanup
+        this.emailVerified = false;
       }
     },
+
     // 주소 모달
     openAddressModal() {
       this.showAddressModal = true;
@@ -221,7 +207,6 @@ export const useAuthStore = defineStore('auth', {
       this.showAddressModal = false;
     },
 
-    // 회원가입
     async signup() {
       this.loading = true;
       this.errorMessage = '';
@@ -242,7 +227,6 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    // 비밀번호 재설정
     async resetPassword({ email, newPassword }) {
       try {
         const res = await authApi.resetPassword({ email, newPassword });
@@ -263,6 +247,45 @@ export const useAuthStore = defineStore('auth', {
         // console.log('유저 정보 불러옴:', data);
       } catch (err) {
         console.error('유저 정보 불러오기 실패', err);
+      }
+    },
+
+    async withdrawUser(payload) {
+      this.loading = true;
+      this.errorMessage = '';
+      this.successMessage = '';
+      try {
+        const response = await axios.post('/auth/withdraw', {
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          },
+          data: {
+            email: payload.email,
+            currentPassword: payload.currentPassword,
+          },
+        });
+
+        if (response.status === 200) {
+          this.successMessage =
+            response.data.message || '회원 탈퇴가 성공적으로 완료되었습니다.';
+          this.logout();
+          return { success: true, message: this.successMessage };
+        } else {
+          this.errorMessage =
+            response.data.message || '회원 탈퇴에 실패했습니다.';
+          return { success: false, message: this.errorMessage };
+        }
+      } catch (error) {
+        console.error('회원 탈퇴 오류:', error);
+        this.errorMessage =
+          error.response?.data?.message || '회원 탈퇴 중 오류가 발생했습니다.';
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          this.logout();
+          this.errorMessage = this.errorMessage + ' 다시 로그인해주세요.';
+        }
+        return { success: false, message: this.errorMessage };
+      } finally {
+        this.loading = false;
       }
     },
   },
