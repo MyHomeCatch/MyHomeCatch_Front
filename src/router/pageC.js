@@ -1,13 +1,13 @@
 export default [
   {
-    path: '/pageC/one',
-    name: 'pageCOne',
-    component: () => import('../pages/PageC/PageC1.vue'),
+    path: '/statics',
+    name: 'staticsPage',
+    component: () => import('../pages/PageC/StaticsPage.vue'),
   },
   {
-    path: '/pageC/two',
-    name: 'pageCTwo',
-    component: () => import('../pages/PageC/PageC2.vue'),
+    path: '/prolog',
+    name: 'prologuePage',
+    component: () => import('../pages/PageC/ProloguePage.vue'),
   },
   {
     path: '/pageC/three',

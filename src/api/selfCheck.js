@@ -54,4 +54,5 @@ export default {
     const { data } = await api.delete('/self-check/content/delete');
     return data;
   },
+
 };

@@ -9,13 +9,13 @@ export default {
       icon: 'fa-solid fa-paste',
     },
     {
-      title: 'PageB1',
+      title: '마이페이지',
       url: '/pageB/one',
       icon: 'fa-solid fa-plane-departure',
     },
     {
-      title: 'PageC1',
-      url: '/pageC/one',
+      title: '통계',
+      url: '/statics',
       icon: 'fa-regular fa-images',
     },
     {

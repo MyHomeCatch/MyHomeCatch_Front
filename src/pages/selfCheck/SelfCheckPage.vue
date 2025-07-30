@@ -47,6 +47,7 @@ import QuestionCard from '../../components/selfCheck/QuestionCard.vue';
 import NavigationButtons from '../../components/selfCheck/NavigationButtons.vue';
 import SelfCheckStartModal from '../../components/modals/SelfCheckStartModal.vue';
 import SelfCheckResultModal from '../../components/modals/SelfCheckResultModal.vue';
+
 import selfCheckApi from '../../api/selfCheck.js';
 import { useAuthStore } from '../../stores/auth';
 
@@ -207,11 +208,11 @@ async function startSelfCheck() {
       alert('로그인이 필요합니다. 로그인 후 다시 시도해주세요.');
       router.push('/login');
       return;
-    }
-    
+    }   
     showStartModal.value = false;
   } catch (error) {
     console.error('자가진단 시작 실패:', error);
+
     if (error.response?.status === 401) {
       alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
       router.push('/login');
