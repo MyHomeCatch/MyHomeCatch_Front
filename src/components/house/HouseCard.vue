@@ -1,16 +1,22 @@
 <template>
-  <div class="house-card" @click="onCardClick">
+  <div class="house-card" @click="onCardClick" :id="house.houseId">
     <!-- 아파트 이미지 -->
     <div class="image-container">
       <img
-        v-if="house.overviewImageUrl"
-        :src="house.overviewImageUrl"
+        v-if="!house.overviewImageUrl"
+        src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=250&fit=crop"
         alt="아파트 이미지"
         class="house-image"
       />
+      <iframe
+        v-else-if="house.overviewImageUrl.toLowerCase().endsWith('.pdf')"
+        :src="house.overviewImageUrl"
+        alt="아파트 이미지"
+        class="house-image house-pdf-no-scroll"
+      />
       <img
         v-else
-        src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=250&fit=crop"
+        :src="house.overviewImageUrl"
         alt="아파트 이미지"
         class="house-image"
       />
@@ -27,11 +33,33 @@
     <div class="house-info">
       <div class="location-info">
         <h3 class="house-name">{{ house.houseName }}</h3>
-        <p class="address">{{ house.address }}</p>
-        <p class="region">{{ house.region }}</p>
+        <!-- <p class="address">{{ house.address }}</p> -->
+        <div
+          style="
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+          "
+        >
+          <span class="region">
+            {{ house.region }}
+          </span>
+          <span
+            class="value notice-status"
+            :class="getStatusClass(house.noticeStatus)"
+          >
+            {{ house.noticeStatus }}
+          </span>
+        </div>
+        <span class="value">{{ house.noticeType }}</span>
+        <div>
+          <span class="value">{{ house.exclusiveArea }}</span>
+          <span class="area-unit">m<sup>2</sup></span>
+        </div>
       </div>
 
-      <div class="supply-info">
+      <!-- <div class="supply-info">
         <div class="supply-detail">
           <span class="label">
             {{ house.housingType === 'housing' ? '분양세대' : '임대세대' }}
@@ -58,13 +86,13 @@
             <span class="area-unit">m<sup>2</sup></span>
           </div>
         </div>
-      </div>
+      </div> -->
 
-      <div class="date-info">
+      <!-- <div class="date-info">
         <span class="apply-date">
           공고일: {{ formatDate(house.noticeStartDate) }}
         </span>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -121,7 +149,7 @@ const formatDate = (dateString) => {
 .image-container {
   position: relative;
   width: 100%;
-  height: 250px;
+  aspect-ratio: 1;
   overflow: hidden;
   background: #f8f9fa;
 }
@@ -131,6 +159,12 @@ const formatDate = (dateString) => {
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
+}
+
+.house-pdf-no-scroll {
+  scrollbar-width: none;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .house-card:hover .house-image {
@@ -181,7 +215,7 @@ const formatDate = (dateString) => {
 }
 
 .house-info {
-  padding: 20px;
+  padding-top: 10px;
 }
 
 .location-info {
@@ -189,13 +223,14 @@ const formatDate = (dateString) => {
 }
 
 .house-name {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
   color: #222222;
   margin: 0 0 8px 0;
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  height: 40px;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -239,7 +274,7 @@ const formatDate = (dateString) => {
 .value {
   font-size: 14px;
   color: #222222;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .area-unit {

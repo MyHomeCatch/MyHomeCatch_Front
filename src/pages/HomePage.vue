@@ -22,105 +22,128 @@
       </div>
     </div>
 
-    <!-- 주택 목록 -->
-    <div v-if="!loading && houses.length > 0" class="house-grid">
-      <HouseCard
-        v-for="house in houses"
-        :key="house.houseId"
-        :house="house"
-        @card-click="handleCardClick"
-        @toggle-favorite="handleToggleFavorite"
-      />
+    <div style="display: flex">
+      <div
+        style="
+          min-width: 60%;
+          margin-right: 20px;
+          height: 100vh;
+          overflow-y: scroll;
+          scrollbar-width: none;
+        "
+      >
+        <!-- 주택 목록 -->
+        <div v-if="!loading && houses.length > 0" class="house-grid">
+          <HouseCard
+            v-for="house in houses"
+            :key="house.houseId"
+            :house="house"
+            @card-click="handleCardClick"
+            @toggle-favorite="handleToggleFavorite"
+          />
+        </div>
+
+        <!-- 로딩 표시 -->
+        <div v-if="loading" class="loading">
+          <div class="loading-spinner"></div>
+          <p>주택 정보를 불러오는 중...</p>
+        </div>
+
+        <!-- 결과 없음 -->
+        <div v-if="!loading && houses.length === 0" class="no-results">
+          <div class="no-results-icon">🏠</div>
+          <h3>검색 결과가 없습니다</h3>
+          <p>다른 조건으로 검색해보세요.</p>
+          <button @click="clearAllFilters" class="clear-button">
+            필터 초기화
+          </button>
+        </div>
+      </div>
+
+      <div style="min-width: 500px" class="map">
+        <div style="flex: 1; padding: 20px; overflow-y: auto">
+          <h1>LH 주택 단지 검색</h1>
+          <div>
+            <input
+              type="text"
+              v-model="basicAddressInput"
+              placeholder="기본 주소 (예: 경기도 양주시 덕계동)"
+              @keyup.enter="searchBasicAddress"
+              style="width: 70%; padding: 8px; margin-right: 5px"
+            />
+            <button @click="searchBasicAddress" style="padding: 8px 15px">
+              검색
+            </button>
+          </div>
+
+          <div
+            v-if="filteredComplexes.length > 0"
+            style="
+              margin-top: 20px;
+              max-height: 400px;
+              overflow-y: auto;
+              border: 1px solid #eee;
+              padding: 10px;
+            "
+          >
+            <h3>검색 결과 ({{ filteredComplexes.length }}개)</h3>
+            <ul style="list-style: none; padding: 0">
+              <li
+                v-for="complex in filteredComplexes"
+                :key="complex.id"
+                @click="moveMapToComplex(complex)"
+                style="
+                  padding: 8px;
+                  border-bottom: 1px solid #eee;
+                  cursor: pointer;
+                  transition: background-color 0.2s;
+                "
+                @mouseover="
+                  (event) => (event.target.style.backgroundColor = '#f0f0f0')
+                "
+                @mouseout="
+                  (event) => (event.target.style.backgroundColor = 'white')
+                "
+              >
+                <strong>{{ complex.complexName }}</strong
+                ><br />
+                <small
+                  >{{ complex.lct_ara_adr }}
+                  {{ complex.lct_ara_dtl_adr }}</small
+                >
+              </li>
+            </ul>
+          </div>
+          <div
+            v-else-if="basicAddressInput.length > 0"
+            style="margin-top: 20px"
+          >
+            <p>검색 결과가 없습니다.</p>
+          </div>
+        </div>
+        <div style="flex: 1; height: 800px">
+          <KakaoMapViewer ref="mapViewerRef" :lhComplexes="filteredComplexes" />
+        </div>
+      </div>
     </div>
 
     <!-- 페이지네이션 -->
     <HousePagination :page-info="pageInfo" @page-change="changePage" />
-
-    <!-- 로딩 표시 -->
-    <div v-if="loading" class="loading">
-      <div class="loading-spinner"></div>
-      <p>주택 정보를 불러오는 중...</p>
-    </div>
-
-    <!-- 결과 없음 -->
-    <div v-if="!loading && houses.length === 0" class="no-results">
-      <div class="no-results-icon">🏠</div>
-      <h3>검색 결과가 없습니다</h3>
-      <p>다른 조건으로 검색해보세요.</p>
-      <button @click="clearAllFilters" class="clear-button">필터 초기화</button>
-    </div>
-
-    <div style="display: flex; width: 100%; height: 100vh">
-      <div style="flex: 1; padding: 20px; overflow-y: auto">
-        <h1>LH 주택 단지 검색</h1>
-        <div>
-          <input
-            type="text"
-            v-model="basicAddressInput"
-            placeholder="기본 주소 (예: 경기도 양주시 덕계동)"
-            @keyup.enter="searchBasicAddress"
-            style="width: 70%; padding: 8px; margin-right: 5px"
-          />
-          <button @click="searchBasicAddress" style="padding: 8px 15px">
-            검색
-          </button>
-        </div>
-
-        <div
-          v-if="filteredComplexes.length > 0"
-          style="
-            margin-top: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            padding: 10px;
-          "
-        >
-          <h3>검색 결과 ({{ filteredComplexes.length }}개)</h3>
-          <ul style="list-style: none; padding: 0">
-            <li
-              v-for="complex in filteredComplexes"
-              :key="complex.id"
-              @click="moveMapToComplex(complex)"
-              style="
-                padding: 8px;
-                border-bottom: 1px solid #eee;
-                cursor: pointer;
-                transition: background-color 0.2s;
-              "
-              @mouseover="
-                (event) => (event.target.style.backgroundColor = '#f0f0f0')
-              "
-              @mouseout="
-                (event) => (event.target.style.backgroundColor = 'white')
-              "
-            >
-              <strong>{{ complex.complexName }}</strong
-              ><br />
-              <small
-                >{{ complex.lct_ara_adr }} {{ complex.lct_ara_dtl_adr }}</small
-              >
-            </li>
-          </ul>
-        </div>
-        <div v-else-if="basicAddressInput.length > 0" style="margin-top: 20px">
-          <p>검색 결과가 없습니다.</p>
-        </div>
-      </div>
-      <div style="flex: 1; height: 100%">
-        <KakaoMapViewer ref="mapViewerRef" :lhComplexes="filteredComplexes" />
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, computed } from 'vue';
+import { reactive, ref, onMounted, computed, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 import HouseFilter from '../components/house/HouseFilter.vue';
 import HouseCard from '../components/house/HouseCard.vue';
 import HousePagination from '../components/house/HousePagination.vue';
 import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
+
+// Router
+const router = useRouter();
+const route = useRoute();
 
 const basicAddressInput = ref('');
 const filteredComplexes = computed(() => {
@@ -133,11 +156,10 @@ const filteredComplexes = computed(() => {
   );
 });
 
-const mapViewerRef = ref(null); // KakaoMapViewer 컴포넌트의 ref
+const mapViewerRef = ref(null);
 
 const searchBasicAddress = () => {
   if (filteredComplexes.value.length > 0) {
-    // 필터링된 첫 번째 단지의 상세 주소로 지도 이동 및 주변 시설 검색 요청
     mapViewerRef.value.updateMapWithComplex(filteredComplexes.value[0]);
   } else {
     alert('해당 기본 주소에 대한 단지 정보가 없습니다.');
@@ -165,12 +187,13 @@ const pageInfo = reactive({
   totalPages: 0,
 });
 
+// URL 쿼리에서 초기값 설정
 const searchQuery = reactive({
-  region: '',
-  noticeType: '',
-  noticeStatus: '',
-  page: 0,
-  size: 20,
+  region: route.query.region || '서울',
+  noticeType: route.query.noticeType || '',
+  noticeStatus: route.query.noticeStatus || '',
+  page: parseInt(route.query.page) || 0,
+  size: parseInt(route.query.size) || 20,
 });
 
 const filterOptions = reactive({
@@ -210,6 +233,19 @@ const filterOptions = reactive({
   ],
 });
 
+// URL 업데이트 함수
+const updateUrl = () => {
+  const query = {};
+
+  if (searchQuery.region) query.region = searchQuery.region;
+  if (searchQuery.noticeType) query.noticeType = searchQuery.noticeType;
+  if (searchQuery.noticeStatus) query.noticeStatus = searchQuery.noticeStatus;
+  if (searchQuery.page > 0) query.page = searchQuery.page;
+  if (searchQuery.size !== 20) query.size = searchQuery.size;
+
+  router.replace({ query });
+};
+
 // API URL 생성
 const getQueryUrl = () => {
   const params = new URLSearchParams();
@@ -231,7 +267,6 @@ const loadHouses = async () => {
   try {
     const { data } = await axios.get(getQueryUrl());
 
-    // 응답 데이터 구조에 맞게 처리
     if (data.houses) {
       houses.value = data.houses;
       Object.assign(pageInfo, data.pageInfo);
@@ -239,7 +274,6 @@ const loadHouses = async () => {
       houses.value = data.housingList;
       Object.assign(pageInfo, data.pageInfo);
     } else {
-      // 단순 배열인 경우
       houses.value = Array.isArray(data) ? data : [];
       pageInfo.totalCount = houses.value.length;
     }
@@ -254,16 +288,27 @@ const loadHouses = async () => {
   }
 };
 
+// URL 쿼리에서 searchQuery 업데이트
+const updateSearchQueryFromUrl = () => {
+  searchQuery.region = route.query.region || '서울';
+  searchQuery.noticeType = route.query.noticeType || '';
+  searchQuery.noticeStatus = route.query.noticeStatus || '';
+  searchQuery.page = parseInt(route.query.page) || 0;
+  searchQuery.size = parseInt(route.query.size) || 20;
+};
+
 // 필터 이벤트 핸들러
 const updateFilter = ({ key, value }) => {
   searchQuery[key] = value;
-  searchQuery.page = 0; // 첫 페이지로 리셋
+  searchQuery.page = 0;
+  updateUrl();
   loadHouses();
 };
 
 const clearFilter = (key) => {
   searchQuery[key] = '';
   searchQuery.page = 0;
+  updateUrl();
   loadHouses();
 };
 
@@ -272,38 +317,44 @@ const clearAllFilters = () => {
   searchQuery.noticeType = '';
   searchQuery.noticeStatus = '';
   searchQuery.page = 0;
+  updateUrl();
   loadHouses();
 };
 
 const searchHouses = () => {
   searchQuery.page = 0;
+  updateUrl();
   loadHouses();
 };
 
 // 페이지네이션 이벤트 핸들러
 const changePage = (newPage) => {
   searchQuery.page = newPage;
+  updateUrl();
   loadHouses();
-  // 페이지 이동 시 맨 위로 스크롤
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 200, behavior: 'smooth' });
 };
 
 // 카드 이벤트 핸들러
 const handleCardClick = (house) => {
   console.log('카드 클릭:', house);
-  // 라우터로 상세 페이지 이동
-  // router.push(`/house/${house.houseId}`);
 };
 
 const handleToggleFavorite = ({ houseId, isFavorite }) => {
   console.log('찜하기 토글:', houseId, isFavorite);
-  // 찜하기 API 호출 또는 로컬 저장소에 저장
-  // try {
-  //   await axios.post('/api/favorites', { houseId, isFavorite });
-  // } catch (error) {
-  //   console.error('찜하기 처리 실패:', error);
-  // }
 };
+
+// URL 변경 감지 (뒤로가기/앞으로가기 대응)
+watch(
+  () => route.query,
+  (newQuery, oldQuery) => {
+    // 쿼리가 실제로 변경된 경우에만 업데이트
+    if (JSON.stringify(newQuery) !== JSON.stringify(oldQuery)) {
+      updateSearchQueryFromUrl();
+      loadHouses();
+    }
+  }
+);
 
 // 컴포넌트 마운트 시 실행
 onMounted(() => {
@@ -341,7 +392,7 @@ onMounted(() => {
 /* 주택 그리드 */
 .house-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 24px;
   padding: 0;
 }
@@ -425,6 +476,12 @@ onMounted(() => {
 @media (max-width: 480px) {
   .house-container {
     padding: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .map {
+    display: none;
   }
 }
 </style>
