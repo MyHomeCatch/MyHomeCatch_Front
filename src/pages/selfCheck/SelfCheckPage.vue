@@ -50,6 +50,7 @@ import SelfCheckResultModal from '../../components/modals/SelfCheckResultModal.v
 
 import selfCheckApi from '../../api/selfCheck.js';
 import { useAuthStore } from '../../stores/auth';
+import authApi from '../../api/auth';
 
 const questions = [
   {
@@ -208,7 +209,33 @@ async function startSelfCheck() {
       alert('로그인이 필요합니다. 로그인 후 다시 시도해주세요.');
       router.push('/login');
       return;
-    }   
+    }
+
+    // 토큰 유효성 확인을 위해 간단한 API 호출 시도
+    try {
+      await selfCheckApi.initializeDiagnosis();
+      console.log('✅ 토큰 유효성 확인 성공');
+    } catch (error) {
+      if (error.response?.status === 401) {
+        console.log('🔄 토큰 만료 감지, 갱신 시도...');
+        // 토큰 갱신 시도
+        try {
+          await authApi.refreshToken();
+          console.log('✅ 토큰 갱신 성공');
+          // 갱신 후 다시 시도
+          await selfCheckApi.initializeDiagnosis();
+          console.log('✅ 갱신된 토큰으로 유효성 확인 성공');
+        } catch (refreshError) {
+          console.error('❌ 토큰 갱신 실패:', refreshError);
+          alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+          router.push('/login');
+          return;
+        }
+      } else {
+        throw error;
+      }
+    }
+    
     showStartModal.value = false;
   } catch (error) {
     console.error('자가진단 시작 실패:', error);
