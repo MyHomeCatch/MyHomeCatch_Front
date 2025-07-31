@@ -8,6 +8,51 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// 응답 인터셉터 - 토큰 자동 갱신
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // 401 에러이고 아직 재시도하지 않은 경우
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        // 토큰 갱신 시도
+        const response = await api.post('/auth/refresh');
+        const newToken = response.data.token;
+        
+        localStorage.setItem('token', newToken);
+        
+        originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+        
+        return api(originalRequest);
+      } catch (refreshError) {
+        localStorage.removeItem('token');
+        window.location.href = '/auth/login';
+        return Promise.reject(refreshError);
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+// 요청 인터셉터 - 토큰 자동 첨부
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export default {
   // 카카오 로그인
   async kakaoLogin(code) {
@@ -57,6 +102,18 @@ export default {
   // 비밀번호 재설정
   async resetPassword(payload) {
     const { data } = await api.post('/auth/password/reset', payload);
+    return data;
+  },
+
+  // 로그아웃
+  async logout() {
+    const { data } = await api.post('/auth/logout');
+    return data;
+  },
+
+  // 토큰 갱신
+  async refreshToken() {
+    const { data } = await api.post('/auth/refresh');
     return data;
   },
 };

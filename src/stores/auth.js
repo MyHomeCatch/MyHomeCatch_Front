@@ -59,11 +59,19 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    logout() {
-      this.token = null;
-      this.isLoggedIn = false;
-      localStorage.removeItem('token');
-      this.resetAll();
+    async logout() {
+      try {
+        // 서버에 로그아웃 요청
+        await authApi.logout();
+      } catch (error) {
+        console.error('로그아웃 요청 실패:', error);
+      } finally {
+        // 클라이언트 상태 정리
+        this.token = null;
+        this.isLoggedIn = false;
+        localStorage.removeItem('token');
+        this.resetAll();
+      }
     },
 
     setToken(token) {
