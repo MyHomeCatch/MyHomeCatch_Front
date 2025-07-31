@@ -240,13 +240,32 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async fetchUserInfo() {
-      if (!this.token) return;
+      if (!this.token) {
+        console.warn(
+          'fetchUserInfo: 토큰이 없습니다. 사용자 정보를 불러올 수 없습니다.'
+        );
+        return;
+      }
+      this.loading = true;
       try {
-        const data = await authApi.getUserInfo(this.token);
-        this.user = { ...this.user, ...data };
-        // console.log('유저 정보 불러옴:', data);
+        const config = { headers: { Authorization: `Bearer ${this.token}` } };
+
+        const response = await axios.get('/api/user', config);
+
+        console.log(
+          'fetchUserInfo: 백엔드로부터 받은 raw 응답 데이터:',
+          response.data
+        ); // 디버깅용
+        this.user = { ...this.user, ...response.data };
+        console.log('fetchUserInfo: 유저 정보 불러옴:', this.user.nickname);
       } catch (err) {
-        console.error('유저 정보 불러오기 실패', err);
+        console.error('fetchUserInfo: 유저 정보 불러오기 실패', err);
+        this.errorMessage = '사용자 정보를 불러오는 데 실패했습니다.';
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          this.logout();
+        }
+      } finally {
+        this.loading = false;
       }
     },
 
@@ -255,7 +274,7 @@ export const useAuthStore = defineStore('auth', {
       this.errorMessage = '';
       this.successMessage = '';
       try {
-        const response = await axios.post('/auth/withdraw', {
+        const response = await axios.delete('/api/api/auth/withdraw', {
           headers: {
             Authorization: `Bearer ${this.token}`,
           },
