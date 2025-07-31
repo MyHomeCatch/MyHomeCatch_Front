@@ -87,57 +87,226 @@ const cancel = () => {
 </script>
 
 <template>
-  <div>
-    <h4 class="fw-bold mb-3 text-danger">회원 탈퇴</h4>
+  <div class="withdrawal-form-container">
+    <h4 class="form-title">회원 탈퇴</h4>
 
-    <p class="text-muted">
-      회원 탈퇴를 진행하려면 비밀번호를 입력하고, 동의 항목을 체크하세요.
-    </p>
+    <div class="form-section">
+      <h5 class="section-title">회원 탈퇴</h5>
 
-    <!-- 비밀번호 입력란 -->
-    <div class="mb-3 position-relative">
-      <label class="form-label">비밀번호 확인</label>
-      <input
-        :type="showPassword ? 'text' : 'password'"
-        class="form-control pe-5"
-        v-model="password"
-        placeholder="현재 비밀번호 입력"
-      />
-      <i
-        :class="showPassword ? 'bi bi-eye' : 'bi bi-eye-slash'"
-        class="position-absolute end-0 me-3 text-secondary"
-        style="
-          top: 55%;
-          transform: translateY(-5%);
-          cursor: pointer;
-          position: absolute;
-        "
-        @click="showPassword = !showPassword"
-      ></i>
-    </div>
+      <p class="withdrawal-notice">
+        회원 탈퇴를 진행하려면 비밀번호를 입력하고, 동의 항목을 체크하세요.
+      </p>
 
-    <!-- 동의 체크박스 -->
-    <div class="form-check mb-3">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        id="confirmDelete"
-        v-model="confirm"
-      />
-      <label class="form-check-label" for="confirmDelete">
-        계정 삭제에 동의합니다.
-      </label>
-    </div>
+      <!-- 비밀번호 입력란 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">비밀번호 확인</label>
+          <div class="password-input-container">
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              class="form-control"
+              v-model="password"
+              placeholder="현재 비밀번호 입력"
+            />
+            <i
+              :class="showPassword ? 'bi bi-eye' : 'bi bi-eye-slash'"
+              class="password-toggle"
+              @click="showPassword = !showPassword"
+            ></i>
+          </div>
+        </div>
+      </div>
 
-    <!-- 에러 메시지 -->
-    <div v-if="errorMessage" class="text-danger small mb-3">
-      {{ errorMessage }}
+      <!-- 동의 체크박스 -->
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="confirmDelete"
+              v-model="confirm"
+            />
+            <label class="form-check-label" for="confirmDelete">
+              계정 삭제에 동의합니다.
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 에러 메시지 -->
+      <div v-if="errorMessage" class="text-danger small mt-2">
+        {{ errorMessage }}
+      </div>
     </div>
 
     <!-- 버튼 영역 -->
-    <div class="mt-4">
-      <button class="btn btn-secondary me-2" @click="cancel">취소</button>
-      <button class="btn btn-danger" @click="deleteAccount">회원 탈퇴</button>
+    <div class="form-actions">
+      <button class="btn btn-secondary cancel-btn" @click="cancel">취소</button>
+      <button class="btn btn-danger withdrawal-btn" @click="deleteAccount">
+        회원 탈퇴
+      </button>
     </div>
   </div>
 </template>
+
+<style scoped>
+.withdrawal-form-container {
+  max-width: 100%;
+}
+
+.form-title {
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #2c3e50;
+  font-size: 1.8rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.form-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #dc3545, #c82333);
+  border-radius: 2px;
+}
+
+.form-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #495057;
+  font-size: 1.4rem;
+}
+
+.withdrawal-notice {
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.form-row {
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  width: 100%;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.form-control {
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.password-input-container {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #6c757d;
+  z-index: 10;
+}
+
+.password-toggle:hover {
+  color: #495057;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-check-input {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin: 0;
+}
+
+.form-check-label {
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.cancel-btn {
+  padding: 0.75rem 2rem;
+  border-radius: 6px;
+  font-weight: 500;
+  background-color: white;
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.cancel-btn:hover {
+  background-color: #f8f9fa;
+  border-color: #c82333;
+  color: #c82333;
+}
+
+.withdrawal-btn {
+  padding: 0.75rem 2rem;
+  border-radius: 6px;
+  font-weight: 500;
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.withdrawal-btn:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+@media (max-width: 768px) {
+  .form-section {
+    padding: 1rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .cancel-btn,
+  .withdrawal-btn {
+    width: 100%;
+  }
+}
+</style>

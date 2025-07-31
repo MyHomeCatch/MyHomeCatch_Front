@@ -137,8 +137,8 @@ const cancel = () => {
 </script>
 
 <template>
-  <div>
-    <h4 class="fw-bold mb-3">비밀번호 변경</h4>
+  <div class="password-form-container">
+    <h4 class="form-title">비밀번호 변경</h4>
 
     <!-- API 통신 메시지 표시 영역 -->
     <div
@@ -152,84 +152,229 @@ const cancel = () => {
       {{ generalMessage }}
     </div>
 
-    <!-- 현재 비밀번호 -->
-    <div class="mb-3 position-relative">
-      <label class="form-label">현재 비밀번호</label>
-      <input
-        :type="showCurrentPassword ? 'text' : 'password'"
-        class="form-control pe-5"
-        v-model="currentPassword"
-        @input="currentPasswordError = ''"
-      />
-      <i
-        :class="showCurrentPassword ? 'bi bi-eye' : 'bi bi-eye-slash'"
-        class="position-absolute end-0 me-3 text-secondary"
-        style="
-          top: 50%; /* 부모 div의 중앙에 오도록 조정 */
-          transform: translateY(-50%); /* 정확한 수직 중앙 정렬 */
-          cursor: pointer;
-          z-index: 10; /* 입력 필드 위에 표시되도록 z-index 설정 */
-        "
-        @click="showCurrentPassword = !showCurrentPassword"
-      ></i>
-      <div v-if="currentPasswordError" class="text-danger small mt-1">
-        {{ currentPasswordError }}
+    <div class="form-section">
+      <h5 class="section-title">비밀번호 변경</h5>
+
+      <!-- 현재 비밀번호 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">현재 비밀번호</label>
+          <div class="password-input-container">
+            <input
+              :type="showCurrentPassword ? 'text' : 'password'"
+              class="form-control"
+              v-model="currentPassword"
+              @input="currentPasswordError = ''"
+              placeholder="현재 비밀번호를 입력하세요"
+            />
+            <i
+              :class="showCurrentPassword ? 'bi bi-eye' : 'bi bi-eye-slash'"
+              class="password-toggle"
+              @click="showCurrentPassword = !showCurrentPassword"
+            ></i>
+          </div>
+          <div v-if="currentPasswordError" class="text-danger small mt-1">
+            {{ currentPasswordError }}
+          </div>
+        </div>
+      </div>
+
+      <!-- 새 비밀번호 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">새 비밀번호</label>
+          <div class="password-input-container">
+            <input
+              :type="showNewPassword ? 'text' : 'password'"
+              class="form-control"
+              v-model="newPassword"
+              @input="newPasswordError = ''"
+              placeholder="새 비밀번호를 입력하세요"
+            />
+            <i
+              :class="showNewPassword ? 'bi bi-eye' : 'bi bi-eye-slash'"
+              class="password-toggle"
+              @click="showNewPassword = !showNewPassword"
+            ></i>
+          </div>
+          <div v-if="newPasswordError" class="text-danger small mt-1">
+            {{ newPasswordError }}
+          </div>
+        </div>
+      </div>
+
+      <!-- 새 비밀번호 확인 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">새 비밀번호 확인</label>
+          <div class="password-input-container">
+            <input
+              :type="showConfirmPassword ? 'text' : 'password'"
+              class="form-control"
+              v-model="confirmPassword"
+              @input="confirmPasswordError = ''"
+              placeholder="새 비밀번호를 다시 입력하세요"
+            />
+            <i
+              :class="showConfirmPassword ? 'bi bi-eye' : 'bi bi-eye-slash'"
+              class="password-toggle"
+              @click="showConfirmPassword = !showConfirmPassword"
+            ></i>
+          </div>
+          <div v-if="confirmPasswordError" class="text-danger small mt-1">
+            {{ confirmPasswordError }}
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- 새 비밀번호 -->
-    <div class="mb-3 position-relative">
-      <label class="form-label">새 비밀번호</label>
-      <input
-        :type="showNewPassword ? 'text' : 'password'"
-        class="form-control pe-5"
-        v-model="newPassword"
-        @input="newPasswordError = ''"
-      />
-      <i
-        :class="showNewPassword ? 'bi bi-eye' : 'bi bi-eye-slash'"
-        class="position-absolute end-0 me-3 text-secondary"
-        style="
-          top: 50%;
-          transform: translateY(-50%);
-          cursor: pointer;
-          z-index: 10;
-        "
-        @click="showNewPassword = !showNewPassword"
-      ></i>
-      <div v-if="newPasswordError" class="text-danger small mt-1">
-        {{ newPasswordError }}
-      </div>
-    </div>
-
-    <!-- 새 비밀번호 확인 -->
-    <div class="mb-3 position-relative">
-      <label class="form-label">새 비밀번호 확인</label>
-      <input
-        :type="showConfirmPassword ? 'text' : 'password'"
-        class="form-control pe-5"
-        v-model="confirmPassword"
-        @input="confirmPasswordError = ''"
-      />
-      <i
-        :class="showConfirmPassword ? 'bi bi-eye' : 'bi bi-eye-slash'"
-        class="position-absolute end-0 me-3 text-secondary"
-        style="
-          top: 50%;
-          transform: translateY(-50%);
-          cursor: pointer;
-          z-index: 10;
-        "
-        @click="showConfirmPassword = !showConfirmPassword"
-      ></i>
-      <div v-if="confirmPasswordError" class="text-danger small mt-1">
-        {{ confirmPasswordError }}
-      </div>
-    </div>
-
-    <div class="mt-4">
-      <button class="btn btn-secondary me-2" @click="cancel">취소</button>
-      <button class="btn btn-primary" @click="updatePassword">변경</button>
+    <div class="form-actions">
+      <button class="btn btn-secondary cancel-btn" @click="cancel">취소</button>
+      <button class="btn btn-success update-btn" @click="updatePassword">
+        변경
+      </button>
     </div>
   </div>
 </template>
+
+<style scoped>
+.password-form-container {
+  max-width: 100%;
+}
+
+.form-title {
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #2c3e50;
+  font-size: 1.8rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.form-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #86a788, #6b8a6d);
+  border-radius: 2px;
+}
+
+.form-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #495057;
+  font-size: 1.4rem;
+}
+
+.form-row {
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  width: 100%;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.form-control {
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.password-input-container {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #6c757d;
+  z-index: 10;
+}
+
+.password-toggle:hover {
+  color: #495057;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.cancel-btn {
+  padding: 0.75rem 2rem;
+  border-radius: 6px;
+  font-weight: 500;
+  background-color: white;
+  border-color: #86a788;
+  color: #86a788;
+}
+
+.cancel-btn:hover {
+  background-color: #f8f9fa;
+  border-color: #6b8a6d;
+  color: #6b8a6d;
+}
+
+.update-btn {
+  padding: 0.75rem 3rem;
+  border-radius: 6px;
+  font-weight: 500;
+  background-color: #86a788;
+  border-color: #86a788;
+  min-width: 140px;
+}
+
+.update-btn:hover {
+  background-color: #6b8a6d;
+  border-color: #6b8a6d;
+}
+
+.alert {
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .form-section {
+    padding: 1rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .cancel-btn,
+  .update-btn {
+    width: 100%;
+  }
+}
+</style>

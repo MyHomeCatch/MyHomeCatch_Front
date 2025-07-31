@@ -185,8 +185,8 @@ const updateAddress = () => {
 </script>
 
 <template>
-  <div>
-    <h4 class="fw-bold mb-3">회원정보 수정</h4>
+  <div class="profile-form-container">
+    <h4 class="form-title">회원정보 수정</h4>
 
     <div
       v-if="message"
@@ -202,81 +202,111 @@ const updateAddress = () => {
       {{ message }}
     </div>
 
-    <div class="mb-3">
-      <label class="form-label">이름</label>
-      <input type="text" class="form-control" v-model="name" disabled />
-    </div>
+    <div class="form-section">
+      <h5 class="section-title">프로필</h5>
 
-    <div class="mb-3">
-      <label class="form-label">닉네임</label>
-      <div style="display: flex; gap: 8px; align-items: center">
-        <input
-          type="text"
-          class="form-control"
-          v-model="nickname"
-          :class="{
-            'is-valid': nicknameChecked,
-            'is-invalid': nicknameCheckMessage && !nicknameChecked,
-          }"
-          required
-        />
-        <button
-          type="button"
-          class="btn btn-outline-primary"
-          @click="checkNickname"
-          :disabled="nicknameChecking"
-          v-if="!nicknameChecked"
-          style="width: 120px; height: 38px"
-        >
-          중복 확인
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-danger"
-          v-else
-          @click="resetNickname"
-          style="width: 120px; height: 38px"
-        >
-          재입력
-        </button>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-control" v-model="name" disabled />
+        </div>
       </div>
-      <div
-        class="form-text"
-        :class="{
-          'text-success': nicknameChecked,
-          'text-danger': nicknameCheckMessage && !nicknameChecked,
-        }"
-      >
-        {{ nicknameCheckMessage }}
-      </div>
-    </div>
 
-    <div class="mb-3">
-      <label class="form-label">이메일</label>
-      <input type="email" class="form-control" v-model="email" disabled />
-    </div>
-
-    <!-- 주소 입력 + 모달 열기 버튼 -->
-    <div class="mb-3 d-flex align-items-center gap-2">
-      <div style="flex: 1">
-        <label class="form-label">주소</label>
-        <input
-          type="text"
-          class="form-control"
-          v-model="address"
-          readonly
-          placeholder="주소를 선택해주세요"
-          required
-        />
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nickname</label>
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control"
+              v-model="nickname"
+              :class="{
+                'is-valid': nicknameChecked,
+                'is-invalid': nicknameCheckMessage && !nicknameChecked,
+              }"
+              required
+            />
+            <button
+              type="button"
+              class="btn btn-outline-primary check-btn"
+              @click="checkNickname"
+              :disabled="nicknameChecking"
+              v-if="!nicknameChecked"
+            >
+              중복 확인
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-danger check-btn"
+              v-else
+              @click="resetNickname"
+            >
+              재입력
+            </button>
+          </div>
+          <div
+            class="form-text"
+            :class="{
+              'text-success': nicknameChecked,
+              'text-danger': nicknameCheckMessage && !nicknameChecked,
+            }"
+          >
+            {{ nicknameCheckMessage }}
+          </div>
+        </div>
       </div>
-      <button
-        type="button"
-        class="btn btn-outline-primary mt-4"
-        @click="openAddressModal"
-        style="width: 120px; height: 38px"
-      >
-        주소 입력
-      </button>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" v-model="email" disabled />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control"
+              v-model="address"
+              readonly
+              placeholder="주소를 선택해주세요"
+              required
+            />
+            <button
+              type="button"
+              class="btn btn-outline-primary check-btn"
+              @click="openAddressModal"
+            >
+              주소 입력
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="password-input-container">
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              class="form-control"
+              v-model="currentPassword"
+              placeholder="현재 비밀번호를 입력하세요"
+            />
+            <i
+              :class="showPassword ? 'bi bi-eye' : 'bi bi-eye-slash'"
+              class="password-toggle"
+              @click="showPassword = !showPassword"
+            ></i>
+          </div>
+          <div v-if="currentPasswordError" class="text-danger small mt-1">
+            {{ currentPasswordError }}
+          </div>
+        </div>
+      </div>
     </div>
 
     <AddressModal
@@ -291,33 +321,199 @@ const updateAddress = () => {
       @updateAddress="updateAddress"
     />
 
-    <div class="mb-3 position-relative">
-      <label class="form-label">현재 비밀번호</label>
-      <input
-        :type="showPassword ? 'text' : 'password'"
-        class="form-control pe-5"
-        v-model="currentPassword"
-        placeholder="현재 비밀번호를 입력하세요"
-      />
-      <i
-        :class="showPassword ? 'bi bi-eye' : 'bi bi-eye-slash'"
-        class="position-absolute end-0 me-3 text-secondary"
-        style="
-          top: 50%;
-          transform: translateY(10%);
-          cursor: pointer;
-          z-index: 10;
-        "
-        @click="showPassword = !showPassword"
-      ></i>
-      <div v-if="currentPasswordError" class="text-danger small mt-1">
-        {{ currentPasswordError }}
-      </div>
-    </div>
-
-    <div class="mt-4">
-      <button class="btn btn-secondary me-2" @click="cancel">취소</button>
-      <button class="btn btn-primary" @click="saveChanges">수정</button>
+    <div class="form-actions">
+      <button class="btn btn-secondary cancel-btn" @click="cancel">취소</button>
+      <button class="btn btn-success update-btn" @click="saveChanges">
+        수정
+      </button>
     </div>
   </div>
 </template>
+
+<style scoped>
+.profile-form-container {
+  max-width: 100%;
+}
+
+.form-title {
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #2c3e50;
+  font-size: 1.8rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.form-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #86a788, #6b8a6d);
+  border-radius: 2px;
+}
+
+.form-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #495057;
+  font-size: 1.4rem;
+}
+
+.form-row {
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  width: 100%;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.form-control {
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-control:disabled {
+  background-color: #e9ecef;
+  opacity: 0.6;
+}
+
+.input-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.input-group .form-control {
+  flex: 1;
+}
+
+.check-btn {
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  min-width: 100px;
+  background-color: #86a788;
+  border-color: #86a788;
+  color: white;
+}
+
+.check-btn:hover {
+  background-color: #6b8a6d;
+  border-color: #6b8a6d;
+  color: white;
+}
+
+.password-input-container {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #6c757d;
+  z-index: 10;
+}
+
+.password-toggle:hover {
+  color: #495057;
+}
+
+.form-text {
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.cancel-btn {
+  padding: 0.75rem 2rem;
+  border-radius: 6px;
+  font-weight: 500;
+  background-color: white;
+  border-color: #86a788;
+  color: #86a788;
+}
+
+.cancel-btn:hover {
+  background-color: #f8f9fa;
+  border-color: #6b8a6d;
+  color: #6b8a6d;
+}
+
+.update-btn {
+  padding: 0.75rem 3rem;
+  border-radius: 6px;
+  font-weight: 500;
+  background-color: #86a788;
+  border-color: #86a788;
+  min-width: 140px;
+}
+
+.update-btn:hover {
+  background-color: #6b8a6d;
+  border-color: #6b8a6d;
+}
+
+.alert {
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .form-section {
+    padding: 1rem;
+  }
+
+  .input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .check-btn {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .cancel-btn,
+  .update-btn {
+    width: 100%;
+  }
+}
+</style>
