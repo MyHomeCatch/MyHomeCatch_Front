@@ -7,12 +7,12 @@ export const useMyPageStore = defineStore('mypage', {
   state: () => ({
     // 🧍 기본 유저 정보
     userInfo: {
-      name: '유저1',
-      nickname: '꿍실냐옹',
-      email: 'asd@gmail.com',
-      residence: '대구 수성구',
-      preferredRegions: ['대구'],
-      hasSubscriptionAccount: '보유',
+      name: '-',
+      nickname: '-',
+      email: '-',
+      residence: '-',
+      preferredRegions: ['-'],
+      hasSubscriptionAccount: '-',
       additionalPoint: 0,
     },
 

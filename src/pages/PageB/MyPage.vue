@@ -42,27 +42,39 @@ const getAuthConfig = () => {
 onMounted(() => {
   store.getUserInfo(getAuthConfig()); // 사용자 정보 조회
 });
+const 지원리스트 = [
+  { name: 'LH 청년매입임대', available: true },
+  { name: 'SH 청년매입임대', available: true },
+  { name: 'LH 청년전세임대', available: true },
+  { name: 'LH 청년채플주택', available: false },
+  { name: 'LH 청년동주택', available: false },
+];
 </script>
 
 <template>
   <div class="mypage-wrapper">
-    <div class="row">
-      <div class="col-md-3 d-flex flex-column align-items-center">
-        <ProfileCard />
-        <ScoreCard :score="score" @openModal="showModal = true" />
-      </div>
+    <div class="container">
+      <!-- ✅ 추가: 중앙 정렬 -->
+      <div class="row">
+        <div class="col-md-3 d-flex flex-column align-items-center">
+          <ProfileCard />
+          <SupportableCard :list="지원리스트" />
+          <ScoreCard :score="score" @openModal="showModal = true" />
+        </div>
 
-      <div class="col-md-9">
-        <UserInfoSection :userInfo="userInfo" />
-        <HouseholdFinanceInfo />
-        <FavoritesCarousel :items="favorites" />
+        <div class="col-md-9">
+          <UserInfoSection :userInfo="userInfo" />
+          <HouseholdFinanceInfo />
+          <FavoritesCarousel :items="favorites" />
+        </div>
+
+        <!-- ✅ 모달 위치는 최상단에 -->
+        <SubscriptionScoreModal
+          v-if="showModal"
+          @close="showModal = false"
+          @calculated="score = $event"
+        />
       </div>
-      <!-- ✅ 모달 위치는 최상단에 -->
-      <SubscriptionScoreModal
-        v-if="showModal"
-        @close="showModal = false"
-        @calculated="score = $event"
-      />
     </div>
   </div>
 </template>
@@ -73,7 +85,15 @@ onMounted(() => {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  min-height: 100vh; /* 페이지 전체 높이 확보 */
-  padding: 2rem;
+  min-height: 100vh;
+  padding: 1rem 2rem 2rem; /* ✅ 상단 padding 줄이기 */
+}
+
+.col-md-3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem; /* ✅ 이 줄 추가 */
 }
 </style>

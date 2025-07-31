@@ -16,17 +16,16 @@ import { useMyPageStore } from '@/stores/mypage';
 import { storeToRefs } from 'pinia';
 
 const store = useMyPageStore();
-
 const { userInfo } = storeToRefs(store);
 </script>
 
 <style scoped>
 .score-card {
-  width: 320px;
-  padding: 1.2rem;
-  border-radius: 16px;
+  width: 260px; /* 🔽 크기 줄임 */
+  padding: 1rem; /* 🔽 패딩 소폭 축소 */
+  border-radius: 14px;
   background-color: #f5eee6;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
   font-family: 'Pretendard', sans-serif;
   text-align: center;
 }
@@ -38,27 +37,27 @@ const { userInfo } = storeToRefs(store);
 }
 
 .score-title {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: #444;
   margin-bottom: 0.2rem;
 }
 
 .score-date {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: #888;
 }
 
 .score-value {
-  font-size: 2rem; /* ✅ 조금 더 작게 */
+  font-size: 1.7rem; /* 🔽 약간 줄임 */
   font-weight: 700;
   color: #3d6650;
-  margin: 0.8rem 0;
+  margin: 0.7rem 0 1rem;
 }
 
 .score-button {
-  padding: 0.4rem 1.1rem;
-  font-size: 0.85rem;
+  padding: 0.35rem 1rem; /* 🔽 패딩 줄임 */
+  font-size: 0.8rem;
   font-weight: 500;
   background-color: white;
   color: #3d6650;
