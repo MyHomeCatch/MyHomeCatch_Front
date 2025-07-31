@@ -41,14 +41,9 @@ const getAuthConfig = () => {
 // ✅ 마운트 시 사용자 정보 가져오기
 onMounted(() => {
   store.getUserInfo(getAuthConfig()); // 사용자 정보 조회
+  store.getHouseholdInfo(getAuthConfig());
+  store.getSupportableList(getAuthConfig()); // ✅ 여기도 추가
 });
-const 지원리스트 = [
-  { name: 'LH 청년매입임대', available: true },
-  { name: 'SH 청년매입임대', available: true },
-  { name: 'LH 청년전세임대', available: true },
-  { name: 'LH 청년채플주택', available: false },
-  { name: 'LH 청년동주택', available: false },
-];
 </script>
 
 <template>
@@ -58,7 +53,7 @@ const 지원리스트 = [
       <div class="row">
         <div class="col-md-3 d-flex flex-column align-items-center">
           <ProfileCard />
-          <SupportableCard :list="지원리스트" />
+          <SupportableCard />
           <ScoreCard :score="score" @openModal="showModal = true" />
         </div>
 

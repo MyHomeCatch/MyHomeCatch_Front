@@ -108,13 +108,8 @@ export const useMyPageStore = defineStore('mypage', {
     ],
 
     // ✅ 지원 가능 여부 리스트
-    supportableList: [
-      { name: 'LH 청년매입임대', available: true },
-      { name: 'SH 청년매입임대', available: true },
-      { name: 'LH 청년전세임대', available: true },
-      { name: 'LH 청년채플주택', available: false },
-      { name: 'LH 청년동주택', available: false },
-    ],
+    supportableList: [],
+    householdInfoError: true, //
   }),
 
   actions: {
@@ -157,6 +152,41 @@ export const useMyPageStore = defineStore('mypage', {
         }
       }
     },
+    async getHouseholdInfo(getAuthConfig) {
+      try {
+        const data = await userApi.getHouseholdInfo(getAuthConfig);
+        console.log(data);
+
+        // ✅ householdInfo 전용 세팅
+        this.householdInfo.residencePeriod = data.residencePeriod;
+        this.householdInfo.isHomeless = data.isHomeless;
+        this.householdInfo.isMarried = data.maritalStatus;
+        this.householdInfo.householdSize = data.houseHoldMembers;
+        this.householdInfo.hasSubscriptionAccount = data.subscriptionPeriod;
+        this.householdInfo.targetGroup = data.targetGroups;
+
+        this.householdInfo.monthlyIncome = data.monthlyIncome;
+        this.householdInfo.totalAssets = data.totalAssets;
+        this.householdInfo.vehicle = data.carValue; // ✅
+        this.householdInfo.realEstate = data.realEstateValue; // ✅
+
+        this.householdInfoError = false;
+
+        // (선택) incomeLevel 필드가 필요하다면 추가
+        this.householdInfo.incomeLevel = data.incomeLevel || '-';
+      } catch (err) {
+        console.error('사용자 정보 조회 실패:', err);
+        this.message = '사용자 정보를 불러오는 데 실패했습니다.';
+        if (
+          err.response &&
+          (err.response.status === 401 || err.response.status === 403)
+        ) {
+          this.message =
+            '인증 정보가 만료되었거나 유효하지 않습니다. 다시 로그인해주세요.';
+        }
+        this.householdInfoError = true;
+      }
+    },
     async updateAdditionalPoint(getAuthConfig, additionalPoint) {
       const body = {
         email: this.userInfo.email,
@@ -177,6 +207,20 @@ export const useMyPageStore = defineStore('mypage', {
           this.message =
             '인증 정보가 만료되었거나 유효하지 않습니다. 다시 로그인해주세요.';
         }
+      }
+    },
+    async getSupportableList(getAuthConfig) {
+      try {
+        const resultList = await userApi.getSupportableList(getAuthConfig); // 예: [{ userId: 6, result: "공공분양 가능" }, ...]
+        console.log('지원 가능 목록:', resultList);
+
+        this.supportableList = resultList.map((resultStr) => {
+          const [name, available] = resultStr.split(' ');
+          return { name, available };
+        });
+      } catch (err) {
+        console.error('지원 가능 목록 조회 실패:', err);
+        this.supportableList = [];
       }
     },
   },

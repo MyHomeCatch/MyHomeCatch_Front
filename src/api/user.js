@@ -14,6 +14,16 @@ export default {
     const { data } = await api.get('/user', getAuthConfig);
     return data;
   },
+  // 자가진단 정보 조회
+  async getHouseholdInfo(getAuthConfig) {
+    const { data } = await api.get('/self-check/content', getAuthConfig);
+    return data;
+  },
+  // 자가진단 결과 조회
+  async getSupportableList(getAuthConfig) {
+    const { data } = await api.get('/self-check/results', getAuthConfig);
+    return data;
+  },
   // 가점 정보 업데이트
   async updateAdditionalPoint(getAuthConfig, body) {
     const { data } = await api.put(

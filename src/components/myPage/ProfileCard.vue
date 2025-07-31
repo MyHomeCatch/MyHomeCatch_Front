@@ -1,8 +1,8 @@
 <template>
   <div class="profile-wrapper">
     <img :src="profileImage" alt="Profile" class="profile-img" />
-    <h5 class="user-name">{{ userInfo.name }} 님</h5>
-    <p class="nickname">{{ userInfo.nickname }}</p>
+    <h5 class="user-name">{{ userInfo.nickname }} 님</h5>
+    <p class="nickname">{{ userInfo.name }}</p>
   </div>
 </template>
 

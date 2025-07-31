@@ -1,70 +1,75 @@
 <template>
   <div class="info-wrapper">
-    <div :class="['row gx-5 py-4', !showInfo && 'blurred']">
+    <div :class="['row gx-5 py-4', householdInfoError && 'blurred']">
       <div class="col-12">
         <h4 class="section-title mb-3">자가진단 정보</h4>
 
-        <!-- ✅ 두 개씩 나열하는 그리드 -->
-        <div
-          v-for="(row, rowIndex) in householdRows"
-          :key="rowIndex"
-          class="info-grid"
-        >
+        <!-- ✅ 반응형 Bootstrap Grid -->
+        <div class="row g-3">
           <div
-            v-for="(item, colIndex) in row"
-            :key="colIndex"
-            class="info-item"
+            class="col-12 col-md-6"
+            v-for="(item, index) in flattenedHouseholdRows"
+            :key="index"
           >
-            <span class="label">{{ item.label }}</span>
-            <span class="value">{{ item.value }}</span>
+            <div class="d-flex gap-2">
+              <div class="label">{{ item.label }}</div>
+              <div class="value">{{ item.value }}</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <button v-if="!showInfo" class="center-button" @click="showInfo = true">
-      자격진단 하러가기
+    <button
+      v-if="householdInfoError"
+      class="center-button"
+      @click="goToDiagnosis"
+    >
+      자가진단 하러가기
     </button>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useMyPageStore } from '@/stores/mypage';
 import { storeToRefs } from 'pinia';
 
+const router = useRouter();
 const store = useMyPageStore();
-const { householdInfo } = storeToRefs(store);
+const { householdInfo, householdInfoError } = storeToRefs(store);
 
-const showInfo = ref(false);
+function formatHouseholdSize(raw) {
+  if (!raw) return '-';
+  const [adults, children] = raw.split(',');
+  return `${adults}인 (본인 포함)\n자녀 ${children}명(태아 포함)`;
+}
 
-// ✅ 두 개씩 짝지어 배열로 구성된 세대 정보
-const householdRows = computed(() => [
-  [
+const flattenedHouseholdRows = computed(() => {
+  return [
     { label: '거주 기간', value: householdInfo.value.residencePeriod },
     { label: '무주택 여부', value: householdInfo.value.isHomeless },
-  ],
-  [
-    { label: '세대 구성', value: householdInfo.value.householdSize },
+    {
+      label: '세대 구성',
+      value: formatHouseholdSize(householdInfo.value.householdSize),
+    },
     { label: '혼인 여부', value: householdInfo.value.isMarried },
-  ],
-  [
     {
       label: '청약 통장',
       value: householdInfo.value.hasSubscriptionAccount,
     },
     { label: '대상 그룹', value: householdInfo.value.targetGroup },
-  ],
-  [
     { label: '총 자산', value: householdInfo.value.totalAssets },
     { label: '자동차 자산', value: householdInfo.value.vehicle },
-  ],
-  [
     { label: '월평균 소득', value: householdInfo.value.monthlyIncome },
-
     { label: '부동산 자산', value: householdInfo.value.realEstate },
-  ],
-]);
+  ];
+});
+
+function goToDiagnosis() {
+  router.push({ name: 'SelfCheck' });
+}
 </script>
 
 <style scoped>
@@ -84,37 +89,23 @@ const householdRows = computed(() => [
   margin-bottom: 1rem;
 }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.info-item {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
 .label {
   color: #666;
   font-weight: 600;
-  min-width: 100px;
-  flex-shrink: 0;
+  min-width: 90px;
 }
 
 .value {
   color: #222;
   font-weight: 500;
-  word-break: keep-all;
+  word-break: keep-word;
+  white-space: pre-line;
 }
 
 .blurred {
   filter: blur(5px);
   pointer-events: none;
   user-select: none;
-  transition: filter 0.3s ease;
 }
 
 .center-button {
@@ -130,11 +121,5 @@ const householdRows = computed(() => [
   border: 2px solid #198754;
   border-radius: 6px;
   transition: all 0.3s ease;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-}
-
-.center-button:hover {
-  background-color: #198754;
-  color: white;
 }
 </style>
