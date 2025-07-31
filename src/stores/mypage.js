@@ -11,26 +11,42 @@ export const useMyPageStore = defineStore('mypage', {
       nickname: '-',
       email: '-',
       residence: '-',
-      preferredRegions: ['-'],
-      hasSubscriptionAccount: '-',
+      // preferredRegions: ['-'],
+      // hasSubscriptionAccount: '-',
       additionalPoint: 0,
     },
 
     // // 💰 청약 가점
     // subscriptionScore: 0,
 
-    // 🏠 세대/자금 관련 정보
+    // // 🏠 세대/자금 관련 정보
+    // householdInfo: {
+    //   householdSize: '4인',
+    //   incomeLevel: '80% 이하',
+    //   totalAssets: '3억 5,000만 원 이하',
+    //   vehicle: 'TESLA X',
+    //   type: '청년',
+    // },
+    // financialInfo: {
+    //   monthlyIncome: '999만',
+    //   cash: '9,999만',
+    //   monthlySaving: '99만',
+    // },
+
+    // 🏠 세대/가점 관련 정보
     householdInfo: {
-      householdSize: '4인',
-      incomeLevel: '80% 이하',
-      totalAssets: '3억 5,000만 원 이하',
-      vehicle: 'TESLA X',
-      type: '청년',
-    },
-    financialInfo: {
-      monthlyIncome: '999만',
-      cash: '9,999만',
-      monthlySaving: '99만',
+      residencePeriod: '-', // 거주 기간
+      isHomeless: '-', // 무주택 여부
+      isMarried: '-', // 혼인 여부
+      householdSize: '-', // 세대 구성
+      hasSubscriptionAccount: '-', // 청약 가입 여부
+      targetGroup: '-', // 대상 그룹
+
+      incomeLevel: '-', // 소득구간
+      monthlyIncome: '-', // 월평균 소득
+      totalAssets: '-', // 총 자산
+      vehicle: '-', // 자동차 자산
+      realEstate: '-', // 부동산 자산
     },
 
     // 🌄 프로필 이미지
@@ -126,8 +142,8 @@ export const useMyPageStore = defineStore('mypage', {
         this.userInfo.nickname = data.nickname;
         this.userInfo.email = data.email;
         this.userInfo.residence = data.address; // 매핑
-        this.userInfo.preferredRegions = data.preferredRegions || [];
-        this.userInfo.hasSubscriptionAccount = data.hasSubscriptionAccount;
+        // this.userInfo.preferredRegions = data.preferredRegions || [];
+        // this.userInfo.hasSubscriptionAccount = data.hasSubscriptionAccount;
         this.userInfo.additionalPoint = data.additionalPoint;
       } catch (err) {
         console.error('사용자 정보 조회 실패:', err);

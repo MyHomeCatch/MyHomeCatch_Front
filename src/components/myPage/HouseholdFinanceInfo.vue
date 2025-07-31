@@ -1,26 +1,23 @@
 <template>
   <div class="info-wrapper">
     <div :class="['row gx-5 py-4', !showInfo && 'blurred']">
-      <div class="col-md-6">
-        <h4 class="section-title mb-3">세대 정보</h4>
+      <div class="col-12">
+        <h4 class="section-title mb-3">자가진단 정보</h4>
+
+        <!-- ✅ 두 개씩 나열하는 그리드 -->
         <div
-          class="info-line"
-          v-for="(value, label) in householdDisplay"
-          :key="label"
+          v-for="(row, rowIndex) in householdRows"
+          :key="rowIndex"
+          class="info-grid"
         >
-          <span class="label">{{ label }}</span>
-          <span class="value">{{ value }}</span>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <h4 class="section-title mb-3">자금</h4>
-        <div
-          class="info-line"
-          v-for="(value, label) in financialDisplay"
-          :key="label"
-        >
-          <span class="label">{{ label }}</span>
-          <span class="value">{{ value }}</span>
+          <div
+            v-for="(item, colIndex) in row"
+            :key="colIndex"
+            class="info-item"
+          >
+            <span class="label">{{ item.label }}</span>
+            <span class="value">{{ item.value }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -37,23 +34,37 @@ import { useMyPageStore } from '@/stores/mypage';
 import { storeToRefs } from 'pinia';
 
 const store = useMyPageStore();
-const { householdInfo, financialInfo } = storeToRefs(store);
+const { householdInfo } = storeToRefs(store);
 
 const showInfo = ref(false);
 
-const householdDisplay = computed(() => ({
-  '세대 구성': householdInfo.value.householdSize,
-  '월 소득': householdInfo.value.incomeLevel,
-  '총 자산': householdInfo.value.totalAssets,
-  자동차: householdInfo.value.vehicle,
-  '세대 유형': householdInfo.value.type,
-}));
+// ✅ 두 개씩 짝지어 배열로 구성된 세대 정보
+const householdRows = computed(() => [
+  [
+    { label: '거주 기간', value: householdInfo.value.residencePeriod },
+    { label: '무주택 여부', value: householdInfo.value.isHomeless },
+  ],
+  [
+    { label: '세대 구성', value: householdInfo.value.householdSize },
+    { label: '혼인 여부', value: householdInfo.value.isMarried },
+  ],
+  [
+    {
+      label: '청약 통장',
+      value: householdInfo.value.hasSubscriptionAccount,
+    },
+    { label: '대상 그룹', value: householdInfo.value.targetGroup },
+  ],
+  [
+    { label: '총 자산', value: householdInfo.value.totalAssets },
+    { label: '자동차 자산', value: householdInfo.value.vehicle },
+  ],
+  [
+    { label: '월평균 소득', value: householdInfo.value.monthlyIncome },
 
-const financialDisplay = computed(() => ({
-  '월 소득': financialInfo.value.monthlyIncome,
-  '보유 현금': financialInfo.value.cash,
-  '월 저축액': financialInfo.value.monthlySaving,
-}));
+    { label: '부동산 자산', value: householdInfo.value.realEstate },
+  ],
+]);
 </script>
 
 <style scoped>
@@ -61,7 +72,6 @@ const financialDisplay = computed(() => ({
   max-width: 800px;
   margin: 0 auto;
   padding: 1rem 2rem;
-  background-color: transparent;
   position: relative;
   min-height: 300px;
 }
@@ -74,13 +84,17 @@ const financialDisplay = computed(() => ({
   margin-bottom: 1rem;
 }
 
-.info-line {
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.info-item {
   display: flex;
-  justify-content: flex-start;
+  gap: 0.5rem;
   align-items: center;
-  gap: 1.5rem;
-  padding: 0.3rem 0;
-  font-size: 0.95rem;
 }
 
 .label {
