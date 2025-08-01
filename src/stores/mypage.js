@@ -190,8 +190,9 @@ export const useMyPageStore = defineStore('mypage', {
     async updateAdditionalPoint(additionalPoint) {
       const body = {
         email: this.userInfo.email,
-        additionalPoint: additionalPoint,
+        additionalPoint: Number(additionalPoint),
       };
+      console.log(body);
       try {
         const data = await userApi.updateAdditionalPoint(body);
 

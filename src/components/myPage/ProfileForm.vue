@@ -49,30 +49,17 @@ const checkNickname = async () => {
     nicknameChecked.value = false;
     return;
   }
-  nicknameChecking.value = true;
-  nicknameCheckMessage.value = '';
 
-  try {
-    const fakeCheck = (name) => {
-      const takenNames = ['admin', 'user', 'test'];
-      return !takenNames.includes(name.toLowerCase());
-    };
-
-    const available = fakeCheck(nickname.value);
-
-    if (available) {
-      nicknameChecked.value = true;
-      nicknameCheckMessage.value = '사용 가능한 닉네임입니다.';
-    } else {
-      nicknameChecked.value = false;
-      nicknameCheckMessage.value = '이미 사용 중인 닉네임입니다.';
-    }
-  } catch (error) {
-    nicknameChecked.value = false;
-    nicknameCheckMessage.value = '닉네임 확인 중 오류가 발생했습니다.';
-  } finally {
-    nicknameChecking.value = false;
+  if (nickname.value === user.value.nickname) {
+    nicknameChecked.value = true;
+    nicknameCheckMessage.value = '현재 사용 중인 닉네임입니다.';
+    return;
   }
+
+  await authStore.checkNickname(nickname.value);
+
+  nicknameChecked.value = authStore.nicknameChecked;
+  nicknameCheckMessage.value = authStore.nicknameCheckMessage;
 };
 
 const resetNickname = () => {

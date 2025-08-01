@@ -89,9 +89,17 @@ function calculateScore() {
     return;
   }
 
-  const total = questions.reduce((sum, q) => sum + extractScore(q.selected), 0);
-  store.updateAdditionalPoint(getAuthConfig(), total);
-  // emit('calculated', total);
+  // 🔥 총점 계산 (number 보장)
+  const total = questions.reduce((sum, q) => {
+    const score = extractScore(q.selected);
+    return sum + (typeof score === 'number' ? score : 0); // 혹시라도 예외 방지
+  }, 0);
+
+  console.log('🔥 최종 점수(total):', total, typeof total); // number여야 함
+
+  // ✅ 점수 업데이트 (number 값 보장)
+  store.updateAdditionalPoint(total);
+
   emit('close');
 }
 
