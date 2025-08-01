@@ -108,7 +108,7 @@ const saveChanges = async () => {
       currentPassword: currentPassword.value,
     };
 
-    const res = await axios.put('/api/user', updateData, getAuthConfig());
+    const res = await axios.put('/api/api/user', updateData, getAuthConfig());
 
     if (res.status === 200) {
       message.value = '회원 정보가 성공적으로 수정되었습니다.';
@@ -137,7 +137,7 @@ const saveChanges = async () => {
 
 onMounted(async () => {
   try {
-    const res = await axios.get('/api/user', getAuthConfig());
+    const res = await axios.get('/api/api/user', getAuthConfig());
     const data = res.data;
     name.value = data.name;
     nickname.value = data.nickname;

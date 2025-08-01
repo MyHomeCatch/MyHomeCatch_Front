@@ -1,10 +1,9 @@
 import { defineStore } from 'pinia';
 import authApi, { loginRequest } from '../api/auth';
-import axios from 'axios'; // axios 임포트 확인
+import axios from 'axios';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    // 인증 상태
     token: localStorage.getItem('token') || null,
     isLoggedIn: !!localStorage.getItem('token'),
 
@@ -12,7 +11,6 @@ export const useAuthStore = defineStore('auth', {
     errorMessage: '',
     successMessage: '',
 
-    // 사용자 정보
     user: {
       id: '',
       name: '',
@@ -23,18 +21,14 @@ export const useAuthStore = defineStore('auth', {
       address: '',
     },
 
-    // 회원가입/로그인 입력값
     password: '',
 
-    // 소셜 로그인 구분
     socialType: '', // 'kakao' | 'google' | ''
 
-    // UI 상태
     showAddressModal: false,
     selectedDo: '',
     selectedSigugun: '',
 
-    // 검증 상태
     emailChecked: false,
     nicknameChecked: false,
     emailChecking: false,
@@ -296,7 +290,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         const config = { headers: { Authorization: `Bearer ${this.token}` } };
 
-        const response = await axios.get('/api/user', config);
+        const response = await axios.get('/api/api/user', config);
 
         console.log(
           'fetchUserInfo: 백엔드로부터 받은 raw 응답 데이터:',
