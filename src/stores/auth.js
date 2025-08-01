@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import authApi, { loginRequest } from '../api/auth';
+import router from '../router';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -64,6 +65,7 @@ export const useAuthStore = defineStore('auth', {
       this.isLoggedIn = false;
       localStorage.removeItem('token');
       this.resetAll();
+      router.push('/login')
     },
 
     setToken(token) {
