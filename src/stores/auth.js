@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import authApi, { loginRequest } from '../api/auth';
+import router from '../router';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -50,10 +51,10 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await loginRequest({ email, password });
         this.setToken(response.data.token);
-        
+
         // 로그인 성공 시 토큰 갱신 스케줄링 시작
         authApi.startTokenRefresh();
-        
+
         return { success: true };
       } catch (err) {
         return {
@@ -67,7 +68,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         // 토큰 갱신 스케줄링 중지
         authApi.stopTokenRefresh();
-        
+
         // 서버에 로그아웃 요청
         await authApi.logout();
       } catch (error) {
@@ -78,6 +79,7 @@ export const useAuthStore = defineStore('auth', {
         this.isLoggedIn = false;
         localStorage.removeItem('token');
         this.resetAll();
+        router.push('/');
       }
     },
 
@@ -85,7 +87,7 @@ export const useAuthStore = defineStore('auth', {
       this.token = token;
       this.isLoggedIn = true;
       localStorage.setItem('token', token);
-      
+
       // 토큰 설정 시 갱신 스케줄링 시작
       authApi.startTokenRefresh();
     },
