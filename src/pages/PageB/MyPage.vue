@@ -27,22 +27,11 @@ const { user, token } = storeToRefs(authStore);
 const showModal = ref(false);
 const score = ref(0); // ✅ 점수 상태 추가
 
-const getAuthConfig = () => {
-  if (token.value) {
-    return {
-      headers: {
-        Authorization: `Bearer ${token.value}`,
-      },
-    };
-  }
-  return {};
-};
-
 // ✅ 마운트 시 사용자 정보 가져오기
 onMounted(() => {
-  store.getUserInfo(getAuthConfig()); // 사용자 정보 조회
-  store.getHouseholdInfo(getAuthConfig());
-  store.getSupportableList(getAuthConfig()); // ✅ 여기도 추가
+  store.getUserInfo(); // 사용자 정보 조회
+  store.getHouseholdInfo();
+  store.getSupportableList(); // ✅ 여기도 추가
 });
 </script>
 

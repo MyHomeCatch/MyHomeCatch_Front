@@ -128,9 +128,9 @@ export const useMyPageStore = defineStore('mypage', {
     setProfileImage(imageUrl) {
       this.profileImage = imageUrl;
     },
-    async getUserInfo(getAuthConfig) {
+    async getUserInfo() {
       try {
-        const data = await userApi.getUserInfo(getAuthConfig);
+        const data = await userApi.getUserInfo();
         console.log(data);
 
         this.userInfo.name = data.name;
@@ -152,12 +152,12 @@ export const useMyPageStore = defineStore('mypage', {
         }
       }
     },
-    async getHouseholdInfo(getAuthConfig) {
+    async getHouseholdInfo() {
       try {
-        const data = await userApi.getHouseholdInfo(getAuthConfig);
+        const data = await userApi.getHouseholdInfo();
         console.log(data);
 
-        // ✅ householdInfo 전용 세팅
+        // householdInfo 전용 세팅
         this.householdInfo.residencePeriod = data.residencePeriod;
         this.householdInfo.isHomeless = data.isHomeless;
         this.householdInfo.isMarried = data.maritalStatus;
@@ -167,8 +167,8 @@ export const useMyPageStore = defineStore('mypage', {
 
         this.householdInfo.monthlyIncome = data.monthlyIncome;
         this.householdInfo.totalAssets = data.totalAssets;
-        this.householdInfo.vehicle = data.carValue; // ✅
-        this.householdInfo.realEstate = data.realEstateValue; // ✅
+        this.householdInfo.vehicle = data.carValue;
+        this.householdInfo.realEstate = data.realEstateValue;
 
         this.householdInfoError = false;
 
@@ -187,16 +187,16 @@ export const useMyPageStore = defineStore('mypage', {
         this.householdInfoError = true;
       }
     },
-    async updateAdditionalPoint(getAuthConfig, additionalPoint) {
+    async updateAdditionalPoint(additionalPoint) {
       const body = {
         email: this.userInfo.email,
         additionalPoint: additionalPoint,
       };
       try {
-        const data = await userApi.updateAdditionalPoint(getAuthConfig, body);
+        const data = await userApi.updateAdditionalPoint(body);
 
-        // ✅ 업데이트 후 사용자 정보 재조회
-        await this.getUserInfo(getAuthConfig);
+        // 업데이트 후 사용자 정보 재조회
+        await this.getUserInfo();
       } catch (err) {
         console.error('사용자 정보 조회 실패:', err);
         this.message = '사용자 정보를 불러오는 데 실패했습니다.';
@@ -209,9 +209,9 @@ export const useMyPageStore = defineStore('mypage', {
         }
       }
     },
-    async getSupportableList(getAuthConfig) {
+    async getSupportableList() {
       try {
-        const resultList = await userApi.getSupportableList(getAuthConfig); // 예: [{ userId: 6, result: "공공분양 가능" }, ...]
+        const resultList = await userApi.getSupportableList(); // 예: [{ userId: 6, result: "공공분양 가능" }, ...]
         console.log('지원 가능 목록:', resultList);
 
         this.supportableList = resultList.map((resultStr) => {
