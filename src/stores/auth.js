@@ -50,6 +50,10 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await loginRequest({ email, password });
         this.setToken(response.data.token);
+        
+        // 로그인 성공 시 토큰 갱신 스케줄링 시작
+        authApi.startTokenRefresh();
+        
         return { success: true };
       } catch (err) {
         return {
@@ -59,17 +63,31 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    logout() {
-      this.token = null;
-      this.isLoggedIn = false;
-      localStorage.removeItem('token');
-      this.resetAll();
+    async logout() {
+      try {
+        // 토큰 갱신 스케줄링 중지
+        authApi.stopTokenRefresh();
+        
+        // 서버에 로그아웃 요청
+        await authApi.logout();
+      } catch (error) {
+        console.error('로그아웃 요청 실패:', error);
+      } finally {
+        // 클라이언트 상태 정리
+        this.token = null;
+        this.isLoggedIn = false;
+        localStorage.removeItem('token');
+        this.resetAll();
+      }
     },
 
     setToken(token) {
       this.token = token;
       this.isLoggedIn = true;
       localStorage.setItem('token', token);
+      
+      // 토큰 설정 시 갱신 스케줄링 시작
+      authApi.startTokenRefresh();
     },
 
     // 소셜 로그인 정보 세팅
