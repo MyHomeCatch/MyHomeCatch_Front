@@ -1,51 +1,144 @@
 <template>
-  <div class="card w-100 mt-5 shadow-sm">
-    <div class="card-header bg-white border-0 fw-bold">
-      {{ 지원가능갯수 }}개 지원가능 <br />
-      <small class="text-muted">2025-07-18일 기준</small>
-    </div>
-    <ul class="list-group list-group-flush">
-      <li
-        v-for="item in list"
-        :key="item.name"
-        class="list-group-item d-flex justify-content-between"
-      >
-        {{ item.name }}
+  <div class="supportable-card" :class="{ disabled: householdInfoError }">
+    <div class="supportable-body">
+      <div class="supportable-title-wrapper">
+        <p class="supportable-title">{{ 지원가능갯수 }}개 지원 가능</p>
         <span
-          class="badge"
-          :class="item.available ? 'bg-success' : 'bg-danger'"
+          v-if="!householdInfoError"
+          class="recheck-link"
+          @click="goToDiagnosis"
         >
-          {{ item.available ? '지원가능' : '지원불가' }}
+          재진단 &gt;
         </span>
-      </li>
-    </ul>
+      </div>
+
+      <small class="supportable-date">📅 2025-07-18 기준</small>
+
+      <ul class="supportable-list">
+        <li
+          v-for="item in supportableList"
+          :key="item.name"
+          class="supportable-item"
+        >
+          {{ item.name }}
+          <span class="badge bg-success">
+            {{ item.available }}
+          </span>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useMyPageStore } from '@/stores/mypage';
+import { storeToRefs } from 'pinia';
 
-const props = defineProps({ list: Array });
+const router = useRouter();
+const store = useMyPageStore();
+const { supportableList, householdInfoError } = storeToRefs(store);
 
 const 지원가능갯수 = computed(
-  () => props.list.filter((item) => item.available).length
+  () => supportableList.value.filter((item) => item.available).length
 );
+
+function goToDiagnosis() {
+  router.push({ name: 'SelfCheck' }); // or '/self-check'
+}
 </script>
 
 <style scoped>
-.card {
-  border-radius: 12px;
+.supportable-card {
+  width: 260px;
+  padding: 1rem;
+  border-radius: 14px;
+  background-color: #f5eee6;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  font-family: 'Pretendard', sans-serif;
+  text-align: center;
+  margin-top: 1.2rem;
 }
-.card-header {
-  font-size: 0.95rem;
-  padding: 0.75rem 1rem;
+
+.supportable-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-.list-group-item {
-  font-size: 0.9rem;
+
+.supportable-title-wrapper {
+  position: relative;
+  width: 100%;
 }
+
+.supportable-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #444;
+  text-align: center;
+}
+
+.supportable-date {
+  font-size: 0.72rem;
+  color: #888;
+  margin-bottom: 0.6rem;
+}
+
+.supportable-list {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+
+.supportable-item {
+  font-size: 0.82rem;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0.5rem;
+  border-top: 1px solid #eee;
+}
+
 .badge {
-  font-size: 0.75rem;
-  padding: 0.4em 0.6em;
+  font-size: 0.7rem;
+  padding: 0.25em 0.6em;
   border-radius: 0.5rem;
+  color: white;
+}
+
+.bg-success {
+  background-color: #3d6650;
+}
+
+.recheck-link {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 0.75rem;
+  color: #999;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.recheck-link:hover {
+  color: #555;
+}
+
+.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  position: relative;
+}
+.disabled::after {
+  content: '자가진단이 필요합니다';
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #b23c3c;
+  font-weight: 600;
+  background: #f5eee6;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  z-index: 10;
 }
 </style>

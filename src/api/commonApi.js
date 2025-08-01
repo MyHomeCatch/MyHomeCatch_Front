@@ -1,17 +1,123 @@
-import { useAuthStore } from '../stores/auth';
+import axios from 'axios';
 
-// 요청 인터셉터 - 토큰 자동 추가
-export const setupRequestInterceptor = (api) => {
-  api.interceptors.request.use(
-    (config) => {
+let refreshTimer = null;
+
+function getTokenExpiration(token) {
+  try {
+    const payload = token.split('.')[1];
+    const decoded = JSON.parse(
+      atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
+    );
+    return decoded.exp ? decoded.exp * 1000 : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+const refreshAccessToken = async (api) => {
+  try {
+    console.log('토큰 갱신 시도 중');
+    const response = await api.post('/auth/refresh');
+    const newToken = response.data.token;
+
+    localStorage.setItem('token', newToken);
+    console.log('토큰 갱신 성공:', new Date().toLocaleTimeString());
+
+    // Pinia store의 토큰 상태도 업데이트
+    try {
+      const { useAuthStore } = await import('../stores/auth');
       const authStore = useAuthStore();
-      const token = authStore.token;
-      console.log('토큰 상태:', token ? '토큰 있음' : '토큰 없음');
+      authStore.updateToken(newToken);
+    } catch (storeError) {
+      console.warn('Pinia store 업데이트 실패:', storeError);
+    }
+
+    scheduleTokenRefresh(newToken, api);
+
+    return newToken;
+  } catch (error) {
+    console.error('토큰 갱신 실패:', error);
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+    throw error;
+  }
+};
+
+const scheduleTokenRefresh = (token, api) => {
+  if (refreshTimer) {
+    clearTimeout(refreshTimer);
+  }
+  if (!token) {
+    token = localStorage.getItem('token');
+  }
+  if (!token) return;
+
+  const exp = getTokenExpiration(token);
+  if (!exp) return;
+  const now = Date.now();
+  let msUntilRefresh = exp - now;
+  msUntilRefresh = Math.max(Math.floor(msUntilRefresh * 0.9), 5000);
+  if (msUntilRefresh < 1000) msUntilRefresh = 1000;
+
+  console.log(
+    '토큰 만료까지 남은 시간(ms):',
+    exp - now,
+    ',',
+    Math.floor((exp - now) / 1000),
+    '초'
+  );
+  console.log(Math.floor(msUntilRefresh / 1000), '초 후 토큰 갱신 예정');
+
+  refreshTimer = setTimeout(() => {
+    refreshAccessToken(api);
+  }, msUntilRefresh);
+};
+
+// 공통 API 설정 함수
+export const setupInterceptors = (api) => {
+  // 응답 인터셉터 - 토큰 갱신 처리
+  api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const originalRequest = error.config;
+
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+
+        try {
+          console.log('401 에러로 인한 토큰 갱신 시도');
+          const newToken = await refreshAccessToken(api);
+
+          originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+
+          return api(originalRequest);
+        } catch (refreshError) {
+          console.error('토큰 갱신 실패로 로그인 페이지로 이동');
+          return Promise.reject(refreshError);
+        }
+      }
+
+      return Promise.reject(error);
+    }
+  );
+
+    // 요청 인터셉터 - 토큰 자동 추가
+  api.interceptors.request.use(
+    async (config) => {
+      // Pinia store에서 토큰 가져오기
+      let token = null;
+      try {
+        //Pinia store 접근
+        const authModule = await import('../stores/auth');
+        const authStore = authModule.useAuthStore();
+        token = authStore.token;
+      } catch (error) {
+        // Pinia store 접근 실패 시 localStorage에서 가져오기
+        token = localStorage.getItem('token');
+      }
+      
       if (token) {
         config.headers['Authorization'] = `Bearer ${token}`;
-        console.log('Authorization 헤더 설정:', config.headers['Authorization']);
-      } else {
-        console.warn('토큰이 없습니다. 로그인이 필요합니다.');
       }
       return config;
     },
@@ -21,23 +127,23 @@ export const setupRequestInterceptor = (api) => {
   );
 };
 
-export const setupResponseInterceptor = (api) => {
-  api.interceptors.response.use(
-    (response) => {
-      return response;
-    },
-    (error) => {
-      if (error.response?.status === 401) {
-        // 401 오류 시 로그인 페이지로 리다이렉트
-        window.location.href = '/login';
-      }
-      return Promise.reject(error);
-    }
-  );
+// 토큰 갱신 관리 함수들
+export const startTokenRefresh = (api) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    scheduleTokenRefresh(token, api);
+    console.log('토큰 갱신 스케줄링 시작');
+  }
 };
 
-// 모든 인터셉터 설정
-export const setupInterceptors = (api) => {
-  setupRequestInterceptor(api);
-  setupResponseInterceptor(api);
+export const stopTokenRefresh = () => {
+  if (refreshTimer) {
+    clearTimeout(refreshTimer);
+    refreshTimer = null;
+    console.log('토큰 갱신 스케줄링 중지');
+  }
+};
+
+export const refreshToken = (api) => {
+  return refreshAccessToken(api);
 }; 

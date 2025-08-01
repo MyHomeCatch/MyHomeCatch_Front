@@ -1,7 +1,13 @@
 <template>
   <div class="self-check-container">
     <SelfCheckStartModal :visible="showStartModal" @start="startSelfCheck" @cancel="router.back()" />
-    <div :class="['book-bg', { 'blurred': showStartModal }]">
+    <SelfCheckResultModal 
+      :visible="showResultModal" 
+      :qualifiedHouses="qualifiedHouses" 
+      :failedHouses="failedHouses"
+      @confirm="onResultConfirm" 
+    />
+    <div :class="['book-bg', { 'blurred': showStartModal || showResultModal }]">
       <div class="questions-row">
         <QuestionCard
           v-if="questions[currentIndex * 2]"
@@ -40,8 +46,11 @@ import { useRouter } from 'vue-router';
 import QuestionCard from '../../components/selfCheck/QuestionCard.vue';
 import NavigationButtons from '../../components/selfCheck/NavigationButtons.vue';
 import SelfCheckStartModal from '../../components/modals/SelfCheckStartModal.vue';
+import SelfCheckResultModal from '../../components/modals/SelfCheckResultModal.vue';
+
 import selfCheckApi from '../../api/selfCheck.js';
 import { useAuthStore } from '../../stores/auth';
+import authApi from '../../api/auth';
 
 const questions = [
   {
@@ -186,7 +195,10 @@ const answers = ref(Array(questions.length).fill(null));
 const currentIndex = ref(0);
 const lastIndex = Math.floor((questions.length - 1) / 2);
 const showStartModal = ref(true);
+const showResultModal = ref(false);
 const isSubmitting = ref(false);
+const qualifiedHouses = ref([]);
+const failedHouses = ref([]);
 const router = useRouter();
 
 async function startSelfCheck() {
@@ -199,17 +211,40 @@ async function startSelfCheck() {
       return;
     }
 
-    // 자가진단 시작 시 기존 진단 결과 초기화
-    await selfCheckApi.initializeDiagnosis();
+    // 토큰 유효성 확인을 위해 간단한 API 호출 시도
+    try {
+      await selfCheckApi.initializeDiagnosis();
+      console.log('✅ 토큰 유효성 확인 성공');
+    } catch (error) {
+      if (error.response?.status === 401) {
+        console.log('🔄 토큰 만료 감지, 갱신 시도...');
+        // 토큰 갱신 시도
+        try {
+          await authApi.refreshToken();
+          console.log('✅ 토큰 갱신 성공');
+          // 갱신 후 다시 시도
+          await selfCheckApi.initializeDiagnosis();
+          console.log('✅ 갱신된 토큰으로 유효성 확인 성공');
+        } catch (refreshError) {
+          console.error('❌ 토큰 갱신 실패:', refreshError);
+          alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+          router.push('/login');
+          return;
+        }
+      } else {
+        throw error;
+      }
+    }
     
     showStartModal.value = false;
   } catch (error) {
-    console.error('초기화 실패:', error);
+    console.error('자가진단 시작 실패:', error);
+
     if (error.response?.status === 401) {
       alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
       router.push('/login');
     } else {
-      alert('초기화 중 오류가 발생했습니다. 다시 시도해주세요.');
+      alert('자가진단 시작 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
     showStartModal.value = false;
   }
@@ -222,6 +257,19 @@ watch(showStartModal, (val) => {
     document.body.style.overflow = '';
   }
 });
+
+watch(showResultModal, (val) => {
+  if (val) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+});
+
+function onResultConfirm() {
+  showResultModal.value = false;
+  router.push('/');
+}
 onMounted(() => {
   if (showStartModal.value) document.body.style.overflow = 'hidden';
 });
@@ -267,7 +315,18 @@ async function submit() {
   };
 
   try {
-    const houseTypes = ['국민임대', '행복주택', '공공임대', '09공공임대'];
+    // 1. 기존 자가진단 결과 삭제
+    console.log('기존 자가진단 결과 삭제 중...');
+    await selfCheckApi.initializeDiagnosis();
+    console.log('기존 자가진단 결과 삭제 완료');
+
+    // 2. 기존 진단 내용 삭제
+    console.log('기존 진단 내용 삭제 중...');
+    await selfCheckApi.deleteContent();
+    console.log('기존 진단 내용 삭제 완료');
+
+    // 2. 진단 실행
+    const houseTypes = ['국민임대', '행복주택', '공공임대', '영구임대'];
     const apiCalls = [
       selfCheckApi.getKookminDiagnosis(diagnosisData),
       selfCheckApi.getHengBokDiagnosis(diagnosisData),
@@ -289,41 +348,35 @@ async function submit() {
       }
     }
 
-    // 3. 결과 정리
-    const qualifiedHouses = [];
-    const failedHouses = [];
+    // 3. 진단 내용 저장
+    console.log('진단 내용 저장 중...');
+    await selfCheckApi.saveContent(diagnosisData);
+    console.log('진단 내용 저장 완료');
+
+    // 4. 결과 정리
+    const tempQualifiedHouses = [];
+    const tempFailedHouses = [];
 
     results.forEach((result, index) => {
       if (result.status === 'fulfilled') {
         const qualified = result.value.qualified;
         if (typeof qualified === 'string' && 
             (!qualified.includes('불가능'))) {
-          qualifiedHouses.push(`${houseTypes[index]} (${qualified})`);
+          tempQualifiedHouses.push(`${houseTypes[index]} (${qualified})`);
         } else {
-          failedHouses.push(`${houseTypes[index]} (${qualified})`);
+          tempFailedHouses.push(`${houseTypes[index]} (${qualified})`);
         }
       } else if (result.status === 'rejected') {
-        failedHouses.push(`${houseTypes[index]} (오류)`);
+        tempFailedHouses.push(`${houseTypes[index]} (오류)`);
       } else {
-        failedHouses.push(houseTypes[index]);
+        tempFailedHouses.push(houseTypes[index]);
       }
     });
 
-    // 4. 결과 표시
-    let message = '';
-    if (qualifiedHouses.length > 0) {
-      message += `✅ 자격 요건을 충족하는 주택:\n${qualifiedHouses.join('\n')}\n\n`;
-    }
-    if (failedHouses.length > 0) {
-      message += `❌ 자격 요건을 충족하지 못하는 주택:\n${failedHouses.join('\n')}`;
-    }
-    
-    if (qualifiedHouses.length === 0) {
-      message = '모든 주택 유형에서 자격 요건을 충족하지 못합니다.';
-    }
-
-    message += '\n\n진단 결과가 데이터베이스에 저장되었습니다.';
-    alert(message);
+    // 5. 결과 모달에 데이터 설정 및 표시
+    qualifiedHouses.value = tempQualifiedHouses;
+    failedHouses.value = tempFailedHouses;
+    showResultModal.value = true;
   } catch (error) {
     console.error('전송 실패:', error);
     if (error.response?.status === 401) {

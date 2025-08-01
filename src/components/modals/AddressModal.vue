@@ -9,10 +9,16 @@ const props = defineProps({
   show: Boolean,
 });
 
-const emit = defineEmits(['close', 'selectDo', 'selectSigugun']);
+const emit = defineEmits([
+  'close',
+  'selectDo',
+  'selectSigugun',
+  'updateAddress',
+]);
 
 const handleSelectSigugun = (sigugun) => {
   emit('selectSigugun', sigugun);
+  emit('updateAddress');
   // 구/군 선택 후 모달 닫기
   setTimeout(() => {
     emit('close');
@@ -49,7 +55,9 @@ const handleSelectSigugun = (sigugun) => {
             {{ sigugun }}
           </button>
         </div>
-        <button class="modal-back-btn" @click="$emit('selectDo', '')">이전</button>
+        <button class="modal-back-btn" @click="$emit('selectDo', '')">
+          이전
+        </button>
       </div>
     </div>
   </div>

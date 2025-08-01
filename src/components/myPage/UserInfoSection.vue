@@ -1,52 +1,63 @@
-<script setup>
-defineProps({
-  userInfo: {
-    type: Object,
-    required: true,
-    default: () => ({
-      name: '',
-      residence: '',
-      preferredRegions: [],
-      noHousePeriod: '',
-      hasSubscriptionAccount: '',
-      isMarried: '',
-    }),
-  },
-});
-</script>
-
 <template>
-  <div class="info-section border-top border-bottom py-3 mt-2">
-    <h3 class="fw-bold">내 정보 ✏️</h3>
-    <div class="row">
-      <div class="col-md-6">
-        <p>이름: {{ userInfo.name }}</p>
-        <p>거주지: {{ userInfo.residence }}</p>
-        <p>선호 지역: {{ userInfo.preferredRegions.join(', ') }}</p>
-      </div>
-      <div class="col-md-6">
-        <p>
-          무주택 기간: <strong>{{ userInfo.noHousePeriod }}</strong>
-        </p>
-        <p class="mt-2">청약통장: {{ userInfo.hasSubscriptionAccount }}</p>
-        <p>혼인 여부: {{ userInfo.isMarried }}</p>
+  <div class="info-section py-3 mt-4">
+    <h4 class="section-title mb-4">
+      <router-link to="/profile/edit" class="text-decoration-none text-dark">
+        내 정보 ✏️
+      </router-link>
+    </h4>
+    <div class="row g-3">
+      <div
+        class="col-12 col-md-6"
+        v-for="(item, index) in flattenedUserRows"
+        :key="index"
+      >
+        <div class="d-flex gap-2">
+          <div class="label">{{ item.label }}</div>
+          <div class="value">{{ item.value }}</div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
+<script setup>
+import { computed } from 'vue';
+import { useMyPageStore } from '@/stores/mypage';
+import { storeToRefs } from 'pinia';
+
+const { userInfo } = storeToRefs(useMyPageStore());
+
+const flattenedUserRows = computed(() => [
+  { label: '닉네임', value: userInfo.value.nickname },
+  { label: '이메일', value: userInfo.value.email },
+  { label: '이름', value: userInfo.value.name },
+  { label: '거주지', value: userInfo.value.residence },
+]);
+</script>
+
 <style scoped>
 .info-section {
-  margin-left: 2rem;
-  margin-right: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
 }
 
-.border-top,
-.border-bottom {
-  border-color: #dee2e6 !important;
+.section-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.5rem;
 }
 
-small.text-danger {
-  font-size: 0.75rem;
+.label {
+  font-weight: 600;
+  width: 90px;
+  color: #666;
+}
+
+.value {
+  font-weight: 500;
+  color: #222;
+  word-break: break-word;
 }
 </style>
