@@ -107,12 +107,12 @@ export const setupInterceptors = (api) => {
       // Pinia store에서 토큰 가져오기
       let token = null;
       try {
-        // 동적 import로 Pinia store 접근
+        //Pinia store 접근
         const authModule = await import('../stores/auth');
         const authStore = authModule.useAuthStore();
         token = authStore.token;
       } catch (error) {
-        // Pinia store 접근 실패 시 localStorage에서 가져오기 (fallback)
+        // Pinia store 접근 실패 시 localStorage에서 가져오기
         token = localStorage.getItem('token');
       }
       
