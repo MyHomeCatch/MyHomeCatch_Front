@@ -99,7 +99,17 @@ export default {
   },
 
   async refreshToken() {
-    return await refreshToken(api);
+    const newToken = await refreshToken(api);
+    
+    try {
+      const { useAuthStore } = await import('../stores/auth');
+      const authStore = useAuthStore();
+      authStore.updateToken(newToken);
+    } catch (storeError) {
+      console.warn('Auth API: Pinia store 업데이트 실패:', storeError);
+    }
+    
+    return newToken;
   },
 
   startTokenRefresh() {

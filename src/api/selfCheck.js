@@ -59,8 +59,18 @@ api.interceptors.response.use(
 
 // 요청 인터셉터 - 토큰 자동 첨부
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
+  async (config) => {
+    let token = null;
+    try {
+      // Pinia store 접근
+      const authModule = await import('../stores/auth');
+      const authStore = authModule.useAuthStore();
+      token = authStore.token;
+    } catch (error) {
+      // Pinia store 접근 실패 시 localStorage에서 가져오기
+      token = localStorage.getItem('token');
+    }
+    
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }

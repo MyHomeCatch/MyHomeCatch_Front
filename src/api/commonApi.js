@@ -23,6 +23,15 @@ const refreshAccessToken = async (api) => {
     localStorage.setItem('token', newToken);
     console.log('토큰 갱신 성공:', new Date().toLocaleTimeString());
 
+    // Pinia store의 토큰 상태도 업데이트
+    try {
+      const { useAuthStore } = await import('../stores/auth');
+      const authStore = useAuthStore();
+      authStore.updateToken(newToken);
+    } catch (storeError) {
+      console.warn('Pinia store 업데이트 실패:', storeError);
+    }
+
     scheduleTokenRefresh(newToken, api);
 
     return newToken;
@@ -92,10 +101,21 @@ export const setupInterceptors = (api) => {
     }
   );
 
-  // 요청 인터셉터 - 토큰 자동 추가
+    // 요청 인터셉터 - 토큰 자동 추가
   api.interceptors.request.use(
-    (config) => {
-      const token = localStorage.getItem('token');
+    async (config) => {
+      // Pinia store에서 토큰 가져오기
+      let token = null;
+      try {
+        // 동적 import로 Pinia store 접근
+        const authModule = await import('../stores/auth');
+        const authStore = authModule.useAuthStore();
+        token = authStore.token;
+      } catch (error) {
+        // Pinia store 접근 실패 시 localStorage에서 가져오기 (fallback)
+        token = localStorage.getItem('token');
+      }
+      
       if (token) {
         config.headers['Authorization'] = `Bearer ${token}`;
       }

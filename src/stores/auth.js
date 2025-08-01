@@ -139,6 +139,13 @@ export const useAuthStore = defineStore('auth', {
       authApi.startTokenRefresh();
     },
 
+    updateToken(newToken) {
+      this.token = newToken;
+      this.isLoggedIn = true;
+      localStorage.setItem('token', newToken);
+      console.log('Auth store: 토큰 업데이트 완료');
+    },
+
     setSocialInfo({ id, name, nickname, email, profile, birthday, type }) {
       this.user = {
         ...this.user,
