@@ -13,6 +13,7 @@ const props = defineProps({
   initialLat: { type: Number, default: 33.450701 },
   initialLng: { type: Number, default: 126.570667 },
   houses: { type: Array, default: () => [] }, // LH 단지 데이터 (DTO 형태)
+  selectedCategory: { type: String, default: '' }, // 선택된 주변시설 카테고리
 });
 
 const map = ref(null);
@@ -21,14 +22,17 @@ const markers = ref([]); // LH 단지 마커
 const publicFacilityMarkers = ref([]); // 공공시설 마커
 const selectedPlaceInfo = ref(null); // 인포윈도우에 표시될 장소 정보
 const selectedMarker = ref(null); // LH 단지 인포윈도우 정보
-const currentCategory = ref(props.initialCategory); // 현재 선택된 카테고리
+const currentCategory = ref(props.selectedCategory); // 현재 선택된 카테고리
 let customOverlay = null;
 let geocoder = null;
+let places = null; // 장소 검색 객체
 
 watch(map, () => {
   if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
     geocoder = new window.kakao.maps.services.Geocoder();
     // 초기 모든 LH 단지 마커 표시
+    places = new window.kakao.maps.services.Places();
+    // Places 서비스 초기화
     if (props.houses.length > 0) {
       loadAllComplexes();
     }
@@ -36,6 +40,71 @@ watch(map, () => {
     console.error('Kakao maps services library not loaded.');
   }
 });
+
+// selectedCategory prop이 변경될 때 시설 검색
+watch(
+    () => props.selectedCategory,
+    (newCategory) => {
+      currentCategory.value = newCategory;
+      if (newCategory && map.value) {
+        searchPlaces(newCategory, map.value.getCenter());
+      } else {
+        publicFacilityMarkers.value = [];
+        // 카테고리 없으면 마커 초기화
+      }
+    }
+);
+
+const searchPlaces = (categoryGroupCode, center) => {
+  if (!places || !map.value) {
+    console.error('Places service or map not initailized.')
+    return;
+  }
+  // 기존 공공시설 마커 제거
+  publicFacilityMarkers.value = [];
+
+  // 공공시설 검색옵션 : 공고지역 중심, 반경 5000m = 5km, 최대 20개 검색
+  const options = { location: center, radius: 5000, size: 10 };
+  places.categorySearch(categoryGroupCode, placesSearchCB, options);
+
+};
+
+// 장소검색 callback 함수
+const placesSearchCB = (data, status, pagination) => {
+  if (status === window.kakao.maps.services.Status.OK) {
+
+    displayPlaces(data);
+  } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
+    console.warn('검색 결과가 없습니다.');
+  } else if (status === window.kakao.maps.services.Status.ERROR) {
+    console.error('장소 검색 중 오류가 발생했습니다.');
+  }
+
+};
+
+// 검색결과 마커표시
+const displayPlaces = (placesData) => {
+  const bounds = new window.kakao.maps.LatLngBounds();
+
+  for(let i=0; i<placesData.length; i++){
+    const place = placesData[i];
+    const marker = {
+      id: place.id,
+      lat: place.y,
+      lng: place.x,
+      title: place.place_name,
+      address: place.address_name,
+      phone: place.phone,
+      url: place.place_url,
+    };
+    publicFacilityMarkers.value.push(marker);
+    bounds.extend(new window.kakao.maps.LatLng(place.y, place.x));
+  }
+  if (publicFacilityMarkers.value.length>0){
+    map.value.setBounds(bounds);
+  }
+
+}
 
 // houses prop이 변경될 때 지도 업데이트
 watch(
@@ -201,6 +270,9 @@ const updateMapWithHouse = (house) => {
   if (existingMarker) {
     coordinate.value = { lat: existingMarker.lat, lng: existingMarker.lng };
 
+    // 기존 공공시설 마커 초기화
+    publicFacilityMarkers.value = [];
+
     if (map.value) {
       const newLatLng = new window.kakao.maps.LatLng(
         existingMarker.lat,
@@ -212,6 +284,11 @@ const updateMapWithHouse = (house) => {
       map.value.setCenter(newLatLng);
       map.value.setLevel(3);
       selectedMarker.value = existingMarker;
+
+      // 카테고리가 이미 선택됐다면 새로운 단지위치로 이동 후 주변시설 검색
+      if(currentCategory.value) {
+        searchPlaces(currentCategory.value, newLatLng);
+      }
     }
   }
 };
@@ -257,6 +334,17 @@ defineExpose({
           :clickable="true"
           v-on:onClickKakaoMapMarker="openComplexInfowindow(marker)"
         >
+        </KakaoMapMarker>
+
+        <!-- 단지주변 공공시설 마커 -->
+        <KakaoMapMarker
+            v-for="marker in publicFacilityMarkers"
+            :key="'facility-'+marker.id"
+            :lat="marker.lat"
+            :lng="marker.lng"
+            :title="marker.title"
+            :clickable="true">
+
         </KakaoMapMarker>
 
         <KakaoMapCustomOverlay
