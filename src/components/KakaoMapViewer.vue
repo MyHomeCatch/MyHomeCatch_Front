@@ -63,8 +63,9 @@ const searchPlaces = (categoryGroupCode, center) => {
   // 기존 공공시설 마커 제거
   publicFacilityMarkers.value = [];
 
-  // 공공시설 검색옵션 : 공고지역 중심, 반경 5000m = 5km, 최대 20개 검색
-  const options = { location: center, radius: 5000, size: 10 };
+  // 공공시설 검색옵션 : 공고지역 중심, 반경 2000m = 2km, 최대 15개 검색
+  // limit- radius : 20000m = 20km, size : 15개가 한계
+  const options = { location: center, radius: 2000, size: 15 };
   places.categorySearch(categoryGroupCode, placesSearchCB, options);
 
 };
