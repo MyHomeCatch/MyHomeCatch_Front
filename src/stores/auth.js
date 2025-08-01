@@ -70,6 +70,50 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    async googleLogin(code) {
+      try {
+        const response = await axios.post('/auth/google', { code });
+        const { token, user } = response.data;
+
+        if (!token) throw new Error('토큰이 없습니다.');
+
+        this.setToken(token);
+
+        if (user) {
+          this.user = { ...this.user, ...user };
+        } else {
+          await this.fetchUserInfo();
+        }
+
+        this.isLoggedIn = true;
+      } catch (error) {
+        console.error('구글 로그인 실패:', error);
+        this.isLoggedIn = false;
+      }
+    },
+
+    async kakaoLogin(code) {
+      try {
+        const response = await axios.post('/auth/kakao', { code });
+        const { token, user } = response.data;
+
+        if (!token) throw new Error('토큰이 없습니다.');
+
+        this.setToken(token);
+
+        if (user) {
+          this.user = { ...this.user, ...user };
+        } else {
+          await this.fetchUserInfo();
+        }
+
+        this.isLoggedIn = true;
+      } catch (error) {
+        console.error('카카오 로그인 실패:', error);
+        this.isLoggedIn = false;
+      }
+    },
+
     logout() {
       this.token = null;
       this.isLoggedIn = false;
@@ -97,6 +141,8 @@ export const useAuthStore = defineStore('auth', {
       this.emailChecked = true;
       if (type === 'kakao') this.password = `KAKAO ${id}`;
       else if (type === 'google') this.password = `GOOGLE ${id}`;
+
+      this.fetchUserInfo();
     },
 
     setUserField(field, value) {

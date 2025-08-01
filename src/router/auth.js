@@ -22,6 +22,6 @@ export default [
   {
     path: '/mypage',
     name: 'MyPage',
-    component: () => import('../pages/MyPage/MyPage.vue'),
+    component: () => import('../pages/PageB/PageB1.vue'),
   },
 ];
