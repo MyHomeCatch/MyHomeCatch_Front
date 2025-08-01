@@ -1,6 +1,10 @@
 <template>
   <div class="info-section py-3 mt-4">
-    <h4 class="section-title mb-4">내 정보 ✏️</h4>
+    <h4 class="section-title mb-4">
+      <router-link to="/profile/edit" class="text-decoration-none text-dark">
+        내 정보 ✏️
+      </router-link>
+    </h4>
     <div class="row g-3">
       <div
         class="col-12 col-md-6"

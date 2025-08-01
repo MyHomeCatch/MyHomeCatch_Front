@@ -8,11 +8,11 @@ export default {
       url: '/pageA/one',
       icon: 'fa-solid fa-paste',
     },
-    {
-      title: '마이페이지',
-      url: '/mypage',
-      icon: 'fa-solid fa-plane-departure',
-    },
+    // {
+    //   title: '마이페이지',
+    //   url: '/mypage',
+    //   icon: 'fa-solid fa-plane-departure',
+    // },
     {
       title: '통계',
       url: '/statics',

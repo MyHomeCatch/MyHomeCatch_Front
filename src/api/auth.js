@@ -1,5 +1,10 @@
 import axios from 'axios';
-import { setupInterceptors, startTokenRefresh, stopTokenRefresh, refreshToken } from './commonApi';
+import {
+  setupInterceptors,
+  startTokenRefresh,
+  stopTokenRefresh,
+  refreshToken,
+} from './commonApi';
 
 const api = axios.create({
   baseURL: 'http://localhost:8080/api',
@@ -72,7 +77,7 @@ export default {
   },
 
   // 유저정보 조회
-  async getUserInfo() {
+  async getMypageUserInfo() {
     const { data } = await axios.get('/user');
     return data;
   },
@@ -103,6 +108,15 @@ export default {
 
   stopTokenRefresh() {
     stopTokenRefresh();
+  },
+
+  async getUserInfo(token) {
+    const response = await axios.get('/auth/me', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
   },
 };
 
