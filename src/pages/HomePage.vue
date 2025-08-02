@@ -67,6 +67,13 @@
         <button @click="selectedCategory = 'CS2'">편의점</button>
         <button @click="selectedCategory = 'PS3'">어린이집</button>
         <button @click="selectedCategory = 'SC4'">학교</button>
+        <button @click="selectedCategory = 'AC5'">학원</button>
+        <button @click="selectedCategory = 'OL7'">주유소</button>
+        <button @click="selectedCategory = 'SW8'">지하철역</button>
+        <button @click="selectedCategory = 'BK9'">은행</button>
+        <button @click="selectedCategory = 'PO3'">공공기관</button>
+        <button @click="selectedCategory = 'HP8'">병원</button>
+        <button @click="selectedCategory = 'PM9'">약국</button>
         <div style="flex: 1; height: 800px">
           <KakaoMapViewer ref="mapViewerRef" :houses="houses" :selectedCategory="selectedCategory"/>
         </div>

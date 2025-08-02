@@ -47,7 +47,7 @@ watch(
     (newCategory) => {
       currentCategory.value = newCategory;
       if (newCategory && map.value) {
-        searchPlaces(newCategory, map.value.getCenter());
+        searchPlaces(newCategory, new window.kakao.maps.LatLng(coordinate.value.lat, coordinate.value.lng));
       } else {
         publicFacilityMarkers.value = [];
         // 카테고리 없으면 마커 초기화
@@ -63,9 +63,9 @@ const searchPlaces = (categoryGroupCode, center) => {
   // 기존 공공시설 마커 제거
   publicFacilityMarkers.value = [];
 
-  // 공공시설 검색옵션 : 공고지역 중심, 반경 2000m = 2km, 최대 15개 검색
+  // 공공시설 검색옵션 : 공고지역 중심, 반경 1000m = 1km, 최대 15개 검색
   // limit- radius : 20000m = 20km, size : 15개가 한계
-  const options = { location: center, radius: 2000, size: 15 };
+  const options = { location: center, radius: 1000, size: 15 };
   places.categorySearch(categoryGroupCode, placesSearchCB, options);
 
 };
@@ -86,7 +86,7 @@ const placesSearchCB = (data, status, pagination) => {
 // 검색결과 마커표시
 const displayPlaces = (placesData) => {
   const bounds = new window.kakao.maps.LatLngBounds();
-
+  const newLatLng = new window.kakao.maps.LatLng(coordinate.value.lat, coordinate.value.lng);
   for(let i=0; i<placesData.length; i++){
     const place = placesData[i];
     const marker = {
@@ -102,8 +102,13 @@ const displayPlaces = (placesData) => {
     bounds.extend(new window.kakao.maps.LatLng(place.y, place.x));
   }
   if (publicFacilityMarkers.value.length>0){
+    bounds.extend(new window.kakao.maps.LatLng(coordinate.value.lat, coordinate.value.lng));
     map.value.setBounds(bounds);
+    map.value.setLevel(5);
+    map.value.setCenter(newLatLng);
   }
+  // 카카오맵을 단지 마커가 중심으로 가게 고정
+
 
 }
 
@@ -134,6 +139,7 @@ const loadAllComplexes = async () => {
   }
 
   markers.value = []; // 기존 마커 초기화
+  publicFacilityMarkers.value = []; // 기존 단지주변 공공시설 마커 초기화
   const bounds = new window.kakao.maps.LatLngBounds(); // 지도 영역 설정용
 
   // 각 단지에 대해 지오코딩 수행
@@ -334,17 +340,27 @@ defineExpose({
           :title="marker.name"
           :clickable="true"
           v-on:onClickKakaoMapMarker="openComplexInfowindow(marker)"
+          :z-index="20"
         >
         </KakaoMapMarker>
 
         <!-- 단지주변 공공시설 마커 -->
+        <!-- 단지주변 공공시설 마커 이미지: 단지 마커(카카오맵 기본)와 구분하기 위해 png 첨부 -->
         <KakaoMapMarker
             v-for="marker in publicFacilityMarkers"
             :key="'facility-'+marker.id"
             :lat="marker.lat"
             :lng="marker.lng"
             :title="marker.title"
-            :clickable="true">
+            :clickable="true"
+            :image="{
+        imageSrc: '/src/assets/images/locationPin.png',
+        imageWidth: 30,
+        imageHeight: 30,
+        imageOption: {}
+            }"
+            :z-index="10"
+        >
 
         </KakaoMapMarker>
 
