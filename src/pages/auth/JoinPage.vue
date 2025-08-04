@@ -26,7 +26,8 @@ const canSubmit = computed(() => {
     !!authStore.password &&
     !!authStore.user.address &&
     authStore.emailChecked &&
-    authStore.nicknameChecked
+    authStore.nicknameChecked 
+    // && authStore.emailVerified  // 이메일 인증 완료 조건 추가
   );
 });
 
@@ -72,6 +73,10 @@ const handleSignUp = async () => {
     authStore.errorMessage = '이메일 중복확인을 해주세요.';
     return;
   }
+  // if (!authStore.emailVerified) {
+  //   authStore.errorMessage = '이메일 인증을 완료해주세요.';
+  //   return;
+  // }
   if (!authStore.nicknameChecked) {
     authStore.errorMessage = '닉네임 중복확인을 해주세요.';
     return;
