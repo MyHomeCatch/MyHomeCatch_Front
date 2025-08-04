@@ -2,19 +2,19 @@
   <div class="house-container">
     <!-- 필터 컴포넌트 -->
     <HouseFilter
-        :filters="searchQuery"
-        :filter-options="filterOptions"
-        @update-filter="updateFilter"
-        @clear-filter="clearFilter"
-        @clear-all="clearAllFilters"
-        @search="searchHouses"
+      :filters="searchQuery"
+      :filter-options="filterOptions"
+      @update-filter="updateFilter"
+      @clear-filter="clearFilter"
+      @clear-all="clearAllFilters"
+      @search="searchHouses"
     />
 
     <!-- 검색 결과 정보 -->
     <div class="result-info">
       <div class="result-count">
         총 <strong>{{ pageInfo.totalCount }}</strong
-      >개의 주택이 검색되었습니다.
+        >개의 주택이 검색되었습니다.
       </div>
       <div class="page-info">
         {{ pageInfo.startItem }}-{{ pageInfo.endItem }} /
@@ -25,7 +25,7 @@
     <div style="display: flex">
       <!-- 주택 정보 그리드 -->
       <div
-          style="
+        style="
           min-width: 60%;
           margin-right: 20px;
           height: 100vh;
@@ -36,11 +36,11 @@
         <!-- 주택 목록 -->
         <div v-if="!loading && houses.length > 0" class="house-grid">
           <HouseCard
-              v-for="house in houses"
-              :key="house.houseId"
-              :house="house"
-              @card-click="handleCardClick"
-              @toggle-favorite="handleToggleFavorite"
+            v-for="house in houses"
+            :key="house.houseId"
+            :house="house"
+            @card-click="handleCardClick"
+            @toggle-favorite="handleToggleFavorite"
           />
         </div>
 
@@ -65,80 +65,132 @@
       <div style="min-width: 500px" class="map">
         <div class="category-button-wrapper">
           <button
-              :class="{ 'category-button': true, 'selected': selectedCategory === 'MT1' }"
-              @click="selectedCategory = 'MT1'"
-          >대형마트
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'MT1',
+            }"
+            @click="selectedCategory = 'MT1'"
+          >
+            대형마트
           </button>
           <button
-              :class="{ 'category-button': true, 'selected': selectedCategory === 'CS2' }"
-              @click="selectedCategory = 'CS2'"
-          >편의점
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'CS2',
+            }"
+            @click="selectedCategory = 'CS2'"
+          >
+            편의점
           </button>
           <button
-              :class="{ 'category-button': true, 'selected': selectedCategory === 'PS3' }"
-              @click="selectedCategory = 'PS3'"
-          >어린이집
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'PS3',
+            }"
+            @click="selectedCategory = 'PS3'"
+          >
+            어린이집
           </button>
           <button
-              :class="{ 'category-button': true, 'selected': selectedCategory === 'SC4' }"
-              @click="selectedCategory = 'SC4'"
-          >학교
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'SC4',
+            }"
+            @click="selectedCategory = 'SC4'"
+          >
+            학교
           </button>
           <button
-              :class="{ 'category-button': true, 'selected': selectedCategory === 'AC5' }"
-              @click="selectedCategory = 'AC5'"
-          >학원
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'AC5',
+            }"
+            @click="selectedCategory = 'AC5'"
+          >
+            학원
           </button>
           <button
-              :class="{ 'category-button': true, 'selected': selectedCategory === 'OL7' }"
-              @click="selectedCategory = 'OL7'"
-          >주유소
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'OL7',
+            }"
+            @click="selectedCategory = 'OL7'"
+          >
+            주유소
           </button>
           <button
-              :class="{ 'category-button': true, 'selected': selectedCategory === 'SW8' }"
-              @click="selectedCategory = 'SW8'"
-          >지하철역
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'SW8',
+            }"
+            @click="selectedCategory = 'SW8'"
+          >
+            지하철역
           </button>
           <button
-              :class="{ 'category-button': true, 'selected': selectedCategory === 'BK9' }"
-              @click="selectedCategory = 'BK9'"
-          >은행
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'BK9',
+            }"
+            @click="selectedCategory = 'BK9'"
+          >
+            은행
           </button>
           <button
-              :class="{ 'category-button': true, 'selected': selectedCategory === 'PO3' }"
-              @click="selectedCategory = 'PO3'"
-          >공공기관
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'PO3',
+            }"
+            @click="selectedCategory = 'PO3'"
+          >
+            공공기관
           </button>
           <button
-              :class="{ 'category-button': true, 'selected': selectedCategory === 'HP8' }"
-              @click="selectedCategory = 'HP8'"
-          >병원
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'HP8',
+            }"
+            @click="selectedCategory = 'HP8'"
+          >
+            병원
           </button>
           <button
-              :class="{ 'category-button': true, 'selected': selectedCategory === 'PM9' }"
-              @click="selectedCategory = 'PM9'"
-          >약국
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'PM9',
+            }"
+            @click="selectedCategory = 'PM9'"
+          >
+            약국
           </button>
           <button
-              :class="{ 'category-button': true, 'selected': selectedCategory === 'CT1' }"
-              @click="selectedCategory = 'CT1'"
-          >문화시설
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'CT1',
+            }"
+            @click="selectedCategory = 'CT1'"
+          >
+            문화시설
           </button>
         </div>
         <div style="flex: 1; height: 800px">
-          <KakaoMapViewer ref="mapViewerRef" :houses="houses" :selectedCategory="selectedCategory"/>
+          <KakaoMapViewer
+            ref="mapViewerRef"
+            :houses="houses"
+            :selectedCategory="selectedCategory"
+          />
         </div>
       </div>
     </div>
 
     <!-- 페이지네이션 -->
-    <HousePagination :page-info="pageInfo" @page-change="changePage"/>
+    <HousePagination :page-info="pageInfo" @page-change="changePage" />
   </div>
 </template>
 
 <script setup>
-import {reactive, ref, onMounted, computed, watch} from 'vue';
-import {useRouter, useRoute} from 'vue-router';
+import { reactive, ref, onMounted, computed, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 import HouseFilter from '../components/house/HouseFilter.vue';
 import HouseCard from '../components/house/HouseCard.vue';
@@ -183,38 +235,38 @@ const searchQuery = reactive({
 
 const filterOptions = reactive({
   regions: [
-    {code: '서울', name: '서울'},
-    {code: '부산', name: '부산'},
-    {code: '대구', name: '대구'},
-    {code: '인천', name: '인천'},
-    {code: '광주', name: '광주'},
-    {code: '대전', name: '대전'},
-    {code: '울산', name: '울산'},
-    {code: '세종', name: '세종'},
-    {code: '강원', name: '강원'},
-    {code: '전북', name: '전북'},
-    {code: '제주', name: '제주'},
-    {code: '경기', name: '경기'},
-    {code: '경남', name: '경남'},
-    {code: '경북', name: '경북'},
-    {code: '전남', name: '전남'},
-    {code: '충남', name: '충남'},
-    {code: '충북', name: '충북'},
+    { code: '서울', name: '서울' },
+    { code: '부산', name: '부산' },
+    { code: '대구', name: '대구' },
+    { code: '인천', name: '인천' },
+    { code: '광주', name: '광주' },
+    { code: '대전', name: '대전' },
+    { code: '울산', name: '울산' },
+    { code: '세종', name: '세종' },
+    { code: '강원', name: '강원' },
+    { code: '전북', name: '전북' },
+    { code: '제주', name: '제주' },
+    { code: '경기', name: '경기' },
+    { code: '경남', name: '경남' },
+    { code: '경북', name: '경북' },
+    { code: '전남', name: '전남' },
+    { code: '충남', name: '충남' },
+    { code: '충북', name: '충북' },
   ],
   noticeTypes: [
-    {code: '가정어린이집', name: '가정어린이집'},
-    {code: '공공임대', name: '공공임대'},
-    {code: '국민임대', name: '국민임대'},
-    {code: '분양주택', name: '분양주택'},
-    {code: '영구임대', name: '영구임대'},
-    {code: '통합공공임대', name: '통합공공임대'},
-    {code: '행복주택', name: '행복주택'},
+    { code: '가정어린이집', name: '가정어린이집' },
+    { code: '공공임대', name: '공공임대' },
+    { code: '국민임대', name: '국민임대' },
+    { code: '분양주택', name: '분양주택' },
+    { code: '영구임대', name: '영구임대' },
+    { code: '통합공공임대', name: '통합공공임대' },
+    { code: '행복주택', name: '행복주택' },
   ],
   noticeStatuses: [
-    {code: '공고중', name: '공고중'},
-    {code: '접수마감', name: '접수마감'},
-    {code: '정정공고중', name: '정정공고중'},
-    {code: '접수중', name: '접수중'},
+    { code: '공고중', name: '공고중' },
+    { code: '접수마감', name: '접수마감' },
+    { code: '정정공고중', name: '정정공고중' },
+    { code: '접수중', name: '접수중' },
   ],
 });
 
@@ -228,7 +280,7 @@ const updateUrl = () => {
   if (searchQuery.page > 0) query.page = searchQuery.page;
   if (searchQuery.size !== 20) query.size = searchQuery.size;
 
-  router.replace({query});
+  router.replace({ query });
 };
 
 // API URL 생성
@@ -250,7 +302,7 @@ const getQueryUrl = () => {
 const loadHouses = async () => {
   loading.value = true;
   try {
-    const {data} = await axios.get(getQueryUrl());
+    const { data } = await axios.get(getQueryUrl());
 
     if (data.housingList) {
       houses.value = data.housingList;
@@ -278,7 +330,7 @@ const updateSearchQueryFromUrl = () => {
 };
 
 // 필터 이벤트 핸들러
-const updateFilter = ({key, value}) => {
+const updateFilter = ({ key, value }) => {
   searchQuery[key] = value;
   searchQuery.page = 0;
   updateUrl();
@@ -310,9 +362,10 @@ const searchHouses = () => {
 // 페이지네이션 이벤트 핸들러
 const changePage = (newPage) => {
   searchQuery.page = newPage;
+  moveMapToHouse(null);
   updateUrl();
   loadHouses();
-  window.scrollTo({top: 200, behavior: 'smooth'});
+  window.scrollTo({ top: 200, behavior: 'smooth' });
 };
 
 // 카드 이벤트 핸들러
@@ -320,20 +373,20 @@ const handleCardClick = (house) => {
   moveMapToHouse(house);
 };
 
-const handleToggleFavorite = ({houseId, isFavorite}) => {
+const handleToggleFavorite = ({ houseId, isFavorite }) => {
   console.log('찜하기 토글:', houseId, isFavorite);
 };
 
 // URL 변경 감지 (뒤로가기/앞으로가기 대응)
 watch(
-    () => route.query,
-    (newQuery, oldQuery) => {
-      // 쿼리가 실제로 변경된 경우에만 업데이트
-      if (JSON.stringify(newQuery) !== JSON.stringify(oldQuery)) {
-        updateSearchQueryFromUrl();
-        loadHouses();
-      }
+  () => route.query,
+  (newQuery, oldQuery) => {
+    // 쿼리가 실제로 변경된 경우에만 업데이트
+    if (JSON.stringify(newQuery) !== JSON.stringify(oldQuery)) {
+      updateSearchQueryFromUrl();
+      loadHouses();
     }
+  }
 );
 
 // 컴포넌트 마운트 시 실행
@@ -472,7 +525,6 @@ onMounted(() => {
   gap: 6px; /* Increased gap for both horizontal and vertical spacing */
   margin-bottom: 16px; /* Space below the buttons and above the map */
 }
-
 
 .category-button {
   background-color: #f0f0f0; /* Soft light gray background */
