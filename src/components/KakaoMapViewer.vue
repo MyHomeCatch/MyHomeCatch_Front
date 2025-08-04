@@ -265,6 +265,11 @@ const geocodeDetailedAddress = (
 
 // 특정 단지 정보로 지도 업데이트 (중심 이동, 주변 시설 검색)
 const updateMapWithHouse = (house) => {
+  if (!house) {
+    selectedMarker.value = null;
+    return;
+  }
+
   if (!geocoder) {
     console.error('Geocoder not initialized.');
     return;
@@ -368,6 +373,7 @@ defineExpose({
           v-if="selectedMarker"
           :lat="selectedMarker.lat"
           :lng="selectedMarker.lng"
+          :z-index="30"
         >
           <HouseInfoOverlay
             :house="selectedMarker.house"
