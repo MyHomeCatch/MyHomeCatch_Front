@@ -3,10 +3,8 @@ import { ref, watch } from 'vue';
 import {
   KakaoMap,
   KakaoMapMarker,
-  KakaoMapInfoWindow,
   KakaoMapCustomOverlay,
 } from 'vue3-kakao-maps';
-import HouseCard from './house/HouseCard.vue';
 import HouseInfoOverlay from './house/HouseInfoOverlay.vue';
 
 const props = defineProps({
@@ -22,7 +20,6 @@ const publicFacilityMarkers = ref([]); // 공공시설 마커
 const selectedPlaceInfo = ref(null); // 인포윈도우에 표시될 장소 정보
 const selectedMarker = ref(null); // LH 단지 인포윈도우 정보
 const currentCategory = ref(props.initialCategory); // 현재 선택된 카테고리
-let customOverlay = null;
 let geocoder = null;
 
 watch(map, () => {
@@ -154,7 +151,7 @@ const geocodeDetailedAddress = (
       const newLng = parseFloat(result[0].x);
 
       const markerData = {
-        id: house.houseId,
+        id: house.danziId,
         lat: newLat,
         lng: newLng,
         house: house, // 원본 complex 데이터 보관
@@ -195,7 +192,7 @@ const updateMapWithHouse = (house) => {
 
   // 기존 마커 중에서 해당 단지 찾기
   const existingMarker = markers.value.find(
-    (marker) => marker.house.houseId === house.houseId
+    (marker) => marker.house.danziId === house.danziId
   );
 
   if (existingMarker) {
