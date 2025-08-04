@@ -119,6 +119,11 @@
               @click="selectedCategory = 'PM9'"
           >약국
           </button>
+          <button
+              :class="{ 'category-button': true, 'selected': selectedCategory === 'CT1' }"
+              @click="selectedCategory = 'CT1'"
+          >문화시설
+          </button>
         </div>
         <div style="flex: 1; height: 800px">
           <KakaoMapViewer ref="mapViewerRef" :houses="houses" :selectedCategory="selectedCategory"/>
