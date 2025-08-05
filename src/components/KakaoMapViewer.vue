@@ -117,8 +117,6 @@ const displayPlaces = (placesData) => {
 watch(
   () => props.houses,
   (newHouses) => {
-    console.log('  ⚠️  : ', newHouses);
-
     if (!map.value) return;
 
     if (newHouses.length > 0) {
@@ -147,8 +145,6 @@ const loadAllComplexes = async () => {
   for (const house of props.houses) {
     await geocodeComplex(house, bounds);
   }
-
-  console.log('  ⚠️  : ', bounds);
 
   if (markers.value.length === 1) {
     // 마커가 하나뿐인 경우 해당 위치로 이동하고 적절한 줌 레벨 설정
@@ -292,8 +288,6 @@ const updateMapWithHouse = (house) => {
         existingMarker.lng
       );
 
-      console.log('  ⚠️  : ', '지도 변경');
-
       map.value.setCenter(newLatLng);
       map.value.setLevel(3);
       selectedMarker.value = existingMarker;
@@ -312,7 +306,6 @@ const onLoadKakaoMap = (newMap) => {
 
 // 인포윈도우 열기 (LH 단지) - 레거시
 const openComplexInfowindow = (marker) => {
-  console.log('LH 단지 마커 클릭:', marker);
   selectedMarker.value = marker;
 };
 
