@@ -25,89 +25,65 @@
     <!-- 좌측 콘텐츠 영역 -->
     <div class="row">
       <div class="category-button-wrapper">
-        <button
-            :class="{'category-button': true,
-              selected: selectedCategory === 'MT1',}"
+        <button :class="{'category-button': true,selected: selectedCategory === 'MT1',}"
             @click="selectedCategory = 'MT1'"
-        >
-          대형마트
+        >대형마트
         </button>
-        <button
-            :class="{'category-button': true,
-              selected: selectedCategory === 'CS2',}"
+
+        <button :class="{'category-button': true,selected: selectedCategory === 'CS2',}"
             @click="selectedCategory = 'CS2'"
-        >
-          편의점
+        >편의점
         </button>
-        <button
-            :class="{'category-button': true,
-              selected: selectedCategory === 'PS3',}"
+
+        <button :class="{'category-button': true,selected: selectedCategory === 'PS3',}"
             @click="selectedCategory = 'PS3'"
-        >
-          어린이집
+        >어린이집
         </button>
-        <button
-            :class="{'category-button': true,
-              selected: selectedCategory === 'SC4',}"
+
+        <button :class="{'category-button': true,selected: selectedCategory === 'SC4',}"
             @click="selectedCategory = 'SC4'"
-        >
-          학교
+        >학교
         </button>
-        <button
-            :class="{'category-button': true,
-              selected: selectedCategory === 'AC5',}"
+
+        <button :class="{'category-button': true,selected: selectedCategory === 'AC5',}"
             @click="selectedCategory = 'AC5'"
-        >
-          학원
+        >학원
         </button>
-        <button
-            :class="{'category-button': true,
-              selected: selectedCategory === 'OL7',}"
+
+        <button :class="{'category-button': true,selected: selectedCategory === 'OL7',}"
             @click="selectedCategory = 'OL7'"
-        >
-          주유소
+        >주유소
         </button>
+
         <button
-            :class="{'category-button': true,
-              selected: selectedCategory === 'SW8',}"
+            :class="{'category-button': true,selected: selectedCategory === 'SW8',}"
             @click="selectedCategory = 'SW8'"
-        >
-          지하철역
+        >지하철역
         </button>
-        <button
-            :class="{'category-button': true,
-              selected: selectedCategory === 'BK9',}"
+
+        <button :class="{'category-button': true,selected: selectedCategory === 'BK9',}"
             @click="selectedCategory = 'BK9'"
-        >
-          은행
+        >은행
         </button>
-        <button
-            :class="{'category-button': true,
-              selected: selectedCategory === 'PO3',}"
+
+        <button :class="{'category-button': true,selected: selectedCategory === 'PO3',}"
             @click="selectedCategory = 'PO3'"
-        >
-          공공기관
+        >공공기관
         </button>
-        <button
-            :class="{'category-button': true,
-              selected: selectedCategory === 'HP8',}"
+
+        <button :class="{'category-button': true,selected: selectedCategory === 'HP8',}"
             @click="selectedCategory = 'HP8'"
-        >
-          병원
+        >병원
         </button>
-        <button
-            :class="{'category-button': true,
-              selected: selectedCategory === 'PM9',}"
+
+        <button :class="{'category-button': true,selected: selectedCategory === 'PM9',}"
             @click="selectedCategory = 'PM9'"
-        >
-          약국
+        >약국
         </button>
-        <button
-            :class="{'category-button': true,
-              selected: selectedCategory === 'CT1',}"
+
+        <button :class="{'category-button': true,selected: selectedCategory === 'CT1',}"
             @click="selectedCategory = 'CT1'"
-        >
-          문화시설
+        >문화시설
         </button>
       </div>
       <div class="col-12 col-lg-7">

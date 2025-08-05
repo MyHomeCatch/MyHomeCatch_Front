@@ -20,6 +20,7 @@ const markers = ref([]); // LH 단지 마커
 const publicFacilityMarkers = ref([]); // 공공시설 마커
 const selectedPlaceInfo = ref(null); // 인포윈도우에 표시될 장소 정보
 const selectedMarker = ref(null); // LH 단지 인포윈도우 정보
+const activeHouseCenter = ref(null); // 현재 선택된 HouseCard의 좌표
 const currentCategory = ref(props.selectedCategory); // 현재 선택된 카테고리
 let customOverlay = null;
 let geocoder = null;
@@ -44,9 +45,8 @@ watch(
   () => props.selectedCategory,
   (newCategory) => {
     currentCategory.value = newCategory;
-    if (newCategory && map.value) {
-      const currentCenter = map.value.getCenter();
-      searchPlaces( newCategory, currentCenter );
+    if (newCategory && map.value && activeHouseCenter.value) {
+      searchPlaces( newCategory, new kakao.maps.LatLng(activeHouseCenter.value.lat, activeHouseCenter.value.lng)  );
     } else {
       publicFacilityMarkers.value = [];
       // 카테고리 없으면 마커 초기화
@@ -111,8 +111,8 @@ const displayPlaces = (placesData) => {
   //   map.value.setCenter(newLatLng);
   //   // 카카오맵을 단지 마커가 중심으로 가게 고정
   // }
+  map.value.setCenter(new kakao.maps.LatLng(activeHouseCenter.value.lat, activeHouseCenter.value.lng));
   map.value.setLevel(5);
-
 };
 
 // houses prop이 변경될 때 지도 업데이트
@@ -130,6 +130,7 @@ watch(
       publicFacilityMarkers.value = [];
       selectedPlaceInfo.value = null;
       selectedMarker.value = null;
+      activeHouseCenter.value = null;
     }
   },
   { deep: true }
@@ -158,6 +159,7 @@ const loadAllComplexes = async () => {
     const newLatLng = new window.kakao.maps.LatLng(marker.lat, marker.lng);
     map.value.setCenter(newLatLng);
     map.value.setLevel(5); // 더 가까운 줌 레벨
+    activeHouseCenter.value = { lat: marker.lat, lng: marker.lng }; // 선택된 단지위치정보 저장
   } else {
     // 여러 마커가 있는 경우 모든 마커를 포함하는 영역으로 조정
     map.value.setBounds(bounds);
@@ -245,6 +247,7 @@ const geocodeDetailedAddress = (
       // 첫 번째 단지의 경우 지도 중심으로 설정하고 주변 시설 검색
       if (searchFacilities && map.value && map.value.map) {
         coordinate.value = { lat: newLat, lng: newLng };
+        activeHouseCenter.value = { lat: newLat, lng: newLng };
         const newLatLng = new window.kakao.maps.LatLng(newLat, newLng);
         map.value.map.setCenter(newLatLng);
       }
@@ -284,6 +287,7 @@ const updateMapWithHouse = (house) => {
 
   if (existingMarker) {
     coordinate.value = { lat: existingMarker.lat, lng: existingMarker.lng };
+    activeHouseCenter.value = {lat: existingMarker.lat, lng: existingMarker.lng };
 
     // 기존 공공시설 마커 초기화
     publicFacilityMarkers.value = [];
@@ -297,7 +301,7 @@ const updateMapWithHouse = (house) => {
       console.log('  ⚠️  : ', '지도 변경');
 
       map.value.setCenter(newLatLng);
-      map.value.setLevel(3);
+      map.value.setLevel(5);
       selectedMarker.value = existingMarker;
 
       // 카테고리가 이미 선택됐다면 새로운 단지위치로 이동 후 주변시설 검색
