@@ -1,19 +1,30 @@
 <template>
   <div class="filter-wrapper">
-    <!-- 필터 제목 & 펼치기 버튼 -->
-    <div class="filter-header" @click="isExpanded = !isExpanded">
-      <div class="filter-title">검색 필터</div>
-      <span v-if="isExpanded">접기</span>
-      <span v-else>펼치기</span>
+    <!-- 상단 탭 + 초기화 버튼 -->
+    <div class="filter-title">
+      <span class="filter-title-text">검색 필터</span>
+      <div class="button-group top">
+        <button class="reset-btn" @click="resetAll()">필터 초기화</button>
+      </div>
+    </div>
+    <div class="filter-tabs-row">
+      <div class="filter-tabs">
+        <button
+          v-for="tab in tabOptions"
+          :key="tab"
+          class="filter-tab"
+          :class="{ active: currentTab === tab }"
+          @click="currentTab = tab"
+        >
+          {{ tab }}
+        </button>
+      </div>
     </div>
 
-    <!-- 필터 내용: 펼쳤을 때만 표시 -->
-    <div v-if="isExpanded">
-      <!-- 공급 유형 -->
-      <div class="filter-section">
-        <div class="filter-label-row">
-          <div class="filter-label">공급 유형</div>
-        </div>
+    <!-- 탭별 선택지 -->
+    <div class="filter-content">
+      <!-- 공고유형 -->
+      <div v-if="currentTab === '공고유형'" class="filter-section">
         <div class="choices">
           <div
             v-for="code in typeOptions"
@@ -27,9 +38,8 @@
         </div>
       </div>
 
-      <!-- 공급 지역 -->
-      <div class="filter-section">
-        <div class="filter-label">공급 지역</div>
+      <!-- 공급지역 -->
+      <div v-if="currentTab === '공급지역'" class="filter-section">
         <div class="choices">
           <div
             v-for="option in regionOptions"
@@ -43,23 +53,17 @@
         </div>
       </div>
 
-      <!-- 본인 대상 + 초기화 버튼 -->
-      <div class="filter-section">
-        <div class="filter-label">본인 대상</div>
-        <div class="choice-search-row">
-          <div class="choices no-wrap">
-            <div
-              v-for="option in mineOptions"
-              :key="option"
-              class="choice-block"
-              :class="{ selected: selectedChoice.mine.includes(option) }"
-              @click="toggleOption('mine', option)"
-            >
-              {{ option }}
-            </div>
-          </div>
-          <div class="button-group">
-            <button class="reset-btn" @click="resetAll()">필터 초기화</button>
+      <!-- 본인대상 -->
+      <div v-if="currentTab === '본인대상'" class="filter-section">
+        <div class="choices no-wrap">
+          <div
+            v-for="option in mineOptions"
+            :key="option"
+            class="choice-block"
+            :class="{ selected: selectedChoice.mine.includes(option) }"
+            @click="toggleOption('mine', option)"
+          >
+            {{ option }}
           </div>
         </div>
       </div>
@@ -73,7 +77,10 @@ import { calendarColorMap } from '@/assets/calendarColorMap.js';
 
 const emit = defineEmits(['update:filters']);
 
-const isExpanded = ref(false);
+// 기본 선택 탭: 공고유형
+const currentTab = ref('공고유형');
+
+const tabOptions = ['공고유형', '공급지역', '본인대상'];
 
 const selectedChoice = ref({
   type: [],
@@ -89,6 +96,7 @@ watch(
   { deep: true }
 );
 
+// 필터 옵션
 const typeOptions = ['05', '08', '40', '10', '07', '09', '48'];
 
 const regionOptions = [
@@ -145,7 +153,12 @@ const toggleOption = (filterKey, option) => {
     }
   } else {
     if (filterKey === 'region' && selectedArray.includes('전체')) {
-      selectedChoice.value.region = [];
+      // ✅ '전체'가 선택된 상태에서 다른 지역 클릭 시:
+      // '전체'와 클릭한 지역을 제거 (나머지 유지)
+      selectedChoice.value.region = selectedArray.filter(
+        (item) => item !== '전체' && item !== option
+      );
+      return;
     }
 
     const index = selectedArray.indexOf(option);
