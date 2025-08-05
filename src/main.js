@@ -3,6 +3,7 @@ import 'vue-awesome-paginate/dist/style.css';
 
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
+import { useKakao } from 'vue3-kakao-maps';
 import VueAwesomePaginate from 'vue-awesome-paginate';
 
 import App from './App.vue';
@@ -14,6 +15,11 @@ const app = createApp(App);
 app.use(VueAwesomePaginate);
 app.use(createPinia());
 app.use(router);
+useKakao('35c313962d503117ff7aff00755c0902', [
+  'clusterer',
+  'services',
+  'drawing',
+]);
 
 // 앱 시작 시 기존 토큰이 있다면 토큰 갱신 스케줄링 시작
 const token = localStorage.getItem('token');
