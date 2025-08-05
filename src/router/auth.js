@@ -19,4 +19,9 @@ export default [
     name: 'GoogleLoading',
     component: () => import('../pages/auth/GoogleLoadingPage.vue'),
   },
+  {
+    path: '/mypage',
+    name: 'MyPage',
+    component: () => import('../pages/PageB/MyPage.vue'),
+  },
 ];

@@ -8,6 +8,7 @@ import VueAwesomePaginate from 'vue-awesome-paginate';
 
 import App from './App.vue';
 import router from './router';
+import authApi from './api/auth';
 
 const app = createApp(App);
 
@@ -19,5 +20,12 @@ useKakao('35c313962d503117ff7aff00755c0902', [
   'services',
   'drawing',
 ]);
+
+// 앱 시작 시 기존 토큰이 있다면 토큰 갱신 스케줄링 시작
+const token = localStorage.getItem('token');
+if (token) {
+  console.log('앱 시작 시 기존 토큰 발견, 토큰 갱신 스케줄링 시작');
+  authApi.startTokenRefresh();
+}
 
 app.mount('#app');
