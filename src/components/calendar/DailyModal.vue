@@ -26,7 +26,11 @@
           </div>
 
           <div class="period">
-            신청 기간: {{ event.startDate }} ~ {{ event.endDate }}
+            신청 기간:
+            <span v-if="event.startDate === event.endDate">
+              {{ event.startDate }}
+            </span>
+            <span v-else> {{ event.startDate }} ~ {{ event.endDate }} </span>
           </div>
         </div>
       </div>
