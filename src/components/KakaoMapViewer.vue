@@ -45,10 +45,8 @@ watch(
   (newCategory) => {
     currentCategory.value = newCategory;
     if (newCategory && map.value) {
-      searchPlaces(
-        newCategory,
-        new window.kakao.maps.LatLng(coordinate.value.lat, coordinate.value.lng)
-      );
+      const currentCenter = map.value.getCenter();
+      searchPlaces( newCategory, currentCenter );
     } else {
       publicFacilityMarkers.value = [];
       // 카테고리 없으면 마커 초기화
@@ -83,11 +81,12 @@ const placesSearchCB = (data, status, pagination) => {
 
 // 검색결과 마커표시
 const displayPlaces = (placesData) => {
-  const bounds = new window.kakao.maps.LatLngBounds();
-  const newLatLng = new window.kakao.maps.LatLng(
-    coordinate.value.lat,
-    coordinate.value.lng
-  );
+  // 상세페이지에서 지도가 초기화되는 문제를 해결못해서 주석처리함
+  // const bounds = new window.kakao.maps.LatLngBounds();
+  // const newLatLng = new window.kakao.maps.LatLng(
+  //   coordinate.value.lat,
+  //   coordinate.value.lng
+  // );
   for (let i = 0; i < placesData.length; i++) {
     const place = placesData[i];
     const marker = {
@@ -100,17 +99,20 @@ const displayPlaces = (placesData) => {
       url: place.place_url,
     };
     publicFacilityMarkers.value.push(marker);
-    bounds.extend(new window.kakao.maps.LatLng(place.y, place.x));
+    // 상세페이지에서 지도가 초기화되는 문제를 해결못해서 주석처리함
+    // bounds.extend(new window.kakao.maps.LatLng(place.y, place.x));
   }
-  if (publicFacilityMarkers.value.length > 0) {
-    bounds.extend(
-      new window.kakao.maps.LatLng(coordinate.value.lat, coordinate.value.lng)
-    );
-    map.value.setBounds(bounds);
-    map.value.setLevel(5);
-    map.value.setCenter(newLatLng);
-  }
-  // 카카오맵을 단지 마커가 중심으로 가게 고정
+  // 상세페이지에서 지도가 초기화되는 문제를 해결못해서 주석처리함
+  // if (publicFacilityMarkers.value.length > 0) {
+  //   bounds.extend(
+  //     new window.kakao.maps.LatLng(coordinate.value.lat, coordinate.value.lng)
+  //   );
+  //   map.value.setBounds(bounds);
+  //   map.value.setCenter(newLatLng);
+  //   // 카카오맵을 단지 마커가 중심으로 가게 고정
+  // }
+  map.value.setLevel(5);
+
 };
 
 // houses prop이 변경될 때 지도 업데이트
@@ -154,8 +156,8 @@ const loadAllComplexes = async () => {
     // 마커가 하나뿐인 경우 해당 위치로 이동하고 적절한 줌 레벨 설정
     const marker = markers.value[0];
     const newLatLng = new window.kakao.maps.LatLng(marker.lat, marker.lng);
-    map.value.map.setCenter(newLatLng);
-    map.value.map.setLevel(3); // 더 가까운 줌 레벨
+    map.value.setCenter(newLatLng);
+    map.value.setLevel(5); // 더 가까운 줌 레벨
   } else {
     // 여러 마커가 있는 경우 모든 마커를 포함하는 영역으로 조정
     map.value.setBounds(bounds);

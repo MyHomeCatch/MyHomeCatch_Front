@@ -78,7 +78,9 @@
 </template>
 
 <script setup>
-defineProps({
+import { useRouter } from 'vue-router';
+
+const props = defineProps({
   house: {
     type: Object,
     required: true,
@@ -87,9 +89,18 @@ defineProps({
 
 defineEmits(['close']);
 
+const router = useRouter();
+
 const handleDetailView = () => {
   console.log('자세히 보기 클릭');
+  localStorage.setItem(
+      'currentHouseDetail', JSON.stringify((props.house))
+  );
   // 상세 페이지로 이동하는 로직
+  router.push({
+    name: 'detailpages',
+    query: { danziId: props.house.danziId }, // URL 쿼리 파라미터로 houseId 전달
+  });
 };
 
 const handleFavorite = () => {
