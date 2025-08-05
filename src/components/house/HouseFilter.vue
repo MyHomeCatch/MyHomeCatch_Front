@@ -14,63 +14,69 @@
     <div class="filter-grid">
       <!-- 지역 필터 -->
       <div class="filter-item">
-        <label class="filter-label">지역</label>
-        <select
-          :value="filters.region"
-          @change="updateFilter('region', $event.target.value)"
-          class="filter-select"
-        >
-          <option value="">전체 지역</option>
-          <option
+        <label class="filter-label">지역 (다중 선택 가능)</label>
+        <div class="checkbox-group">
+          <label
             v-for="region in filterOptions.regions"
             :key="region.code"
-            :value="region.code"
+            class="checkbox-item"
           >
-            {{ region.name }}
-          </option>
-        </select>
+            <input
+              type="checkbox"
+              :value="region.code"
+              :checked="filters.region.includes(region.code)"
+              @change="toggleFilter('region', region.code)"
+              class="checkbox-input"
+            />
+            <span class="checkbox-label">{{ region.name }}</span>
+          </label>
+        </div>
       </div>
 
       <!-- 공고유형 필터 -->
       <div class="filter-item">
-        <label class="filter-label">공고유형</label>
-        <select
-          :value="filters.noticeType"
-          @change="updateFilter('noticeType', $event.target.value)"
-          class="filter-select"
-        >
-          <option value="">전체 유형</option>
-          <option
+        <label class="filter-label">공고유형 (다중 선택 가능)</label>
+        <div class="checkbox-group">
+          <label
             v-for="type in filterOptions.noticeTypes"
             :key="type.code"
-            :value="type.code"
+            class="checkbox-item"
           >
-            {{ type.name }}
-          </option>
-        </select>
+            <input
+              type="checkbox"
+              :value="type.code"
+              :checked="filters.noticeType.includes(type.code)"
+              @change="toggleFilter('noticeType', type.code)"
+              class="checkbox-input"
+            />
+            <span class="checkbox-label">{{ type.name }}</span>
+          </label>
+        </div>
       </div>
 
       <!-- 공고상태 필터 -->
       <div class="filter-item">
-        <label class="filter-label">공고상태</label>
-        <select
-          :value="filters.noticeStatus"
-          @change="updateFilter('noticeStatus', $event.target.value)"
-          class="filter-select"
-        >
-          <option value="">전체 상태</option>
-          <option
+        <label class="filter-label">공고상태 (다중 선택 가능)</label>
+        <div class="checkbox-group">
+          <label
             v-for="status in filterOptions.noticeStatuses"
             :key="status.code"
-            :value="status.code"
+            class="checkbox-item"
           >
-            {{ status.name }}
-          </option>
-        </select>
+            <input
+              type="checkbox"
+              :value="status.code"
+              :checked="filters.noticeStatus.includes(status.code)"
+              @change="toggleFilter('noticeStatus', status.code)"
+              class="checkbox-input"
+            />
+            <span class="checkbox-label">{{ status.name }}</span>
+          </label>
+        </div>
       </div>
 
       <!-- 검색 버튼 -->
-      <div class="filter-item">
+      <div class="filter-item search-button-container">
         <button @click="search" class="search-button">
           <span>🔍</span>
           검색
@@ -82,32 +88,46 @@
     <div v-if="hasActiveFilters" class="active-filters">
       <span class="active-filter-label">적용된 필터:</span>
       <div class="filter-tags">
+        <!-- 지역 태그들 -->
         <span
-          v-if="filters.region"
+          v-for="regionCode in filters.region"
+          :key="`region-${regionCode}`"
           class="filter-tag"
-          @click="clearFilter('region')"
+          @click="toggleFilter('region', regionCode)"
         >
-          지역: {{ getFilterDisplayName('regions', filters.region) }}
+          지역: {{ getFilterDisplayName('regions', regionCode) }}
           <span class="remove-tag">×</span>
         </span>
+
+        <!-- 공고유형 태그들 -->
         <span
-          v-if="filters.noticeType"
+          v-for="typeCode in filters.noticeType"
+          :key="`type-${typeCode}`"
           class="filter-tag"
-          @click="clearFilter('noticeType')"
+          @click="toggleFilter('noticeType', typeCode)"
         >
-          유형: {{ getFilterDisplayName('noticeTypes', filters.noticeType) }}
+          유형: {{ getFilterDisplayName('noticeTypes', typeCode) }}
           <span class="remove-tag">×</span>
         </span>
+
+        <!-- 공고상태 태그들 -->
         <span
-          v-if="filters.noticeStatus"
+          v-for="statusCode in filters.noticeStatus"
+          :key="`status-${statusCode}`"
           class="filter-tag"
-          @click="clearFilter('noticeStatus')"
+          @click="toggleFilter('noticeStatus', statusCode)"
         >
-          상태:
-          {{ getFilterDisplayName('noticeStatuses', filters.noticeStatus) }}
+          상태: {{ getFilterDisplayName('noticeStatuses', statusCode) }}
           <span class="remove-tag">×</span>
         </span>
       </div>
+    </div>
+
+    <!-- 선택된 항목 수 표시 -->
+    <div v-if="hasActiveFilters" class="filter-summary">
+      <span class="summary-text">
+        총 {{ totalSelectedFilters }}개 조건으로 검색
+      </span>
     </div>
   </div>
 </template>
@@ -120,6 +140,7 @@ const props = defineProps({
   filters: {
     type: Object,
     required: true,
+    // 예상 구조: { region: [], noticeType: [], noticeStatus: [] }
   },
   filterOptions: {
     type: Object,
@@ -138,15 +159,34 @@ const emit = defineEmits([
 // Computed
 const hasActiveFilters = computed(() => {
   return (
-    props.filters.region ||
-    props.filters.noticeType ||
-    props.filters.noticeStatus
+    props.filters.region.length > 0 ||
+    props.filters.noticeType.length > 0 ||
+    props.filters.noticeStatus.length > 0
+  );
+});
+
+const totalSelectedFilters = computed(() => {
+  return (
+    props.filters.region.length +
+    props.filters.noticeType.length +
+    props.filters.noticeStatus.length
   );
 });
 
 // Methods
-const updateFilter = (key, value) => {
-  emit('update-filter', { key, value });
+const toggleFilter = (key, value) => {
+  const currentValues = [...props.filters[key]];
+  const index = currentValues.indexOf(value);
+
+  if (index > -1) {
+    // 이미 선택된 경우 제거
+    currentValues.splice(index, 1);
+  } else {
+    // 선택되지 않은 경우 추가
+    currentValues.push(value);
+  }
+
+  emit('update-filter', { key, value: currentValues });
 };
 
 const clearFilter = (key) => {
@@ -209,9 +249,9 @@ const getFilterDisplayName = (optionType, code) => {
 
 .filter-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  align-items: end;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  align-items: start;
 }
 
 .filter-item {
@@ -223,36 +263,69 @@ const getFilterDisplayName = (optionType, code) => {
   font-size: 14px;
   font-weight: 500;
   color: #222222;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
-.filter-select {
-  padding: 12px 16px;
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 8px;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
-  font-size: 14px;
-  background: white;
-  transition: border-color 0.2s ease;
+  background: #fafafa;
 }
 
-.filter-select:focus {
-  outline: none;
-  border-color: #ff385c;
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.checkbox-item:hover {
+  background: #f0f0f0;
+}
+
+.checkbox-input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #ff385c;
+}
+
+.checkbox-label {
+  font-size: 14px;
+  color: #222222;
+  cursor: pointer;
+  user-select: none;
+}
+
+.search-button-container {
+  display: flex;
+  align-items: end;
 }
 
 .search-button {
   background: #ff385c;
   color: white;
   border: none;
-  padding: 12px 24px;
+  padding: 14px 28px;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+  justify-content: center;
 }
 
 .search-button:hover {
@@ -261,8 +334,8 @@ const getFilterDisplayName = (optionType, code) => {
 }
 
 .active-filters {
-  margin-top: 16px;
-  padding-top: 16px;
+  margin-top: 20px;
+  padding-top: 20px;
   border-top: 1px solid #e0e0e0;
 }
 
@@ -270,10 +343,12 @@ const getFilterDisplayName = (optionType, code) => {
   font-size: 14px;
   color: #717171;
   margin-right: 12px;
+  display: block;
+  margin-bottom: 8px;
 }
 
 .filter-tags {
-  display: inline-flex;
+  display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
@@ -281,7 +356,7 @@ const getFilterDisplayName = (optionType, code) => {
 .filter-tag {
   background: #ff385c;
   color: white;
-  padding: 6px 12px;
+  padding: 8px 12px;
   border-radius: 20px;
   font-size: 12px;
   cursor: pointer;
@@ -293,11 +368,26 @@ const getFilterDisplayName = (optionType, code) => {
 
 .filter-tag:hover {
   background: #e31c5f;
+  transform: scale(1.05);
 }
 
 .remove-tag {
   font-size: 16px;
   font-weight: bold;
+}
+
+.filter-summary {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.summary-text {
+  font-size: 14px;
+  color: #717171;
+  background: #f0f0f0;
+  padding: 8px 16px;
+  border-radius: 20px;
+  display: inline-block;
 }
 
 @media (max-width: 768px) {
@@ -307,6 +397,15 @@ const getFilterDisplayName = (optionType, code) => {
 
   .filter-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .checkbox-group {
+    max-height: 150px;
+  }
+
+  .filter-tags {
+    justify-content: center;
   }
 }
 </style>

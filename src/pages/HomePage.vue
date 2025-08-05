@@ -22,7 +22,9 @@
       </div>
     </div>
 
-    <div style="display: flex">
+    <RecomendedHouse />
+
+    <div style="display: flex; margin-top: 40px">
       <!-- 주택 정보 그리드 -->
       <div
         style="
@@ -196,6 +198,7 @@ import HouseFilter from '../components/house/HouseFilter.vue';
 import HouseCard from '../components/house/HouseCard.vue';
 import HousePagination from '../components/house/HousePagination.vue';
 import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
+import RecomendedHouse from '../components/house/RecomendedHouse.vue';
 
 // Router
 const router = useRouter();
@@ -224,11 +227,16 @@ const pageInfo = reactive({
   totalPages: 0,
 });
 
-// URL 쿼리에서 초기값 설정
+// URL 쿼리에서 초기값 설정 (다중 선택 지원)
+const parseQueryArray = (value) => {
+  if (!value) return [];
+  return Array.isArray(value) ? value : [value];
+};
+
 const searchQuery = reactive({
-  region: route.query.region || '',
-  noticeType: route.query.noticeType || '',
-  noticeStatus: route.query.noticeStatus || '',
+  region: parseQueryArray(route.query.region),
+  noticeType: parseQueryArray(route.query.noticeType),
+  noticeStatus: parseQueryArray(route.query.noticeStatus),
   page: parseInt(route.query.page) || 0,
   size: parseInt(route.query.size) || 20,
 });
@@ -270,30 +278,53 @@ const filterOptions = reactive({
   ],
 });
 
-// URL 업데이트 함수
+// URL 업데이트 함수 (다중 값 지원)
 const updateUrl = () => {
   const query = {};
 
-  if (searchQuery.region) query.region = searchQuery.region;
-  if (searchQuery.noticeType) query.noticeType = searchQuery.noticeType;
-  if (searchQuery.noticeStatus) query.noticeStatus = searchQuery.noticeStatus;
+  // 배열이 비어있지 않으면 URL에 추가
+  if (searchQuery.region.length > 0) {
+    query.region =
+      searchQuery.region.length === 1
+        ? searchQuery.region[0]
+        : searchQuery.region;
+  }
+  if (searchQuery.noticeType.length > 0) {
+    query.noticeType =
+      searchQuery.noticeType.length === 1
+        ? searchQuery.noticeType[0]
+        : searchQuery.noticeType;
+  }
+  if (searchQuery.noticeStatus.length > 0) {
+    query.noticeStatus =
+      searchQuery.noticeStatus.length === 1
+        ? searchQuery.noticeStatus[0]
+        : searchQuery.noticeStatus;
+  }
   if (searchQuery.page > 0) query.page = searchQuery.page;
   if (searchQuery.size !== 20) query.size = searchQuery.size;
 
   router.replace({ query });
 };
 
-// API URL 생성
+// API URL 생성 (다중 파라미터 지원)
 const getQueryUrl = () => {
   const params = new URLSearchParams();
   params.append('page', searchQuery.page);
   params.append('size', searchQuery.size);
 
-  if (searchQuery.region) params.append('cnpCdNm', searchQuery.region);
-  if (searchQuery.noticeType)
-    params.append('aisTpCdNm', searchQuery.noticeType);
-  if (searchQuery.noticeStatus)
-    params.append('panSs', searchQuery.noticeStatus);
+  // 다중 값을 각각 추가
+  searchQuery.region.forEach((region) => {
+    if (region) params.append('cnpCdNm', region);
+  });
+
+  searchQuery.noticeType.forEach((type) => {
+    if (type) params.append('aisTpCdNm', type);
+  });
+
+  searchQuery.noticeStatus.forEach((status) => {
+    if (status) params.append('panSs', status);
+  });
 
   return `/api/api/house?${params.toString()}`;
 };
@@ -322,9 +353,9 @@ const loadHouses = async () => {
 
 // URL 쿼리에서 searchQuery 업데이트
 const updateSearchQueryFromUrl = () => {
-  searchQuery.region = route.query.region || '';
-  searchQuery.noticeType = route.query.noticeType || '';
-  searchQuery.noticeStatus = route.query.noticeStatus || '';
+  searchQuery.region = parseQueryArray(route.query.region);
+  searchQuery.noticeType = parseQueryArray(route.query.noticeType);
+  searchQuery.noticeStatus = parseQueryArray(route.query.noticeStatus);
   searchQuery.page = parseInt(route.query.page) || 0;
   searchQuery.size = parseInt(route.query.size) || 20;
 };
@@ -338,16 +369,16 @@ const updateFilter = ({ key, value }) => {
 };
 
 const clearFilter = (key) => {
-  searchQuery[key] = '';
+  searchQuery[key] = [];
   searchQuery.page = 0;
   updateUrl();
   loadHouses();
 };
 
 const clearAllFilters = () => {
-  searchQuery.region = '';
-  searchQuery.noticeType = '';
-  searchQuery.noticeStatus = '';
+  searchQuery.region = [];
+  searchQuery.noticeType = [];
+  searchQuery.noticeStatus = [];
   searchQuery.page = 0;
   updateUrl();
   loadHouses();
