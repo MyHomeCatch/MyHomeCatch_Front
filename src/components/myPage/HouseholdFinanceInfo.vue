@@ -43,10 +43,12 @@ const { householdInfo, householdInfoError } = storeToRefs(store);
 function formatHouseholdSize(raw) {
   if (!raw) return '-';
   const [adults, children] = raw.split(',');
-  return `${adults}인 (본인 포함)\n자녀 ${children}명(태아 포함)`;
+  return `${adults}인 (본인 포함)\n자녀 ${children}명 (태아 포함)`;
 }
 
 const flattenedHouseholdRows = computed(() => {
+  const labelsToStrip = ['총 자산', '자동차', '월평균 소득', '부동산'];
+
   return [
     { label: '거주 기간', value: householdInfo.value.residencePeriod },
     { label: '무주택 여부', value: householdInfo.value.isHomeless },
@@ -64,7 +66,18 @@ const flattenedHouseholdRows = computed(() => {
     { label: '자동차 자산', value: householdInfo.value.vehicle },
     { label: '월평균 소득', value: householdInfo.value.monthlyIncome },
     { label: '부동산 자산', value: householdInfo.value.realEstate },
-  ];
+  ].map(({ label, value }) => {
+    const stripKeyword = labelsToStrip.find(
+      (prefix) => typeof value === 'string' && value.startsWith(prefix)
+    );
+    if (stripKeyword) {
+      return {
+        label,
+        value: value.replace(stripKeyword, '').trim(),
+      };
+    }
+    return { label, value };
+  });
 });
 
 function goToDiagnosis() {
@@ -76,7 +89,7 @@ function goToDiagnosis() {
 .info-wrapper {
   max-width: 800px;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: 1rem 0;
   position: relative;
   min-height: 300px;
 }

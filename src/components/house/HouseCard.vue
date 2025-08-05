@@ -1,5 +1,10 @@
 <template>
-  <div class="house-card" @click="onCardClick" :id="house.houseId">
+  <div
+    class="house-card"
+    :class="{ compact }"
+    @click="onCardClick"
+    :id="house.houseId"
+  >
     <!-- 아파트 이미지 -->
     <div class="image-container">
       <img
@@ -71,6 +76,8 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+
+  compact: { type: Boolean, default: false }, // 마이페이지 사용
 });
 
 // Emits
@@ -107,8 +114,53 @@ const formatDate = (dateString) => {
 .house-card {
   border-radius: 16px;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   cursor: pointer;
+  width: 100%; /* 기본 그리드용 */
+  max-width: 100%;
+}
+
+/* ✅ 캐러셀 전용 compact 모드 */
+.house-card.compact {
+  width: 180px;
+  min-width: 180px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.house-card.compact .image-container {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.house-card.compact .house-image {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.house-card.compact .house-info {
+  padding: 6px 8px;
+}
+
+.house-card.compact .house-name {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 18px;
+}
+
+.house-card.compact .value {
+  font-size: 13px;
+  color: #555;
 }
 
 .image-container {

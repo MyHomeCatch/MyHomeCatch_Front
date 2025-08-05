@@ -58,52 +58,76 @@ export const useMyPageStore = defineStore('mypage', {
     // ⭐ 관심 공고
     favorites: [
       {
-        id: 101,
-        title: 'LH 청년전세임대 (서울 서초구)',
-        desc: '접수: 2025.08.01 ~ 08.07',
-        image: new URL('@/assets/images/MyHomeCatchLogo.png', import.meta.url)
-          .href,
-        status: 'active',
+        houseId: 201,
+        houseName: '양산 물금LH천년나무',
+        overviewImageUrl: new URL(
+          '@/assets/images/house_yangsan.png',
+          import.meta.url
+        ).href,
+        region: '경남',
+        noticeStatus: '공고중',
+        noticeType: '행복주택',
+        exclusiveArea: '17.23~39.79',
       },
       {
-        id: 102,
-        title: 'SH 행복주택 (서울 강서지구)',
-        desc: '접수: 2025.07.10 ~ 07.25',
-        image: new URL('@/assets/images/MyHomeCatchLogo.png', import.meta.url)
-          .href,
-        status: 'active',
+        houseId: 202,
+        houseName: '병점복합타운 A1 행복주택',
+        overviewImageUrl: new URL(
+          '@/assets/images/house_byeongjeom.png',
+          import.meta.url
+        ).href,
+        region: '경기',
+        noticeStatus: '공고중',
+        noticeType: '행복주택',
+        exclusiveArea: '16.65~44.92',
       },
       {
-        id: 103,
-        title: 'LH 매입임대 (인천 연수구)',
-        desc: '접수 마감: 2025.07.10',
-        image: new URL('@/assets/images/MyHomeCatchLogo.png', import.meta.url)
-          .href,
-        status: 'upcoming',
+        houseId: 203,
+        houseName: '부산금곡2 영구임대',
+        overviewImageUrl: new URL(
+          '@/assets/images/house_busan2.png',
+          import.meta.url
+        ).href,
+        region: '부산',
+        noticeStatus: '공고중',
+        noticeType: '영구임대',
+        exclusiveArea: '26.37~31.32',
       },
       {
-        id: 104,
-        title: 'LH 전세임대 (대구 수성구)',
-        desc: '접수: 2025.08.05 ~ 08.11',
-        image: new URL('@/assets/images/MyHomeCatchLogo.png', import.meta.url)
-          .href,
-        status: 'upcoming',
+        houseId: 204,
+        houseName: '부산금곡4 영구임대',
+        overviewImageUrl: new URL(
+          '@/assets/images/house_busan4.png',
+          import.meta.url
+        ).href,
+        region: '부산',
+        noticeStatus: '공고중',
+        noticeType: '영구임대',
+        exclusiveArea: '26.37~31.32',
       },
       {
-        id: 105,
-        title: '공공분양 (하남 감일지구)',
-        desc: '접수: 2025.07.01 ~ 07.31',
-        image: new URL('@/assets/images/MyHomeCatchLogo.png', import.meta.url)
-          .href,
-        status: 'closed',
+        houseId: 205,
+        houseName: '부산동삼1 영구임대',
+        overviewImageUrl: new URL(
+          '@/assets/images/house_dongsam1.png',
+          import.meta.url
+        ).href,
+        region: '부산',
+        noticeStatus: '공고중',
+        noticeType: '영구임대',
+        exclusiveArea: '26.37~31.32',
       },
       {
-        id: 106,
-        title: '신혼희망타운 (부산 기장군)',
-        desc: '접수 마감: 2025.07.15',
-        image: new URL('@/assets/images/MyHomeCatchLogo.png', import.meta.url)
-          .href,
-        status: 'closed',
+        houseId: 206,
+        houseName: '부산동삼2 영구임대',
+        overviewImageUrl: new URL(
+          '@/assets/images/house_dongsam2.png',
+          import.meta.url
+        ).href,
+        region: '부산',
+        noticeStatus: '공고중',
+        noticeType: '영구임대',
+        exclusiveArea: '26.37~31.32',
       },
     ],
 
