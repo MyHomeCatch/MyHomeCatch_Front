@@ -1,6 +1,9 @@
 <template>
   <div class="calendar">
-    <calendar-header @update:calendar="onCalendarUpdate" />
+    <calendar-header
+      @update:calendar="onCalendarUpdate"
+      @update:filters="onFilterUpdate"
+    />
 
     <div class="scheduler">
       <table>
@@ -28,9 +31,9 @@
                   <span class="dot"></span>
                   <span class="event-text">{{ event.danziName }}</span>
                 </div>
-                <span class="cal-all-btn" @click="openModal(day.events, day)"
-                  >전체 보기</span
-                >
+                <span class="cal-all-btn" @click="openModal(day.events, day)">
+                  전체 보기
+                </span>
                 <DailyModal
                   v-if="showModal"
                   :events="selectedEvents"
@@ -47,7 +50,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, watch } from 'vue';
 import calendarHeader from './calendarHeader.vue';
 import './calendar.css';
 import api from '@/api/calendarApi.js';
@@ -67,6 +70,13 @@ const calendarGrid = ref([]);
 const selectedYearMonth = ref('');
 const dailyEvents = ref([]);
 const totalCount = ref(0); // 전체 건수 저장용
+
+// 필터 상태
+const filters = ref({
+  type: [],
+  region: [],
+  mine: [],
+});
 
 // 날짜를 'YYYY-MM-DD' 형식 문자열로 변환
 function formatDateKey(date) {
@@ -122,6 +132,7 @@ function groupEventsByDate(events) {
 
   return map;
 }
+
 // 유형 별 색상 설정
 const getEventStyle = (code) => {
   const color = calendarColorMap[code]?.color || '#86A788'; // 기본색
@@ -138,18 +149,62 @@ function openModal(events, dateObj) {
   showModal.value = true;
 }
 
+// 필터가 비어있으면 무조건 true (전체 허용)
+function filterCheck(array) {
+  return array.length === 0;
+}
+
+// 필터 적용된 이벤트 목록 계산
+const filteredEvents = computed(() => {
+  return dailyEvents.value.filter((event) => {
+    const { type, region, mine } = filters.value;
+
+    // 필터 선택 없으면 모두 true
+    const typeMatch = filterCheck(type) || type.includes(event.noticeTypeCode);
+    const regionMatch =
+      filterCheck(region) ||
+      region.includes('전체') ||
+      region.includes(event.region);
+    const mineMatch =
+      filterCheck(mine) || mine.some((m) => event.mine?.includes(m));
+
+    return typeMatch && regionMatch && mineMatch;
+  });
+});
+
 // 캘린더 헤더에서 날짜 갱신 시 호출됨
 async function onCalendarUpdate(grid, yearMonth) {
   selectedYearMonth.value = yearMonth;
   calendarGrid.value = grid;
 
   try {
-    const { dataList, totalCount: count } = await api.getCalendar(yearMonth); // ✅ 구조분해
+    const { dataList, totalCount: count } = await api.getCalendar(yearMonth);
     dailyEvents.value = dataList;
     totalCount.value = count;
-    calendarGrid.value = matchEventsToCalendar(grid, dataList);
+    calendarGrid.value = matchEventsToCalendar(grid, filteredEvents.value);
   } catch (error) {
     console.error('달력 API 오류:', error);
   }
 }
+
+// 필터 변경 이벤트 처리
+function onFilterUpdate(newFilters) {
+  filters.value = newFilters;
+  calendarGrid.value = matchEventsToCalendar(
+    calendarGrid.value,
+    filteredEvents.value
+  );
+}
+
+// 필터 변경시 캘린더 다시 매핑
+watch(
+  filters,
+  () => {
+    calendarGrid.value = matchEventsToCalendar(
+      calendarGrid.value,
+      filteredEvents.value
+    );
+  },
+  { deep: true }
+);
 </script>

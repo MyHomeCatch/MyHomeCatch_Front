@@ -19,20 +19,21 @@
       </div>
     </div>
   </div>
-  <calendar-filter-bar />
+  <calendar-filter-bar @update:filters="onFilterChange" />
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue';
-import calendarFilterBar from './calendarFilterBar.vue';
+import CalendarFilterBar from './calendarFilterBar.vue';
 
-const emit = defineEmits(['update:calendar']);
+const emit = defineEmits(['update:calendar', 'update:filters']);
 
 const selectedYear = ref(new Date().getFullYear());
 const selectedMonth = ref(new Date().getMonth() + 1);
 
 const years = Array.from({ length: 11 }, (_, i) => 2020 + i);
 
+// 달력 그리드 계산
 const calendarGrid = computed(() => {
   const year = selectedYear.value;
   const month = selectedMonth.value - 1;
@@ -78,16 +79,28 @@ const calendarGrid = computed(() => {
   return weeks;
 });
 
-// selectedYear, selectedMonth 바뀔 때마다 emit
+// 연도/월 변경 감지 → 부모에 emit
 watch(
   [selectedYear, selectedMonth],
   () => {
     const year = selectedYear.value;
     const month = String(selectedMonth.value).padStart(2, '0');
     const yearMonth = `${year}.${month}`;
-
     emit('update:calendar', calendarGrid.value, yearMonth);
   },
   { immediate: true }
 );
+
+// 필터 변경 시 부모에 전달
+function onFilterChange(filters) {
+  emit('update:filters', filters);
+}
+
+// 이전/다음 연도 버튼
+function prevYear() {
+  if (selectedYear.value > years[0]) selectedYear.value--;
+}
+function nextYear() {
+  if (selectedYear.value < years[years.length - 1]) selectedYear.value++;
+}
 </script>

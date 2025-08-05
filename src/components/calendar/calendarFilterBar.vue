@@ -43,7 +43,7 @@
         </div>
       </div>
 
-      <!-- 본인 대상 + 검색 버튼 한 줄에 -->
+      <!-- 본인 대상 + 초기화 버튼 -->
       <div class="filter-section">
         <div class="filter-label">본인 대상</div>
         <div class="choice-search-row">
@@ -68,8 +68,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { calendarColorMap } from '@/assets/calendarColorMap.js'; // 코드-색상-라벨 매핑
+import { ref, watch } from 'vue';
+import { calendarColorMap } from '@/assets/calendarColorMap.js';
+
+const emit = defineEmits(['update:filters']);
 
 const isExpanded = ref(false);
 
@@ -79,7 +81,14 @@ const selectedChoice = ref({
   mine: [],
 });
 
-// ✅ 코드 배열로 변경
+watch(
+  selectedChoice,
+  (val) => {
+    emit('update:filters', val);
+  },
+  { deep: true }
+);
+
 const typeOptions = ['05', '08', '40', '10', '07', '09', '48'];
 
 const regionOptions = [
@@ -105,7 +114,6 @@ const regionOptions = [
 
 const mineOptions = ['1순위', '우선공급'];
 
-// ✅ 코드로 스타일 적용
 const getTypeStyle = (code) => {
   const isSelected = selectedChoice.value.type.includes(code);
   const color = calendarColorMap[code]?.color || '#ccc';
@@ -116,10 +124,6 @@ const getTypeStyle = (code) => {
     color: isSelected ? '#ffffff' : color,
     fontWeight: isSelected ? 'bold' : 'normal',
   };
-};
-
-const resetChoice = (key) => {
-  selectedChoice.value[key] = [];
 };
 
 const resetAll = () => {
@@ -151,9 +155,5 @@ const toggleOption = (filterKey, option) => {
       selectedArray.splice(index, 1);
     }
   }
-};
-
-const searchHandler = () => {
-  console.log('검색:', selectedChoice.value);
 };
 </script>
