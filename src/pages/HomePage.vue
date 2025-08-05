@@ -295,7 +295,7 @@ const getQueryUrl = () => {
   if (searchQuery.noticeStatus)
     params.append('panSs', searchQuery.noticeStatus);
 
-  return `/api/house?${params.toString()}`;
+  return `/api/api/house?${params.toString()}`;
 };
 
 // 주택 목록 로드
