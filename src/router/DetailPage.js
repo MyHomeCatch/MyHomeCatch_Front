@@ -1,7 +1,7 @@
 export default [
   {
-    path: '/notice-detail',
-    name: 'detailpages',
+    path: '/detail/:id',
+    name: 'DetailPage',
       component: () => import('../pages/DetailPage/DetailPage.vue'),
   },
     {

@@ -1,137 +1,80 @@
 <template>
   <div
-    class="bg-white border border-gray-300 rounded-xl p-4 max-w-md mx-auto"
-    style="font-size: 0.9rem"
+    v-if="danziInfo"
+    class="info-panel-container"
   >
-    <!-- 조회수 (맨 위) -->
-    <h3 class="text-center mb-4" style="font-weight: 600">
-      지금까지 <span class="text-primary">123명</span>이 이 공고를 봤어요.
+    <!-- 조회수 (API에 없으므로 일단 제거 또는 가상 데이터 사용) -->
+    <h3 class="view-count">
+      지금까지 <span class="highlight">{{primaryNotice.allCnt || 3}}명</span>이 이 공고를 봤어요.
     </h3>
 
     <!-- 즐겨찾기와 접수상태 -->
-    <div class="d-flex justify-content-between mb-3">
-      <!-- 즐겨찾기: 둥근 테두리 -->
-      <span
-        class="px-3 py-1 rounded-pill"
-        style="border: 1.5px solid #3b82f6; color: #3b82f6; font-weight: 600"
-      >
+    <div class="status-wrapper">
+      <!-- 즐겨찾기 (API에 없으므로 가상 데이터) -->
+      <span class="favorite-status">
         즐겨찾기: 5명
       </span>
 
-      <!-- 접수상태: 상태별 색상 -->
+      <!-- 접수상태: API의 notices[0].panSs 값 사용 -->
       <span
-        class="px-3 py-1 rounded-pill"
-        :style="{ ...applyStatusStyle, fontWeight: '600' }"
+        class="apply-status"
+        :style="applyStatusStyle"
       >
         {{ applyStatusText }}
       </span>
     </div>
 
     <!-- 분양 세대수 -->
-    <div
-      class="mb-3 d-flex justify-content-between px-3 py-1 border rounded"
-      style="font-weight: 600"
-    >
+    <div class="info-item-box">
       <div>분양 세대수</div>
-      <div>120 세대</div>
+      <div>{{ danziInfo.sumTotHshCnt }} 세대</div>
     </div>
 
     <!-- 정보 항목 리스트 -->
-    <div class="border border-gray-300 rounded" style="overflow: hidden">
-      <div
-        class="d-flex justify-content-between px-3 py-2 border-bottom"
-        style="background-color: #f9fafb"
-      >
-        <div style="font-weight: 600">주택유형</div>
-        <div>아파트</div>
+    <div class="info-list">
+      <div class="info-item">
+        <div>주택유형</div>
+        <!-- API 응답의 notices 배열 첫 번째 요소의 aisTpCdNm 사용 -->
+        <div>{{ primaryNotice.aisTpCdNm }}</div>
       </div>
-      <div class="d-flex justify-content-between px-3 py-2 border-bottom">
-        <div style="font-weight: 600">공급면적</div>
-        <div>59 ~ 84㎡</div>
+      <div class="info-item alternate-bg">
+        <div>공급면적</div>
+        <div>{{ danziInfo.minMaxRsdnDdoAr }} ㎡</div>
       </div>
-      <div
-        class="d-flex justify-content-between px-3 py-2 border-bottom"
-        style="background-color: #f9fafb"
-      >
-        <div style="font-weight: 600">접수방법</div>
-        <div>온라인 접수</div>
+      <div class="info-item">
+        <div>접수방법</div>
+        <!-- API 응답의 applies 배열 첫 번째 요소의 rmk 사용, 없으면 '-' -->
+        <div>{{ primaryApply.rmk || '-' }}</div>
       </div>
-      <div class="d-flex justify-content-between px-3 py-2 border-bottom">
-        <div style="font-weight: 600">접수기간</div>
-        <div>2025-08-01 ~ 2025-08-07</div>
+      <div class="info-item alternate-bg">
+        <div>접수기간</div>
+        <div>{{ formatDateRange(primaryApply.sbscAcpStDt, primaryApply.sbscAcpClsgDt) }}</div>
       </div>
-      <div
-        class="d-flex justify-content-between px-3 py-2 border-bottom"
-        style="background-color: #f9fafb"
-      >
-        <div style="font-weight: 600">서류 접수일</div>
-        <div>2025-07-25 ~ 2025-07-30</div>
+      <div class="info-item">
+        <div>당첨발표일</div>
+        <div>{{ formatSingleDate(primaryApply.pzwrAncDt) }}</div>
       </div>
-      <div class="d-flex justify-content-between px-3 py-2 border-bottom">
-        <div style="font-weight: 600">계약체결기간</div>
-        <div>2025-08-15 ~ 2025-08-20</div>
+      <div class="info-item alternate-bg">
+        <div>당첨자 서류제출</div>
+        <div>{{ formatDateRange(primaryApply.pzwrPprSbmStDt, primaryApply.pzwrPprSbmEdDt) }}</div>
       </div>
-      <div
-        class="d-flex justify-content-between px-3 py-2 border-bottom"
-        style="background-color: #f9fafb"
-      >
-        <div style="font-weight: 600">당첨발표월</div>
-        <div>2025-08</div>
+      <div class="info-item">
+        <div>입주예정</div>
+        <div>{{ formatYearMonth(danziInfo.mvinXpcYm) }}</div>
       </div>
-      <div class="d-flex justify-content-between px-3 py-2 border-bottom">
-        <div style="font-weight: 600">당첨자서류제출기간</div>
-        <div>2025-08-16 ~ 2025-08-22</div>
+      <div class="info-item alternate-bg">
+        <div>난방</div>
+        <!-- API에 없으므로 가상 데이터 또는 제거 -->
+        <div>{{ danziInfo.htnFmlaDeCoNm || '지역난방' }}</div>
       </div>
-      <div
-        class="d-flex justify-content-between px-3 py-2 border-bottom"
-        style="background-color: #f9fafb"
-      >
-        <div style="font-weight: 600">입주예정일</div>
-        <div>2026-02</div>
-      </div>
-      <div class="d-flex justify-content-between px-3 py-2">
-        <div style="font-weight: 600">난방</div>
-        <div>지역난방</div>
-      </div>
-    </div>
-
-    <!-- 좋아요 섹션 -->
-    <div class="d-flex justify-content-between align-items-center my-4">
-      <p class="mb-0 text-muted">
-        이 공고를 좋아한 사람
-        <span class="text-pink fw-bold">27명</span>
-      </p>
-      <button
-        @click="toggleLike"
-        class="btn btn-outline-pink btn-sm"
-        style="border-radius: 50px"
-      >
-        {{ isLiked ? '좋아요 취소' : '좋아요' }}
-      </button>
     </div>
 
     <!-- 버튼 -->
-    <div class="d-grid gap-2">
-      <button
-        class="btn"
-        style="
-          background-color: #ff9898;
-          color: white;
-          border-radius: 50px;
-          border: none;
-        "
-      >
+    <div class="button-group">
+      <button @click="openLink(primaryNotice.dtlUrl)" class="action-button">
         공고 상세 바로가기
       </button>
-      <button
-        class="btn"
-        style="
-          background-color: #ff9898;
-          color: white;
-          border-radius: 50px;
-          border: none;
-        "
-      >
+      <button @click="openLink(pdfAttachmentUrl)" class="action-button" :disabled="!pdfAttachmentUrl">
         공고 PDF 다운로드
       </button>
     </div>
@@ -139,62 +82,170 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { defineProps, computed } from 'vue';
 
-const isLiked = ref(false);
-
-function toggleLike() {
-  isLiked.value = !isLiked.value;
-}
-
-// 테스트용 접수상태 값 (아래 3가지 중 하나로 변경 가능)
-const applyStatus = ref('접수중');
-// '접수중', '접수마감', '공고중'
-
-// 상태별 스타일 계산
-const applyStatusStyle = computed(() => {
-  switch (applyStatus.value) {
-    case '접수중':
-      return {
-        backgroundColor: '#F6B9AE',
-        borderColor: '#F6B9AE',
-        color: '#7B3E32',
-      };
-    case '접수마감':
-      return {
-        backgroundColor: '#D9D9D9',
-        borderColor: '#D9D9D9',
-        color: '#4B4B4B',
-      };
-    case '공고중':
-      return {
-        backgroundColor: '#F7F0E0',
-        borderColor: '#F7F0E0',
-        color: '#736C4A',
-      };
-    default:
-      return {
-        backgroundColor: '#fff',
-        borderColor: '#ccc',
-        color: '#000',
-      };
+const props = defineProps({
+  danziInfo: {
+    type: Object,
+    default: () => ({}),
+  },
+  applyInfo: {
+    type: Array,
+    default: () => [],
+  },
+  // notices는 danziInfo 안에 포함되어 있지 않으므로 별도로 받거나, DetailPage에서 가공해서 내려줘야 합니다.
+  // 여기서는 DetailPage에서 houseData.notices를 넘겨준다고 가정합니다.
+  notices: {
+    type: Array,
+    default: () => [],
   }
 });
 
+// 가장 대표적인 공고와 청약 정보를 사용하기 위한 computed 속성
+const primaryNotice = computed(() => props.notices && props.notices.length > 0 ? props.notices[0] : {});
+const primaryApply = computed(() => props.applyInfo && props.applyInfo.length > 0 ? props.applyInfo[0] : {});
+
+// PDF 공고문 첨부파일 URL 찾기
+const pdfAttachmentUrl = computed(() => {
+  if (primaryNotice.value && primaryNotice.value.noticeAttachments) {
+    const pdfFile = primaryNotice.value.noticeAttachments.find(file => file.cmnAhflNm.toLowerCase().endsWith('.pdf'));
+    return pdfFile ? pdfFile.ahflUrl : null;
+  }
+  return null;
+});
+
 // 접수상태 텍스트
-const applyStatusText = computed(() => applyStatus.value);
+const applyStatusText = computed(() => primaryNotice.value.panSs || '정보 없음');
+
+// 상태별 스타일 계산
+const applyStatusStyle = computed(() => {
+  switch (applyStatusText.value) {
+    case '접수중':
+    case '공고중':
+      return { backgroundColor: '#F6B9AE', color: '#7B3E32', fontWeight: '600' };
+    case '접수마감':
+      return { backgroundColor: '#D9D9D9', color: '#4B4B4B', fontWeight: '600' };
+    default:
+      return { backgroundColor: '#F7F0E0', color: '#736C4A', fontWeight: '600' };
+  }
+});
+
+// 날짜 포맷팅 헬퍼 함수
+const formatSingleDate = (timestamp) => {
+  if (!timestamp) return '-';
+  const date = new Date(timestamp);
+  return date.toLocaleDateString('ko-KR');
+};
+
+const formatDateRange = (start, end) => {
+  if (!start) return '-';
+  const startDate = formatSingleDate(start);
+  const endDate = end ? formatSingleDate(end) : '';
+  return endDate && startDate !== endDate ? `${startDate} ~ ${endDate}` : startDate;
+};
+
+const formatYearMonth = (timestamp) => {
+  if (!timestamp) return '-';
+  const date = new Date(timestamp);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+};
+
+// 외부 링크 열기
+const openLink = (url) => {
+  if (url) {
+    window.open(url, '_blank');
+  } else {
+    alert('제공된 링크가 없습니다.');
+  }
+};
+
 </script>
 
 <style scoped>
-.text-pink {
-  color: #e91e63;
+.info-panel-container {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 14px;
 }
-.btn-outline-pink {
-  border: 1px solid #e91e63;
-  color: #e91e63;
+.view-count {
+  text-align: center;
+  margin-bottom: 16px;
+  font-weight: 600;
+  font-size: 16px;
 }
-.btn-outline-pink:hover {
-  background-color: #fce4ec;
-  color: #ad1457;
+.highlight {
+  color: #3b82f6;
+}
+.status-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.favorite-status, .apply-status {
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-weight: 600;
+}
+.favorite-status {
+  border: 1.5px solid #3b82f6;
+  color: #3b82f6;
+}
+.info-item-box {
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.info-list {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.info-item:last-child {
+  border-bottom: none;
+}
+.info-item > div:first-child {
+  font-weight: 600;
+  color: #374151;
+}
+.info-item > div:last-child {
+  color: #1f2937;
+}
+.alternate-bg {
+  background-color: #f9fafb;
+}
+.button-group {
+  margin-top: 24px;
+  display: grid;
+  gap: 10px;
+}
+.action-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #ff9898;
+  color: white;
+  border-radius: 50px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.action-button:hover {
+  background-color: #f67280;
+}
+.action-button:disabled {
+  background-color: #e5e7eb;
+  cursor: not-allowed;
 }
 </style>

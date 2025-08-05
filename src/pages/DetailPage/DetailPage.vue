@@ -1,25 +1,41 @@
 <template>
-  <main class="container py-4">
-    <div
-      class="d-flex justify-content-between align-items-start position-relative"
-    >
-      <div>
-        <h1 class="h3 fw-bold text-dark">디에이치클래스트</h1>
-        <p class="text-muted mt-1">서울 서초구 반포동 810</p>
-      </div>
-      <button
-        id="likeButton"
-        class="like-btn btn d-flex align-items-center px-3 py-1 gap-2 not-liked"
-        onclick="toggleLike()"
-      >
-        <i class="fa-solid fa-heart"></i>
-        <span id="likeText">찜</span>
-      </button>
+  <div v-if="loading" class="container py-5 text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
     </div>
-  </main>
+  </div>
 
-  <!-- 이미지 및 정보 -->
-  <ImageSection />
+  <div v-else-if="error" class="container py-5 text-center">
+    <div class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+  </div>
+
+  <template v-else-if="houseData && houseData.danzi">
+    <main class="container py-4">
+      <div
+        class="d-flex justify-content-between align-items-start position-relative"
+      >
+        <div>
+          <h1 class="h3 fw-bold text-dark">{{ houseData.danzi.bzdtNm }}</h1>
+          <p class="text-muted mt-1">
+            {{ houseData.danzi.lctAraAdr }} {{ houseData.danzi.lctAraDtlAdr }}
+          </p>
+        </div>
+        <button
+          id="likeButton"
+          class="like-btn btn d-flex align-items-center px-3 py-1 gap-2"
+          :class="{ liked: isLiked, 'not-liked': !isLiked }"
+          @click="toggleLike"
+        > 
+          <i class="fa-solid fa-heart"></i>
+          <span id="likeText">{{ isLiked ? '찜 완료' : '찜하기' }}</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- 이미지 및 정보 -->
+    <ImageSection :images="images" />
 
   <div class="container px-4 py-5">
     <!-- 좌측 콘텐츠 영역 -->
@@ -93,42 +109,70 @@
         :initialLng="houseDetail.lng"
         :houses="[houseDetail]"
         :selectedCategory="selectedCategory"
-        style="height: 600px;"/>
+        />
       </div>
       <!-- 우측 패널 영역 -->
       <div class="col-12 col-lg-5">
-        <InfoPanel />
+        <InfoPanel           :danzi-info="houseData.danzi"
+          :apply-info="houseData.applies"
+          :notices="houseData.notices"/>
       </div>
     </div>
   </div>
 
-  <!-- 게시판 -->
-  <Comments />
+    <!-- 게시판 -->
+    <Comments :danziId="houseData.danzi.danziId" />
+  </template>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from "vue-router";
-// import axios from 'axios';
+import { ref, onMounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { getHouseDetailById } from '@/api/detailPageApi';
 import ImageSection from '@/components/DetailPage/ImageSection.vue';
 import InfoPanel from '../../components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
 import DetailMap from '@/components/DetailPage/DetailMap.vue';
 
 const route = useRoute();
+const houseData = ref(null);
+const loading = ref(true);
+const error = ref(null);
 const houseDetail = ref(null);
 const selectedCategory = ref('');
 
 const isLiked = ref(false);
-const viewCount = ref(127);
-const likeCount = ref(2);
+const likeCount = ref(0);
 
-const thumbnails = ref([
-  '단지 배치도',
-  '단지전경도',
-  '지역위치도',
-  '토지이용계획도',
-]);
+// API 응답에서 이미지 URL만 추출하여 새로운 배열을 만듭니다.
+const images = computed(() => {
+  if (houseData.value && houseData.value.attachments) {
+    return houseData.value.attachments.map((att) => att.downloadUrl);
+  }
+  return [];
+});
+
+onMounted(async () => {
+  const danziId = route.params.id;
+  if (!danziId) {
+    error.value = '잘못된 접근입니다. 주택 ID가 없습니다.';
+    loading.value = false;
+    return;
+  }
+
+  try {
+    const response = await getHouseDetailById(danziId);
+    houseData.value = response.data;
+    // 좋아요 수와 상태는 API 응답에 없으므로 일단 주석 처리하거나 가상 데이터로 둡니다.
+    // likeCount.value = response.data.likeCount || 0;
+    // isLiked.value = response.data.isLikedByUser || false;
+  } catch (err) {
+    console.error('데이터를 불러오는 중 에러 발생:', err);
+    error.value = '데이터를 불러오는 데 실패했습니다.';
+  } finally {
+    loading.value = false;
+  }
+});
 
 onMounted(() => {
   const danziId = route.query.danziId;
@@ -154,6 +198,7 @@ onMounted(() => {
 const toggleLike = () => {
   isLiked.value = !isLiked.value;
   likeCount.value += isLiked.value ? 1 : -1;
+  // 여기에 실제 서버에 좋아요 상태를 업데이트하는 API 호출을 추가할 수 있습니다.
 };
 </script>
 

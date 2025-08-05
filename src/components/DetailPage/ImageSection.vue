@@ -1,73 +1,106 @@
 <template>
-  <!-- tailwind 변경하면 오류 -->
-  <div class="image-gallery-container">
-    <!-- 이미지 그리드 -->
-    <div class="image-grid">
-      <!-- 1. 좌측 메인 이미지 -->
-      <div class="main-image-area">
-        <img
-          v-if="images.length > 0"
-          :src="images[0]"
-          alt="대표 이미지"
-          class="gallery-img"
-        />
-      </div>
-
-      <!-- 2. 우측 썸네일 이미지 4개 -->
-      <div class="thumbnail-grid-area">
-        <div v-for="i in 4" :key="i" class="thumbnail-item">
-          <!-- 이미지가 존재할 경우에만 렌더링 -->
+  <div class="image-gallery-wrapper">
+    <!-- 이미지가 1개 이상 있을 경우 갤러리 표시 -->
+    <div v-if="images && images.length > 0" class="image-gallery-container">
+      <!-- 이미지 그리드 -->
+      <div class="image-grid">
+        <!-- 1. 좌측 메인 이미지 -->
+        <div class="main-image-area">
           <img
-            v-if="images[i]"
-            :src="images[i]"
-            :alt="`썸네일 이미지 ${i}`"
+            :src="images[0]"
+            alt="대표 이미지"
             class="gallery-img"
+            @error="onImageError"
           />
         </div>
+
+        <!-- 2. 우측 썸네일 이미지 4개 -->
+        <div class="thumbnail-grid-area">
+          <div v-for="i in 4" :key="i" class="thumbnail-item">
+            <!-- 이미지가 존재할 경우에만 렌더링 -->
+            <img
+              v-if="images[i]"
+              :src="images[i]"
+              :alt="`썸네일 이미지 ${i}`"
+              class="gallery-img"
+              @error="onImageError"
+            />
+            <!-- 이미지가 없으면 빈 공간 유지 -->
+            <div v-else class="thumbnail-placeholder"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. '사진 모두 보기' 버튼 (이미지가 5개 이상일 때만 표시) -->
+      <div v-if="images.length > 5" class="show-all-button-wrapper">
+        <button class="show-all-button">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            class="icon"
+          >
+            <path
+              d="M3 11.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-10-5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-10-5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"
+            ></path>
+          </svg>
+          <span>사진 모두 보기</span>
+        </button>
       </div>
     </div>
 
-    <!-- 3. '사진 모두 보기' 버튼 -->
-    <div class="show-all-button-wrapper">
-      <button class="show-all-button">
+    <!-- 이미지가 없을 경우 플레이스홀더 표시 -->
+    <div v-else class="no-image-placeholder">
+      <div class="placeholder-content">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 16 16"
-          class="icon"
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="placeholder-icon"
         >
-          <path
-            d="M3 11.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-10-5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-10-5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm5 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"
-          ></path>
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
         </svg>
-        <span>사진 모두 보기</span>
-      </button>
+        <p>제공된 이미지가 없습니다.</p>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { defineProps } from 'vue';
 
-// DB에서 가져올 이미지 데이터라고 가정합니다. (최소 5개)
-const images = ref([
-  'https://cdn2.colley.kr/item_300226_1_2_title_2.jpeg',
-  'https://image.cine21.com/resize/cine21/still/2005/1121/M0020066_focus52804[H800-].jpg',
-  'https://image.cine21.com/resize/cine21/still/2005/1121/M0020067_focus52805[H800-].jpg',
-  'https://thumbnail.laftel.net/items/full/983c3293-6b63-400a-ac3c-96b9b4d84335.jpg?webp=0&w=760&c=0%2C388%2C1024%2C963',
-  'https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6OTQ4OTYxNjQzMDQwNzk3OTYx/original/e2b3190f-524b-4be2-a0b9-ff6410d77404.jpeg?im_w=1200',
-  'https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6OTQ4OTYxNjQzMDQwNzk3OTYx/original/5d37a42a-878a-4c4e-828c-1caff6d2b6d2.jpeg?im_w=720',
-  'https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6OTQ4OTYxNjQzMDQwNzk3OTYx/original/492e5739-1d8b-4401-8c5e-c1c071e4ca89.jpeg?im_w=720',
-  'https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6OTQ4OTYxNjQzMDQwNzk3OTYx/original/a766cd4b-00c3-41d3-a866-9badded83026.jpeg?im_w=720',
-  'https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6OTQ4OTYxNjQzMDQwNzk3OTYx/original/1dde1b8e-2ddc-46d5-af52-cde5b411e7ad.jpeg?im_w=720',
-]);
+// 부모 컴포넌트로부터 이미지 URL 배열을 받습니다.
+defineProps({
+  images: {
+    type: Array,
+    required: true,
+    default: () => []
+  }
+});
+
+// 이미지 로드 실패 시 대체 이미지 표시
+const onImageError = (event) => {
+  event.target.src = 'https://cdn2.colley.kr/item_300226_1_2_title_2.jpeg';
+};
 </script>
 
 <style scoped>
-.image-gallery-container {
-  position: relative;
+.image-gallery-wrapper {
   width: 100%;
   max-width: 1120px;
   margin: 24px auto;
+}
+
+.image-gallery-container {
+  position: relative;
+  width: 100%;
 }
 
 .image-grid {
@@ -98,9 +131,10 @@ const images = ref([
   gap: 8px;
 }
 
-.thumbnail-item {
+.thumbnail-item, .thumbnail-placeholder {
   width: 100%;
   height: 100%;
+  background-color: #f0f2f5; /* Placeholder background */
 }
 
 .gallery-img {
@@ -143,5 +177,27 @@ const images = ref([
 .show-all-button .icon {
   width: 16px;
   height: 16px;
+}
+
+/* 이미지 없음 플레이스홀더 */
+.no-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  border-radius: 12px;
+  background-color: #f0f2f5;
+  border: 1px dashed #d1d5db;
+}
+
+.placeholder-content {
+  text-align: center;
+  color: #6b7280;
+}
+
+.placeholder-icon {
+  margin-bottom: 16px;
+  color: #9ca3af;
 }
 </style>

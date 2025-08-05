@@ -92,15 +92,14 @@ defineEmits(['close']);
 const router = useRouter();
 
 const handleDetailView = () => {
-  console.log('자세히 보기 클릭');
-  localStorage.setItem(
-      'currentHouseDetail', JSON.stringify((props.house))
-  );
-  // 상세 페이지로 이동하는 로직
-  router.push({
-    name: 'detailpages',
-    query: { danziId: props.house.danziId }, // URL 쿼리 파라미터로 houseId 전달
-  });
+  localStorage.setItem('currentHouseDetail', JSON.stringify(props.house));
+  const houseId = props.house.houseId || props.house.danziId;
+  console.log('자세히 보기 클릭', houseId);
+  if (houseId) {
+    router.push({ name: 'DetailPage', params: { id: houseId } });
+  } else {
+    console.error('House ID is missing');
+  }
 };
 
 const handleFavorite = () => {
@@ -113,6 +112,7 @@ const formatPrice = (price) => {
   return `${price.toLocaleString()}만원`;
 };
 </script>
+
 
 <style scoped>
 .airbnb-custom-overlay {
