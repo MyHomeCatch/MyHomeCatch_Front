@@ -22,8 +22,6 @@
       </div>
     </div>
 
-    <RecomendedHouse />
-
     <div style="display: flex; margin-top: 40px">
       <!-- 주택 정보 그리드 -->
       <div
@@ -35,7 +33,29 @@
           scrollbar-width: none;
         "
       >
-        <!-- 주택 목록 -->
+        <!-- 추천 주택 목록 -->
+        <RecommendedHouse
+          v-if="auth.$state.isLoggedIn"
+          :houses="recommendedHouses"
+          :loading="recommendedLoading"
+          :recommendation-query="recommendationQuery"
+          @card-click="handleCardClick"
+          @toggle-favorite="handleToggleFavorite"
+          @refresh="loadRecommendedHouses"
+        />
+        <div v-else>📋 자가진단을 통해 지원가능한 공고를 확인해 보세요!</div>
+
+        <h2
+          style="
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: #222222;
+            padding: 40px 0 20px 0;
+          "
+        >
+          검색한 공고
+        </h2>
         <div v-if="!loading && houses.length > 0" class="house-grid">
           <HouseCard
             v-for="house in houses"
@@ -198,7 +218,9 @@ import HouseFilter from '../components/house/HouseFilter.vue';
 import HouseCard from '../components/house/HouseCard.vue';
 import HousePagination from '../components/house/HousePagination.vue';
 import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
-import RecomendedHouse from '../components/house/RecomendedHouse.vue';
+import RecommendedHouse from '../components/house/RecomendedHouse.vue';
+import { useAuthStore } from '../stores/auth';
+import user from '@/api/user.js';
 
 // Router
 const router = useRouter();
@@ -213,6 +235,14 @@ const moveMapToHouse = (house) => {
 // State
 const loading = ref(false);
 const houses = ref([]);
+
+// 추천 주택 관련 상태
+const recommendedHouses = ref([]);
+const recommendedLoading = ref(false);
+const userPreferences = ref([]);
+const recommendationQuery = computed(() => ({
+  aisTpCdNm: userPreferences.value,
+}));
 
 const pageInfo = reactive({
   currentPage: 0,
@@ -277,6 +307,68 @@ const filterOptions = reactive({
     { code: '접수중', name: '접수중' },
   ],
 });
+
+// 추천 주택 관련 메소드
+const prefMapper = (pref) => {
+  if (pref == '공공분양') return '분양주택';
+  return pref;
+};
+
+const loadUserPreference = async () => {
+  try {
+    const pref = await user.getSupportableList();
+    const userInfo = await user.getUserInfo();
+    const supplyTypes = pref.map((p) => p.split(' ')[0]).map(prefMapper);
+    userPreferences.value = supplyTypes;
+    return supplyTypes;
+  } catch (error) {
+    console.error('사용자 선호도 로드 실패:', error);
+    return [];
+  }
+};
+
+const getRecommendedQueryUrl = (maxItems = 10) => {
+  const params = new URLSearchParams();
+  params.append('page', '0');
+  params.append('size', maxItems.toString());
+
+  // 사용자 선호 공급유형을 필터로 추가
+  userPreferences.value.forEach((type) => {
+    params.append('aisTpCdNm', type);
+  });
+
+  params.append('panSs', '공고중');
+  params.append('panSs', '접수중');
+
+  return `/api/api/house?${params.toString()}`;
+};
+
+const loadRecommendedHouses = async () => {
+  recommendedLoading.value = true;
+  try {
+    // 먼저 사용자 선호도를 로드
+    await loadUserPreference();
+
+    if (userPreferences.value.length === 0) {
+      // 선호도가 없으면 빈 배열 반환
+      recommendedHouses.value = [];
+      return;
+    }
+
+    const { data } = await axios.get(getRecommendedQueryUrl(10));
+
+    if (data.housingList) {
+      recommendedHouses.value = data.housingList;
+    } else {
+      recommendedHouses.value = Array.isArray(data) ? data : [];
+    }
+  } catch (error) {
+    console.error('추천 주택 목록 로드 실패:', error);
+    recommendedHouses.value = [];
+  } finally {
+    recommendedLoading.value = false;
+  }
+};
 
 // URL 업데이트 함수 (다중 값 지원)
 const updateUrl = () => {
@@ -420,9 +512,15 @@ watch(
   }
 );
 
+const auth = useAuthStore();
+
 // 컴포넌트 마운트 시 실행
 onMounted(() => {
   loadHouses();
+  // 로그인한 사용자의 경우 추천 주택도 로드
+  if (auth.$state.isLoggedIn) {
+    loadRecommendedHouses();
+  }
 });
 </script>
 

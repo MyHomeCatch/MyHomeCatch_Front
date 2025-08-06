@@ -39,7 +39,7 @@
         현재 회원님의 조건에 맞는 주택이 없어요.<br />
         조건을 조정하시거나 나중에 다시 확인해보세요.
       </p>
-      <button @click="refreshRecommendations" class="refresh-button">
+      <button @click="$emit('refresh')" class="refresh-button">
         다시 찾아보기
       </button>
     </div>
@@ -55,8 +55,8 @@
           >
             <HouseCard
               :house="house"
-              @card-click="handleCardClick"
-              @toggle-favorite="handleToggleFavorite"
+              @card-click="$emit('card-click', $event)"
+              @toggle-favorite="$emit('toggle-favorite', $event)"
             />
           </div>
         </div>
@@ -66,7 +66,7 @@
     <!-- 더보기 링크 -->
     <div v-if="houses.length > 0" class="view-more">
       <router-link
-        :to="{ name: 'HouseList', query: getRecommendationQuery() }"
+        :to="{ name: 'HouseList', query: recommendationQuery }"
         class="view-more-link"
       >
         맞춤 추천 주택 전체보기
@@ -77,108 +77,36 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { ref, nextTick, watch } from 'vue';
 import HouseCard from './HouseCard.vue';
-import user from '@/api/user.js';
 
 // Props
 const props = defineProps({
-  maxItems: {
-    type: Number,
-    default: 10,
+  houses: {
+    type: Array,
+    default: () => [],
+  },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+  recommendationQuery: {
+    type: Object,
+    default: () => ({}),
   },
 });
 
 // Emits
-const emit = defineEmits(['card-click', 'toggle-favorite']);
-
-// Router
-const router = useRouter();
+const emit = defineEmits(['card-click', 'toggle-favorite', 'refresh']);
 
 // Refs
 const scrollContainer = ref(null);
-const loading = ref(false);
-const houses = ref([]);
-const userPreferences = ref([]);
 
 // Scroll state
 const canScrollLeft = ref(false);
 const canScrollRight = ref(true);
 
-// 추천 이유 매핑
-const recommendationReasons = {
-  공공임대: '임대 선호',
-  국민임대: '국민 임대',
-  분양주택: '분양 선호',
-  행복주택: '행복 주택',
-  통합공공임대: '공공 임대',
-  영구임대: '영구 임대',
-};
-
-const prefMapper = (pref) => {
-  if (pref == '공공분양') return '분양주택';
-  return pref;
-};
-
 // Methods
-const loadUserPreference = async () => {
-  try {
-    const pref = await user.getSupportableList();
-    const supplyTypes = pref.map((p) => p.split(' ')[0]).map(prefMapper);
-    userPreferences.value = supplyTypes;
-    console.log('사용자 선호 공급유형:', supplyTypes);
-    return supplyTypes;
-  } catch (error) {
-    console.error('사용자 선호도 로드 실패:', error);
-    return [];
-  }
-};
-
-const getQueryUrl = () => {
-  const params = new URLSearchParams();
-  params.append('page', '0');
-  params.append('size', props.maxItems.toString());
-
-  // 사용자 선호 공급유형을 필터로 추가
-  userPreferences.value.forEach((type) => {
-    params.append('aisTpCdNm', type);
-  });
-
-  return `/api/api/house?${params.toString()}`;
-};
-
-const loadHouses = async () => {
-  loading.value = true;
-  try {
-    // 먼저 사용자 선호도를 로드
-    await loadUserPreference();
-
-    if (userPreferences.value.length === 0) {
-      // 선호도가 없으면 빈 배열 반환
-      houses.value = [];
-      return;
-    }
-
-    const { data } = await axios.get(getQueryUrl());
-
-    if (data.housingList) {
-      houses.value = data.housingList;
-    } else {
-      houses.value = Array.isArray(data) ? data : [];
-    }
-  } catch (error) {
-    console.error('추천 주택 목록 로드 실패:', error);
-    houses.value = [];
-  } finally {
-    loading.value = false;
-    // 스크롤 상태 업데이트
-    await nextTick();
-    updateScrollButtons();
-  }
-};
-
 const handleScroll = () => {
   updateScrollButtons();
 };
@@ -209,34 +137,14 @@ const scrollRight = () => {
   });
 };
 
-const getRecommendationReason = (house) => {
-  const houseType = house.aisTpCdNm;
-  return recommendationReasons[houseType] || '추천';
-};
-
-const getRecommendationQuery = () => {
-  return {
-    aisTpCdNm: userPreferences.value,
-  };
-};
-
-const refreshRecommendations = () => {
-  loadHouses();
-};
-
-// Event handlers
-const handleCardClick = (house) => {
-  emit('card-click', house);
-};
-
-const handleToggleFavorite = (data) => {
-  emit('toggle-favorite', data);
-};
-
-// Lifecycle
-onMounted(() => {
-  loadHouses();
-});
+// Watch houses prop to update scroll buttons
+watch(
+  () => props.houses,
+  async () => {
+    await nextTick();
+    updateScrollButtons();
+  }
+);
 </script>
 
 <style scoped>
