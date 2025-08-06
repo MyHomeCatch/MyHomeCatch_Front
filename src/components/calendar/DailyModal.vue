@@ -46,9 +46,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 function goToPage(id) {
-  console.log(id);
   router.push(`detail/${id}`); // 이동할 경로
-  // router.push({ name: 'DetailPage', params: { id: id} })
 }
 
 defineProps({
