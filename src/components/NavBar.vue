@@ -1,15 +1,18 @@
 <script setup>
-import { reactive, computed } from 'vue';
 import config from '@/config';
 import MenuGroup from './menu/MenuGroup.vue';
 import AccountMenuGroup from './menu/AccountMenuGroup.vue';
+import { reactive, computed } from 'vue';
 
-let state = reactive({ isNavShow: false });
-let navClass = computed(() =>
+const state = reactive({ isNavShow: false });
+const navClass = computed(() =>
   state.isNavShow ? 'collapse navbar-collapse show' : 'collapse navbar-collapse'
 );
-const toggleNavShow = () => (state.isNavShow = !state.isNavShow);
+const toggleNavShow = () => {
+  state.isNavShow = !state.isNavShow;
+};
 </script>
+
 <template>
   <nav class="navbar navbar-expand-sm bg-secondary navbar-light">
     <div class="container-fluid">
@@ -26,7 +29,6 @@ const toggleNavShow = () => (state.isNavShow = !state.isNavShow);
         <span class="navbar-toggler-icon"></span>
       </button>
       <div :class="navClass" id="collapsibleNavbar">
-        <!-- 추후 작업 예정 -->
         <MenuGroup :menus="config.menus" />
         <AccountMenuGroup />
       </div>
@@ -35,6 +37,10 @@ const toggleNavShow = () => (state.isNavShow = !state.isNavShow);
 </template>
 
 <style scope>
+.navbar {
+  background-color: rgba(108, 117, 125, 0.5) !important; /* 반투명한 회색 */
+}
+
 img {
   border-radius: 10%;
   width: 50px;
