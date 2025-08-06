@@ -24,6 +24,7 @@ const toggleNavShow = () => {
       </div>
 
       <!-- 가운데: 로고 -->
+      <!-- 로고 이미지는 추후 수정 예정 -->
       <router-link class="navbar-brand mx-auto" to="/">
         <img src="../assets/images/MyHomeCatchLogo.png" alt="로고 이미지" />
       </router-link>
@@ -55,10 +56,9 @@ const toggleNavShow = () => {
 
 <style scoped>
 .custom-navbar {
-  background-color: rgba(255, 255, 255, 0.5); /* 반투명한 회색 */
+  background-color: rgba(134, 167, 136, 0.8); /* 반투명 조절도 가능 */
   backdrop-filter: blur(10px);
   padding: 0.5rem 1.5rem;
-
   position: relative;
   z-index: 1000;
 }

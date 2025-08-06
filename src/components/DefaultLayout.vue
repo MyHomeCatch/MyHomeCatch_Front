@@ -21,7 +21,6 @@ import Footer from './Footer.vue';
 
 <style scoped>
 .container {
-  background-image: url('@/assets/images/background1.png');
 }
 
 .navbar-wrapper {

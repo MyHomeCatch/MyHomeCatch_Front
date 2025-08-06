@@ -39,7 +39,7 @@ defineProps({
 
 const activeMenuIndex = ref(null);
 
-const toggleSubMenu = index => {
+const toggleSubMenu = (index) => {
   if (activeMenuIndex.value === index) {
     activeMenuIndex.value = null;
   } else {
@@ -53,8 +53,14 @@ const toggleSubMenu = index => {
   display: block;
 }
 
+/* 기본 메뉴 글씨 색상 */
+.nav-link {
+  color: white; /* 원하는 색상으로 변경 */
+}
+
+/* 호버 시 색상 */
 .nav-link:hover {
-  color: #007bff;
+  color: #86a788; /* 예시로 살짝 연한 녹색 계열 */
 }
 
 .dropdown-toggle::after {
