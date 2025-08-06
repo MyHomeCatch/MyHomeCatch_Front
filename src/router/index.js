@@ -5,6 +5,7 @@ import pageBRoutes from './pageB';
 import pageCRoutes from './pageC';
 import authRoutes from './auth';
 import SelfCheckPage from '../pages/selfCheck/SelfCheckPage.vue';
+import CalendarRoutes from './calendar';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,6 +15,7 @@ const router = createRouter({
     ...pageBRoutes,
     ...pageCRoutes,
     ...authRoutes,
+    ...CalendarRoutes,
     {
       path: '/self-check',
       name: 'SelfCheck',

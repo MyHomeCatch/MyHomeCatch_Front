@@ -22,7 +22,9 @@
 
           <div class="apt-name">
             {{ event.danziName }}
-            <button class="detail-btn">공고 보러가기</button>
+            <button class="detail-btn" @click="goToPage(event.danzi_id)">
+              공고 보러가기
+            </button>
           </div>
 
           <div class="period">
@@ -39,6 +41,15 @@
 </template>
 <script setup>
 import { calendarColorMap } from '@/assets/calendarColorMap.js'; // 코드-색상-라벨 매핑
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+function goToPage(id) {
+  console.log(id);
+  router.push(`detail/${id}`); // 이동할 경로
+  // router.push({ name: 'DetailPage', params: { id: id} })
+}
 
 defineProps({
   events: Array,
