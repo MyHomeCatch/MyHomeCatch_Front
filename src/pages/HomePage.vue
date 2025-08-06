@@ -42,6 +42,7 @@
           @card-click="handleCardClick"
           @toggle-favorite="handleToggleFavorite"
           @refresh="loadRecommendedHouses"
+          @go-to-search="handleGoToSearch"
         />
         <div v-else>📋 자가진단을 통해 지원가능한 공고를 확인해 보세요!</div>
 
@@ -198,7 +199,7 @@
         <div style="flex: 1; height: 800px">
           <KakaoMapViewer
             ref="mapViewerRef"
-            :houses="houses"
+            :houses="allHousesForMap"
             :selectedCategory="selectedCategory"
           />
         </div>
@@ -217,20 +218,19 @@ import axios from 'axios';
 import HouseFilter from '../components/house/HouseFilter.vue';
 import HouseCard from '../components/house/HouseCard.vue';
 import HousePagination from '../components/house/HousePagination.vue';
-import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
+import KakaoMapViewer from '../components/KakaoMapViewer.vue';
 import RecommendedHouse from '../components/house/RecomendedHouse.vue';
 import { useAuthStore } from '../stores/auth';
-import user from '@/api/user.js';
+import user from '../api/user.js';
 
 // Router
 const router = useRouter();
 const route = useRoute();
 const mapViewerRef = ref(null);
-const selectedCategory = ref(''); // 선택된 시설 카테고리
+const selectedCategory = ref('');
 
-const moveMapToHouse = (house) => {
-  mapViewerRef.value.updateMapWithHouse(house);
-};
+// Auth
+const auth = useAuthStore();
 
 // State
 const loading = ref(false);
@@ -244,6 +244,24 @@ const recommendationQuery = computed(() => ({
   aisTpCdNm: userPreferences.value,
 }));
 
+// 지도에 표시할 모든 주택 (추천 + 검색 결과)
+const allHousesForMap = computed(() => {
+  const searchHouses = houses.value || [];
+  const recommendedHousesData = recommendedHouses.value || [];
+
+  // 중복 제거를 위해 houseId로 필터링
+  const seenIds = new Set();
+  const combined = [...recommendedHousesData, ...searchHouses];
+
+  return combined.filter((house) => {
+    if (!house.danziId || seenIds.has(house.danziId)) {
+      return false;
+    }
+    seenIds.add(house.danziId);
+    return true;
+  });
+});
+
 const pageInfo = reactive({
   currentPage: 0,
   endItem: 0,
@@ -251,7 +269,7 @@ const pageInfo = reactive({
   hasNext: false,
   hasPrevious: false,
   last: false,
-  size: 20,
+  size: 15,
   startItem: 1,
   totalCount: 0,
   totalPages: 0,
@@ -332,7 +350,6 @@ const getRecommendedQueryUrl = (maxItems = 10) => {
   params.append('page', '0');
   params.append('size', maxItems.toString());
 
-  // 사용자 선호 공급유형을 필터로 추가
   userPreferences.value.forEach((type) => {
     params.append('aisTpCdNm', type);
   });
@@ -344,23 +361,31 @@ const getRecommendedQueryUrl = (maxItems = 10) => {
 };
 
 const loadRecommendedHouses = async () => {
-  recommendedLoading.value = true;
-  try {
-    // 먼저 사용자 선호도를 로드
-    await loadUserPreference();
+  if (!auth.$state.isLoggedIn) {
+    recommendedHouses.value = [];
+    recommendedLoading.value = false;
+    return;
+  }
 
-    if (userPreferences.value.length === 0) {
-      // 선호도가 없으면 빈 배열 반환
+  recommendedLoading.value = true;
+
+  try {
+    const preferences = await loadUserPreference();
+
+    if (!preferences || preferences.length === 0) {
       recommendedHouses.value = [];
       return;
     }
 
-    const { data } = await axios.get(getRecommendedQueryUrl(10));
+    const response = await axios.get(getRecommendedQueryUrl(10));
+    const data = response?.data;
 
-    if (data.housingList) {
+    if (data && data.housingList && Array.isArray(data.housingList)) {
       recommendedHouses.value = data.housingList;
+    } else if (Array.isArray(data)) {
+      recommendedHouses.value = data;
     } else {
-      recommendedHouses.value = Array.isArray(data) ? data : [];
+      recommendedHouses.value = [];
     }
   } catch (error) {
     console.error('추천 주택 목록 로드 실패:', error);
@@ -374,7 +399,6 @@ const loadRecommendedHouses = async () => {
 const updateUrl = () => {
   const query = {};
 
-  // 배열이 비어있지 않으면 URL에 추가
   if (searchQuery.region.length > 0) {
     query.region =
       searchQuery.region.length === 1
@@ -405,7 +429,6 @@ const getQueryUrl = () => {
   params.append('page', searchQuery.page);
   params.append('size', searchQuery.size);
 
-  // 다중 값을 각각 추가
   searchQuery.region.forEach((region) => {
     if (region) params.append('cnpCdNm', region);
   });
@@ -485,10 +508,19 @@ const searchHouses = () => {
 // 페이지네이션 이벤트 핸들러
 const changePage = (newPage) => {
   searchQuery.page = newPage;
+
   moveMapToHouse(null);
   updateUrl();
   loadHouses();
+
   window.scrollTo({ top: 200, behavior: 'smooth' });
+};
+
+// 지도 관련 메소드
+const moveMapToHouse = (house) => {
+  if (mapViewerRef.value) {
+    mapViewerRef.value.updateMapWithHouse(house);
+  }
 };
 
 // 카드 이벤트 핸들러
@@ -500,11 +532,22 @@ const handleToggleFavorite = ({ houseId, isFavorite }) => {
   console.log('찜하기 토글:', houseId, isFavorite);
 };
 
+const handleGoToSearch = (query) => {
+  // 필터에 추천 조건 적용
+  if (query.aisTpCdNm) {
+    searchQuery.noticeType = Array.isArray(query.aisTpCdNm)
+      ? query.aisTpCdNm
+      : [query.aisTpCdNm];
+    searchQuery.page = 0;
+    updateUrl();
+    loadHouses();
+  }
+};
+
 // URL 변경 감지 (뒤로가기/앞으로가기 대응)
 watch(
   () => route.query,
   (newQuery, oldQuery) => {
-    // 쿼리가 실제로 변경된 경우에만 업데이트
     if (JSON.stringify(newQuery) !== JSON.stringify(oldQuery)) {
       updateSearchQueryFromUrl();
       loadHouses();
@@ -512,14 +555,32 @@ watch(
   }
 );
 
-const auth = useAuthStore();
+// 로그인 상태 변경 감지
+watch(
+  () => auth.$state.isLoggedIn,
+  async (newVal) => {
+    try {
+      if (newVal) {
+        await loadRecommendedHouses();
+      } else {
+        recommendedHouses.value = [];
+      }
+    } catch (error) {
+      console.error('로그인 상태 변경 후 추천 로드 오류:', error);
+    }
+  }
+);
 
 // 컴포넌트 마운트 시 실행
-onMounted(() => {
-  loadHouses();
-  // 로그인한 사용자의 경우 추천 주택도 로드
-  if (auth.$state.isLoggedIn) {
-    loadRecommendedHouses();
+onMounted(async () => {
+  try {
+    loadHouses();
+
+    if (auth.$state.isLoggedIn) {
+      await loadRecommendedHouses();
+    }
+  } catch (error) {
+    console.error('HouseList 마운트 오류:', error);
   }
 });
 </script>

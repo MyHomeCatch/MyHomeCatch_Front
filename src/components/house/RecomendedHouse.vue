@@ -62,17 +62,6 @@
         </div>
       </div>
     </div>
-
-    <!-- 더보기 링크 -->
-    <div v-if="houses.length > 0" class="view-more">
-      <router-link
-        :to="{ name: 'HouseList', query: recommendationQuery }"
-        class="view-more-link"
-      >
-        맞춤 추천 주택 전체보기
-        <span class="arrow">→</span>
-      </router-link>
-    </div>
   </div>
 </template>
 
@@ -97,7 +86,12 @@ const props = defineProps({
 });
 
 // Emits
-const emit = defineEmits(['card-click', 'toggle-favorite', 'refresh']);
+const emit = defineEmits([
+  'card-click',
+  'toggle-favorite',
+  'refresh',
+  'go-to-search',
+]);
 
 // Refs
 const scrollContainer = ref(null);
@@ -121,7 +115,7 @@ const updateScrollButtons = () => {
 
 const scrollLeft = () => {
   if (!scrollContainer.value) return;
-  const cardWidth = 220; // 카드 너비 + 간격 (max-width: 200px + gap: 16px + 여유)
+  const cardWidth = 220;
   scrollContainer.value.scrollBy({
     left: -cardWidth * 2,
     behavior: 'smooth',
@@ -130,7 +124,7 @@ const scrollLeft = () => {
 
 const scrollRight = () => {
   if (!scrollContainer.value) return;
-  const cardWidth = 220; // 카드 너비 + 간격
+  const cardWidth = 220;
   scrollContainer.value.scrollBy({
     left: cardWidth * 2,
     behavior: 'smooth',
