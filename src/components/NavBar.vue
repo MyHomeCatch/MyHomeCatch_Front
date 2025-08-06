@@ -14,27 +14,24 @@ const toggleNavShow = () => {
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-sm custom-navbar">
-    <div
-      class="container-fluid d-flex justify-content-between align-items-center"
-    >
-      <!-- 왼쪽: 메뉴 그룹 -->
+  <nav class="navbar navbar-expand-sm custom-navbar w-100">
+    <div class="d-flex justify-content-between align-items-center w-100">
+      <!-- 왼쪽 메뉴 -->
       <div class="d-flex align-items-center">
         <MenuGroup :menus="config.menus" />
       </div>
 
-      <!-- 가운데: 로고 -->
-      <!-- 로고 이미지는 추후 수정 예정 -->
+      <!-- 로고 -->
       <router-link class="navbar-brand mx-auto" to="/">
         <img src="../assets/images/MyHomeCatchLogo.png" alt="로고 이미지" />
       </router-link>
 
-      <!-- 오른쪽: 계정 메뉴 -->
+      <!-- 오른쪽 계정 메뉴 -->
       <div class="d-flex align-items-center">
         <AccountMenuGroup />
       </div>
 
-      <!-- 모바일용 토글 버튼 -->
+      <!-- 모바일 토글 -->
       <button
         class="navbar-toggler position-absolute end-0 me-3"
         type="button"
@@ -46,7 +43,7 @@ const toggleNavShow = () => {
       </button>
     </div>
 
-    <!-- 모바일 메뉴 영역 -->
+    <!-- 모바일 전용 메뉴 -->
     <div v-if="state.isNavShow" :class="navClass" id="collapsibleNavbar">
       <MenuGroup :menus="config.menus" />
       <AccountMenuGroup />
@@ -56,11 +53,9 @@ const toggleNavShow = () => {
 
 <style scoped>
 .custom-navbar {
-  background-color: rgba(134, 167, 136, 0.8); /* 반투명 조절도 가능 */
-  backdrop-filter: blur(10px);
-  padding: 0.5rem 1.5rem;
-  position: relative;
-  z-index: 1000;
+  background-color: rgba(134, 167, 136, 0.8);
+  padding: 0;
+  width: 100%;
 }
 
 .navbar-brand img {
