@@ -78,7 +78,9 @@
 </template>
 
 <script setup>
-defineProps({
+import { useRouter } from 'vue-router';
+
+const props = defineProps({
   house: {
     type: Object,
     required: true,
@@ -87,9 +89,17 @@ defineProps({
 
 defineEmits(['close']);
 
+const router = useRouter();
+
 const handleDetailView = () => {
-  console.log('자세히 보기 클릭');
-  // 상세 페이지로 이동하는 로직
+  localStorage.setItem('currentHouseDetail', JSON.stringify(props.house));
+  const houseId = props.house.houseId || props.house.danziId;
+  console.log('자세히 보기 클릭', houseId);
+  if (houseId) {
+    router.push({ name: 'DetailPage', params: { id: houseId } });
+  } else {
+    console.error('House ID is missing');
+  }
 };
 
 const handleFavorite = () => {
@@ -102,6 +112,7 @@ const formatPrice = (price) => {
   return `${price.toLocaleString()}만원`;
 };
 </script>
+
 
 <style scoped>
 .airbnb-custom-overlay {
