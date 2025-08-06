@@ -33,4 +33,26 @@ export default {
     const { data } = await api.put('/user/additionalPoint', body);
     return data;
   },
+
+  // 즐겨찾기 조회
+  async getBookmarks() {
+    const { data } = await api.get('/bookmark');
+    return data;
+  },
+
+  // 즐겨찾기 등록
+  async postBookmarks(body) {
+    const { data } = await api.post('/bookmark', {
+      data: body,
+    });
+    return data;
+  },
+
+  // 즐겨찾기 삭제
+  async deleteBookmarks(body) {
+    const { data } = await api.delete('/bookmark', {
+      data: body,
+    });
+    return data;
+  },
 };

@@ -248,5 +248,62 @@ export const useMyPageStore = defineStore('mypage', {
         this.supportableList = [];
       }
     },
+
+    async getBookmarks() {
+      try {
+        const data = await userApi.getBookmarks();
+        console.log(data);
+      } catch (err) {
+        console.error('즐겨찾기 정보 조회 실패:', err);
+        this.message = '즐겨찾기 정보를 불러오는 데 실패했습니다.';
+        if (
+          err.response &&
+          (err.response.status === 401 || err.response.status === 403)
+        ) {
+          this.message =
+            '인증 정보가 만료되었거나 유효하지 않습니다. 다시 로그인해주세요.';
+        }
+      }
+    },
+
+    async postBookmarks() {
+      try {
+        const body = {
+          danziId: 101, // ← 여기에 임의값 설정
+        };
+        const data = await userApi.postBookmarks(body);
+        console.log(data);
+      } catch (err) {
+        console.error('즐겨찾기 정보 등록 실패:', err);
+        this.message = '즐겨찾기 정보를 등록하는 데 실패했습니다.';
+        if (
+          err.response &&
+          (err.response.status === 401 || err.response.status === 403)
+        ) {
+          this.message =
+            '인증 정보가 만료되었거나 유효하지 않습니다. 다시 로그인해주세요.';
+        }
+      }
+    },
+
+    async deleteBookmarks() {
+      try {
+        const body = {
+          danziId: 61, // ← 여기에 임의값 설정
+        };
+        const data = await userApi.deleteBookmarks(body);
+        console.log(data);
+      } catch (err) {
+        console.error('즐겨찾기 정보 해제 실패:', err);
+        this.message = '즐겨찾기 정보를 해제하는 데 실패했습니다.';
+        if (
+          err.response &&
+          (err.response.status === 401 || err.response.status === 403)
+        ) {
+          this.message =
+            '인증 정보가 만료되었거나 유효하지 않습니다. 다시 로그인해주세요.';
+        }
+      }
+    },
   },
 });

@@ -32,6 +32,8 @@ onMounted(() => {
   store.getUserInfo(); // 사용자 정보 조회
   store.getHouseholdInfo();
   store.getSupportableList(); // ✅ 여기도 추가
+  store.postBookmarks();
+  store.getBookmarks();
 });
 </script>
 
