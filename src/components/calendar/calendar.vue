@@ -108,7 +108,7 @@ function groupEventsByDate(events) {
   events.forEach((item) => {
     if (!item.startDate) return;
 
-    const dateKey = item.startDate; // '2025-07-01' 형식
+    const dateKey = item.startDate.split(' ')[0]; // '2025-08-05 00:00:00' 형식
 
     if (!map[dateKey]) {
       map[dateKey] = [];
