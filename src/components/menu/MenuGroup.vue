@@ -1,5 +1,5 @@
 <template>
-  <ul class="navbar-nav">
+  <ul class="navbar-nav ms-3">
     <li v-for="(menu, index) in menus" :key="index" class="nav-item dropdown">
       <a
         class="nav-link dropdown-toggle"

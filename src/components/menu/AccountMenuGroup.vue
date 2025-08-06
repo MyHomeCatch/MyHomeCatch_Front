@@ -12,8 +12,8 @@ const { isLoggedIn, user } = storeToRefs(authStore);
 <template>
   <ul class="navbar-nav ms-auto">
     <template v-if="!authStore.isLoggedIn">
-      <MenuItem :menu="login" />
-      <MenuItem :menu="join" />
+      <MenuItem :menu="login" variant="account" />
+      <MenuItem :menu="join" variant="account" />
     </template>
     <template v-else>
       <li class="nav-item d-flex align-items-center text-white fw-bold me-2">

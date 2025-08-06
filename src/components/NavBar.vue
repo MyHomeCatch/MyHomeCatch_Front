@@ -59,9 +59,8 @@ const toggleNavShow = () => {
 }
 
 .navbar-brand img {
-  border-radius: 10%;
-  width: 70px;
-  height: 70px;
+  width: 210px;
+  height: auto;
 }
 
 @media (max-width: 768px) {
