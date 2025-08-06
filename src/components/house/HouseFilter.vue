@@ -93,7 +93,7 @@
           v-for="regionCode in filters.region"
           :key="`region-${regionCode}`"
           class="filter-tag"
-          @click="toggleFilter('region', regionCode)"
+          @click="removeFilter('region', regionCode)"
         >
           지역: {{ getFilterDisplayName('regions', regionCode) }}
           <span class="remove-tag">×</span>
@@ -104,7 +104,7 @@
           v-for="typeCode in filters.noticeType"
           :key="`type-${typeCode}`"
           class="filter-tag"
-          @click="toggleFilter('noticeType', typeCode)"
+          @click="removeFilter('noticeType', typeCode)"
         >
           유형: {{ getFilterDisplayName('noticeTypes', typeCode) }}
           <span class="remove-tag">×</span>
@@ -115,7 +115,7 @@
           v-for="statusCode in filters.noticeStatus"
           :key="`status-${statusCode}`"
           class="filter-tag"
-          @click="toggleFilter('noticeStatus', statusCode)"
+          @click="removeFilter('noticeStatus', statusCode)"
         >
           상태: {{ getFilterDisplayName('noticeStatuses', statusCode) }}
           <span class="remove-tag">×</span>
@@ -159,23 +159,23 @@ const emit = defineEmits([
 // Computed
 const hasActiveFilters = computed(() => {
   return (
-    props.filters.region.length > 0 ||
-    props.filters.noticeType.length > 0 ||
-    props.filters.noticeStatus.length > 0
+    props.filters.region?.length > 0 ||
+    props.filters.noticeType?.length > 0 ||
+    props.filters.noticeStatus?.length > 0
   );
 });
 
 const totalSelectedFilters = computed(() => {
   return (
-    props.filters.region.length +
-    props.filters.noticeType.length +
-    props.filters.noticeStatus.length
+    (props.filters.region?.length || 0) +
+    (props.filters.noticeType?.length || 0) +
+    (props.filters.noticeStatus?.length || 0)
   );
 });
 
 // Methods
 const toggleFilter = (key, value) => {
-  const currentValues = [...props.filters[key]];
+  const currentValues = [...(props.filters[key] || [])];
   const index = currentValues.indexOf(value);
 
   if (index > -1) {
@@ -187,6 +187,17 @@ const toggleFilter = (key, value) => {
   }
 
   emit('update-filter', { key, value: currentValues });
+};
+
+// 필터 태그 삭제 전용 메소드 (toggleFilter와 동일하지만 명확성을 위해 분리)
+const removeFilter = (key, value) => {
+  const currentValues = [...(props.filters[key] || [])];
+  const index = currentValues.indexOf(value);
+
+  if (index > -1) {
+    currentValues.splice(index, 1);
+    emit('update-filter', { key, value: currentValues });
+  }
 };
 
 const clearFilter = (key) => {
@@ -202,7 +213,7 @@ const search = () => {
 };
 
 const getFilterDisplayName = (optionType, code) => {
-  const options = props.filterOptions[optionType];
+  const options = props.filterOptions[optionType] || [];
   const option = options.find((opt) => opt.code === code);
   return option ? option.name : code;
 };

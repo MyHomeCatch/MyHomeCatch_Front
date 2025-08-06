@@ -75,9 +75,9 @@ const placesSearchCB = (data, status, pagination) => {
   if (status === window.kakao.maps.services.Status.OK) {
     displayPlaces(data);
   } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
-    console.warn('검색 결과가 없습니다.');
+    // console.warn('검색 결과가 없습니다.');
   } else if (status === window.kakao.maps.services.Status.ERROR) {
-    console.error('장소 검색 중 오류가 발생했습니다.');
+    // console.error('장소 검색 중 오류가 발생했습니다.');
   }
 };
 
@@ -245,7 +245,7 @@ const geocodeDetailedAddress = (
 
       if (callback) callback(markerData);
     } else {
-      console.warn(`주소 검색 실패: ${fullAddress} (${status})`);
+      // console.warn(`주소 검색 실패: ${fullAddress} (${status})`);
       // 첫 번째 시도 실패 시 두 번째 시도
       if (attempt === 0) {
         geocodeDetailedAddress(house, 1, searchFacilities, callback);

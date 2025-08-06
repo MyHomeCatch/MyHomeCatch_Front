@@ -1,5 +1,13 @@
 <template>
   <div class="house-container">
+    <!-- 검색 로직 컴포넌트 (UI 없음, 로직만) -->
+    <HouseSearchLogic
+      ref="searchLogicRef"
+      @houses-loaded="onHousesLoaded"
+      @loading-change="onLoadingChange"
+      @page-info-change="onPageInfoChange"
+    />
+
     <!-- 필터 컴포넌트 -->
     <HouseFilter
       :filters="searchQuery"
@@ -23,187 +31,26 @@
     </div>
 
     <div style="display: flex; margin-top: 40px">
-      <!-- 주택 정보 그리드 -->
-      <div
-        style="
-          min-width: 60%;
-          margin-right: 20px;
-          height: 100vh;
-          overflow-y: scroll;
-          scrollbar-width: none;
-        "
-      >
-        <!-- 추천 주택 목록 -->
-        <RecommendedHouse
-          v-if="auth.$state.isLoggedIn"
-          :houses="recommendedHouses"
-          :loading="recommendedLoading"
-          :recommendation-query="recommendationQuery"
-          @card-click="handleCardClick"
-          @toggle-favorite="handleToggleFavorite"
-          @refresh="loadRecommendedHouses"
-          @go-to-search="handleGoToSearch"
-        />
-        <div v-else>📋 자가진단을 통해 지원가능한 공고를 확인해 보세요!</div>
+      <!-- 검색 결과 섹션 -->
+      <HouseSearchResults
+        ref="searchResultsRef"
+        :search-query="searchQuery"
+        :loading="loading"
+        :houses="houses"
+        :is-logged-in="auth.$state.isLoggedIn"
+        @card-click="handleCardClick"
+        @toggle-favorite="handleToggleFavorite"
+        @clear-all-filters="clearAllFilters"
+        @go-to-search="handleGoToSearch"
+      />
 
-        <h2
-          style="
-            margin: 0;
-            font-size: 20px;
-            font-weight: 600;
-            color: #222222;
-            padding: 40px 0 20px 0;
-          "
-        >
-          검색한 공고
-        </h2>
-        <div v-if="!loading && houses.length > 0" class="house-grid">
-          <HouseCard
-            v-for="house in houses"
-            :key="house.houseId"
-            :house="house"
-            @card-click="handleCardClick"
-            @toggle-favorite="handleToggleFavorite"
-          />
-        </div>
-
-        <!-- 로딩 표시 -->
-        <div v-if="loading" class="loading">
-          <div class="loading-spinner"></div>
-          <p>주택 정보를 불러오는 중...</p>
-        </div>
-
-        <!-- 결과 없음 -->
-        <div v-if="!loading && houses.length === 0" class="no-results">
-          <div class="no-results-icon">🏠</div>
-          <h3>검색 결과가 없습니다</h3>
-          <p>다른 조건으로 검색해보세요.</p>
-          <button @click="clearAllFilters" class="clear-button">
-            필터 초기화
-          </button>
-        </div>
-      </div>
-
-      <!-- 지도 -->
-      <div style="min-width: 500px" class="map">
-        <div class="category-button-wrapper">
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'MT1',
-            }"
-            @click="selectedCategory = 'MT1'"
-          >
-            대형마트
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'CS2',
-            }"
-            @click="selectedCategory = 'CS2'"
-          >
-            편의점
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'PS3',
-            }"
-            @click="selectedCategory = 'PS3'"
-          >
-            어린이집
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'SC4',
-            }"
-            @click="selectedCategory = 'SC4'"
-          >
-            학교
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'AC5',
-            }"
-            @click="selectedCategory = 'AC5'"
-          >
-            학원
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'OL7',
-            }"
-            @click="selectedCategory = 'OL7'"
-          >
-            주유소
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'SW8',
-            }"
-            @click="selectedCategory = 'SW8'"
-          >
-            지하철역
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'BK9',
-            }"
-            @click="selectedCategory = 'BK9'"
-          >
-            은행
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'PO3',
-            }"
-            @click="selectedCategory = 'PO3'"
-          >
-            공공기관
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'HP8',
-            }"
-            @click="selectedCategory = 'HP8'"
-          >
-            병원
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'PM9',
-            }"
-            @click="selectedCategory = 'PM9'"
-          >
-            약국
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'CT1',
-            }"
-            @click="selectedCategory = 'CT1'"
-          >
-            문화시설
-          </button>
-        </div>
-        <div style="flex: 1; height: 800px">
-          <KakaoMapViewer
-            ref="mapViewerRef"
-            :houses="allHousesForMap"
-            :selectedCategory="selectedCategory"
-          />
-        </div>
-      </div>
+      <!-- 지도 섹션 -->
+      <HouseMapSection
+        ref="mapSectionRef"
+        :houses="allHousesForMap"
+        :selected-category="selectedCategory"
+        @category-change="handleCategoryChange"
+      />
     </div>
 
     <!-- 페이지네이션 -->
@@ -212,44 +59,57 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, computed, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import axios from 'axios';
+import { ref, onMounted, computed, nextTick } from 'vue';
 import HouseFilter from '../components/house/HouseFilter.vue';
-import HouseCard from '../components/house/HouseCard.vue';
 import HousePagination from '../components/house/HousePagination.vue';
-import KakaoMapViewer from '../components/KakaoMapViewer.vue';
-import RecommendedHouse from '../components/house/RecomendedHouse.vue';
+import HouseSearchResults from '../components/house/HouseSearchResults.vue';
+import HouseMapSection from '../components/house/HouseMapSection.vue';
+import HouseSearchLogic from '../components/house/HouseSearchLogic.vue';
 import { useAuthStore } from '../stores/auth';
-import user from '../api/user.js';
-
-// Router
-const router = useRouter();
-const route = useRoute();
-const mapViewerRef = ref(null);
-const selectedCategory = ref('');
 
 // Auth
 const auth = useAuthStore();
 
+// Refs
+const searchLogicRef = ref(null);
+const searchResultsRef = ref(null);
+const mapSectionRef = ref(null);
+const selectedCategory = ref('');
+
 // State
 const loading = ref(false);
 const houses = ref([]);
-
-// 추천 주택 관련 상태
-const recommendedHouses = ref([]);
-const recommendedLoading = ref(false);
-const userPreferences = ref([]);
-const recommendationQuery = computed(() => ({
-  aisTpCdNm: userPreferences.value,
-}));
+const pageInfo = ref({
+  currentPage: 0,
+  endItem: 0,
+  first: true,
+  hasNext: false,
+  hasPrevious: false,
+  last: false,
+  size: 15,
+  startItem: 1,
+  totalCount: 0,
+  totalPages: 0,
+});
+const searchQuery = ref({
+  region: [],
+  noticeType: [],
+  noticeStatus: [],
+  page: 0,
+  size: 20,
+});
+const filterOptions = ref({
+  regions: [],
+  noticeTypes: [],
+  noticeStatuses: [],
+});
 
 // 지도에 표시할 모든 주택 (추천 + 검색 결과)
 const allHousesForMap = computed(() => {
   const searchHouses = houses.value || [];
-  const recommendedHousesData = recommendedHouses.value || [];
+  const recommendedHousesData = searchResultsRef.value?.recommendedHouses || [];
 
-  // 중복 제거를 위해 houseId로 필터링
+  // 중복 제거를 위해 danziId로 필터링
   const seenIds = new Set();
   const combined = [...recommendedHousesData, ...searchHouses];
 
@@ -262,322 +122,100 @@ const allHousesForMap = computed(() => {
   });
 });
 
-const pageInfo = reactive({
-  currentPage: 0,
-  endItem: 0,
-  first: true,
-  hasNext: false,
-  hasPrevious: false,
-  last: false,
-  size: 15,
-  startItem: 1,
-  totalCount: 0,
-  totalPages: 0,
-});
-
-// URL 쿼리에서 초기값 설정 (다중 선택 지원)
-const parseQueryArray = (value) => {
-  if (!value) return [];
-  return Array.isArray(value) ? value : [value];
+// Event handlers from search logic
+const onHousesLoaded = (newHouses) => {
+  houses.value = newHouses;
 };
 
-const searchQuery = reactive({
-  region: parseQueryArray(route.query.region),
-  noticeType: parseQueryArray(route.query.noticeType),
-  noticeStatus: parseQueryArray(route.query.noticeStatus),
-  page: parseInt(route.query.page) || 0,
-  size: parseInt(route.query.size) || 20,
-});
-
-const filterOptions = reactive({
-  regions: [
-    { code: '서울', name: '서울' },
-    { code: '부산', name: '부산' },
-    { code: '대구', name: '대구' },
-    { code: '인천', name: '인천' },
-    { code: '광주', name: '광주' },
-    { code: '대전', name: '대전' },
-    { code: '울산', name: '울산' },
-    { code: '세종', name: '세종' },
-    { code: '강원', name: '강원' },
-    { code: '전북', name: '전북' },
-    { code: '제주', name: '제주' },
-    { code: '경기', name: '경기' },
-    { code: '경남', name: '경남' },
-    { code: '경북', name: '경북' },
-    { code: '전남', name: '전남' },
-    { code: '충남', name: '충남' },
-    { code: '충북', name: '충북' },
-  ],
-  noticeTypes: [
-    { code: '가정어린이집', name: '가정어린이집' },
-    { code: '공공임대', name: '공공임대' },
-    { code: '국민임대', name: '국민임대' },
-    { code: '분양주택', name: '분양주택' },
-    { code: '영구임대', name: '영구임대' },
-    { code: '통합공공임대', name: '통합공공임대' },
-    { code: '행복주택', name: '행복주택' },
-  ],
-  noticeStatuses: [
-    { code: '공고중', name: '공고중' },
-    { code: '접수마감', name: '접수마감' },
-    { code: '정정공고중', name: '정정공고중' },
-    { code: '접수중', name: '접수중' },
-  ],
-});
-
-// 추천 주택 관련 메소드
-const prefMapper = (pref) => {
-  if (pref == '공공분양') return '분양주택';
-  return pref;
+const onLoadingChange = (newLoading) => {
+  loading.value = newLoading;
 };
 
-const loadUserPreference = async () => {
-  try {
-    const pref = await user.getSupportableList();
-    const userInfo = await user.getUserInfo();
-    const supplyTypes = pref.map((p) => p.split(' ')[0]).map(prefMapper);
-    userPreferences.value = supplyTypes;
-    return supplyTypes;
-  } catch (error) {
-    console.error('사용자 선호도 로드 실패:', error);
-    return [];
+const onPageInfoChange = (newPageInfo) => {
+  pageInfo.value = newPageInfo;
+};
+
+// Methods - delegate to search logic
+const updateFilter = (payload) => {
+  if (searchLogicRef.value) {
+    searchLogicRef.value.updateFilter(payload);
   }
-};
-
-const getRecommendedQueryUrl = (maxItems = 10) => {
-  const params = new URLSearchParams();
-  params.append('page', '0');
-  params.append('size', maxItems.toString());
-
-  userPreferences.value.forEach((type) => {
-    params.append('aisTpCdNm', type);
-  });
-
-  params.append('panSs', '공고중');
-  params.append('panSs', '접수중');
-
-  return `/api/api/house?${params.toString()}`;
-};
-
-const loadRecommendedHouses = async () => {
-  if (!auth.$state.isLoggedIn) {
-    recommendedHouses.value = [];
-    recommendedLoading.value = false;
-    return;
-  }
-
-  recommendedLoading.value = true;
-
-  try {
-    const preferences = await loadUserPreference();
-
-    if (!preferences || preferences.length === 0) {
-      recommendedHouses.value = [];
-      return;
-    }
-
-    const response = await axios.get(getRecommendedQueryUrl(10));
-    const data = response?.data;
-
-    if (data && data.housingList && Array.isArray(data.housingList)) {
-      recommendedHouses.value = data.housingList;
-    } else if (Array.isArray(data)) {
-      recommendedHouses.value = data;
-    } else {
-      recommendedHouses.value = [];
-    }
-  } catch (error) {
-    console.error('추천 주택 목록 로드 실패:', error);
-    recommendedHouses.value = [];
-  } finally {
-    recommendedLoading.value = false;
-  }
-};
-
-// URL 업데이트 함수 (다중 값 지원)
-const updateUrl = () => {
-  const query = {};
-
-  if (searchQuery.region.length > 0) {
-    query.region =
-      searchQuery.region.length === 1
-        ? searchQuery.region[0]
-        : searchQuery.region;
-  }
-  if (searchQuery.noticeType.length > 0) {
-    query.noticeType =
-      searchQuery.noticeType.length === 1
-        ? searchQuery.noticeType[0]
-        : searchQuery.noticeType;
-  }
-  if (searchQuery.noticeStatus.length > 0) {
-    query.noticeStatus =
-      searchQuery.noticeStatus.length === 1
-        ? searchQuery.noticeStatus[0]
-        : searchQuery.noticeStatus;
-  }
-  if (searchQuery.page > 0) query.page = searchQuery.page;
-  if (searchQuery.size !== 20) query.size = searchQuery.size;
-
-  router.replace({ query });
-};
-
-// API URL 생성 (다중 파라미터 지원)
-const getQueryUrl = () => {
-  const params = new URLSearchParams();
-  params.append('page', searchQuery.page);
-  params.append('size', searchQuery.size);
-
-  searchQuery.region.forEach((region) => {
-    if (region) params.append('cnpCdNm', region);
-  });
-
-  searchQuery.noticeType.forEach((type) => {
-    if (type) params.append('aisTpCdNm', type);
-  });
-
-  searchQuery.noticeStatus.forEach((status) => {
-    if (status) params.append('panSs', status);
-  });
-
-  return `/api/api/house?${params.toString()}`;
-};
-
-// 주택 목록 로드
-const loadHouses = async () => {
-  loading.value = true;
-  try {
-    const { data } = await axios.get(getQueryUrl());
-
-    if (data.housingList) {
-      houses.value = data.housingList;
-      Object.assign(pageInfo, data.pageInfo);
-    } else {
-      houses.value = Array.isArray(data) ? data : [];
-      pageInfo.totalCount = houses.value.length;
-    }
-  } catch (error) {
-    console.error('주택 목록 로드 실패:', error);
-    houses.value = [];
-    pageInfo.totalCount = 0;
-  } finally {
-    loading.value = false;
-  }
-};
-
-// URL 쿼리에서 searchQuery 업데이트
-const updateSearchQueryFromUrl = () => {
-  searchQuery.region = parseQueryArray(route.query.region);
-  searchQuery.noticeType = parseQueryArray(route.query.noticeType);
-  searchQuery.noticeStatus = parseQueryArray(route.query.noticeStatus);
-  searchQuery.page = parseInt(route.query.page) || 0;
-  searchQuery.size = parseInt(route.query.size) || 20;
-};
-
-// 필터 이벤트 핸들러
-const updateFilter = ({ key, value }) => {
-  searchQuery[key] = value;
-  searchQuery.page = 0;
-  updateUrl();
-  loadHouses();
 };
 
 const clearFilter = (key) => {
-  searchQuery[key] = [];
-  searchQuery.page = 0;
-  updateUrl();
-  loadHouses();
-};
-
-const clearAllFilters = () => {
-  searchQuery.region = [];
-  searchQuery.noticeType = [];
-  searchQuery.noticeStatus = [];
-  searchQuery.page = 0;
-  updateUrl();
-  loadHouses();
-};
-
-const searchHouses = () => {
-  searchQuery.page = 0;
-  updateUrl();
-  loadHouses();
-};
-
-// 페이지네이션 이벤트 핸들러
-const changePage = (newPage) => {
-  searchQuery.page = newPage;
-
-  moveMapToHouse(null);
-  updateUrl();
-  loadHouses();
-
-  window.scrollTo({ top: 200, behavior: 'smooth' });
-};
-
-// 지도 관련 메소드
-const moveMapToHouse = (house) => {
-  if (mapViewerRef.value) {
-    mapViewerRef.value.updateMapWithHouse(house);
+  if (searchLogicRef.value) {
+    searchLogicRef.value.clearFilter(key);
   }
 };
 
-// 카드 이벤트 핸들러
+const clearAllFilters = () => {
+  if (searchLogicRef.value) {
+    searchLogicRef.value.clearAllFilters();
+  }
+};
+
+const searchHouses = () => {
+  if (searchLogicRef.value) {
+    searchLogicRef.value.searchHouses();
+  }
+};
+
+const changePage = (newPage) => {
+  if (mapSectionRef.value) {
+    mapSectionRef.value.moveMapToHouse(null);
+  }
+  if (searchLogicRef.value) {
+    searchLogicRef.value.changePage(newPage);
+  }
+};
+
+// UI event handlers
 const handleCardClick = (house) => {
-  moveMapToHouse(house);
+  if (mapSectionRef.value) {
+    mapSectionRef.value.moveMapToHouse(house);
+  }
 };
 
 const handleToggleFavorite = ({ houseId, isFavorite }) => {
   console.log('찜하기 토글:', houseId, isFavorite);
 };
 
-const handleGoToSearch = (query) => {
-  // 필터에 추천 조건 적용
-  if (query.aisTpCdNm) {
-    searchQuery.noticeType = Array.isArray(query.aisTpCdNm)
-      ? query.aisTpCdNm
-      : [query.aisTpCdNm];
-    searchQuery.page = 0;
-    updateUrl();
-    loadHouses();
-  }
+const handleCategoryChange = (category) => {
+  selectedCategory.value = selectedCategory.value === category ? '' : category;
 };
 
-// URL 변경 감지 (뒤로가기/앞으로가기 대응)
-watch(
-  () => route.query,
-  (newQuery, oldQuery) => {
-    if (JSON.stringify(newQuery) !== JSON.stringify(oldQuery)) {
-      updateSearchQueryFromUrl();
-      loadHouses();
-    }
+const handleGoToSearch = (query) => {
+  if (query.aisTpCdNm && searchLogicRef.value) {
+    const newNoticeType = Array.isArray(query.aisTpCdNm)
+      ? query.aisTpCdNm
+      : [query.aisTpCdNm];
+    searchLogicRef.value.updateFilter({
+      key: 'noticeType',
+      value: newNoticeType,
+    });
   }
-);
-
-// 로그인 상태 변경 감지
-watch(
-  () => auth.$state.isLoggedIn,
-  async (newVal) => {
-    try {
-      if (newVal) {
-        await loadRecommendedHouses();
-      } else {
-        recommendedHouses.value = [];
-      }
-    } catch (error) {
-      console.error('로그인 상태 변경 후 추천 로드 오류:', error);
-    }
-  }
-);
+};
 
 // 컴포넌트 마운트 시 실행
 onMounted(async () => {
   try {
-    loadHouses();
+    // 먼저 searchQuery와 filterOptions를 동기적으로 설정
+    if (searchLogicRef.value) {
+      searchQuery.value = searchLogicRef.value.searchQuery;
+      filterOptions.value = searchLogicRef.value.filterOptions;
+      pageInfo.value = searchLogicRef.value.pageInfo;
+    }
 
-    if (auth.$state.isLoggedIn) {
-      await loadRecommendedHouses();
+    // 다음 틱에서 데이터 로드
+    await nextTick();
+
+    if (searchLogicRef.value) {
+      await searchLogicRef.value.loadHouses();
+    }
+
+    // 추천 데이터 로드
+    if (auth.$state.isLoggedIn && searchResultsRef.value) {
+      await searchResultsRef.value.loadRecommendedHouses();
     }
   } catch (error) {
     console.error('HouseList 마운트 오류:', error);
@@ -593,7 +231,6 @@ onMounted(async () => {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* 검색 결과 정보 */
 .result-info {
   display: flex;
   justify-content: space-between;
@@ -612,73 +249,6 @@ onMounted(async () => {
   color: #717171;
 }
 
-/* 주택 그리드 */
-.house-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 24px;
-  padding: 0;
-}
-
-/* 로딩 및 결과 없음 */
-.loading,
-.no-results {
-  text-align: center;
-  padding: 60px 20px;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f0f0f0;
-  border-top: 4px solid #ff385c;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 16px;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.no-results-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-}
-
-.no-results h3 {
-  font-size: 18px;
-  color: #222222;
-  margin: 0 0 8px 0;
-}
-
-.no-results p {
-  color: #717171;
-  margin: 0 0 20px 0;
-}
-
-.clear-button {
-  background: #ff385c;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.clear-button:hover {
-  background: #e31c5f;
-}
-
-/* 반응형 디자인 */
 @media (max-width: 768px) {
   .house-container {
     padding: 16px;
@@ -689,59 +259,11 @@ onMounted(async () => {
     gap: 8px;
     align-items: flex-start;
   }
-
-  .house-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
 }
 
 @media (max-width: 480px) {
   .house-container {
     padding: 12px;
   }
-}
-
-@media (max-width: 768px) {
-  .map {
-    display: none;
-  }
-}
-
-/* Category Button for Map */
-.category-button-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px; /* Increased gap for both horizontal and vertical spacing */
-  margin-bottom: 16px; /* Space below the buttons and above the map */
-}
-
-.category-button {
-  background-color: #f0f0f0; /* Soft light gray background */
-  color: #333; /* Dark gray text */
-  border: 1px solid #e0e0e0; /* Subtle border */
-  padding: 8px 14px; /* Consistent padding */
-  border-radius: 6px; /* Slightly rounded corners */
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out; /* Smooth transitions */
-  white-space: nowrap; /* Prevent text wrapping */
-}
-
-.category-button:hover {
-  background-color: #e5e5e5; /* Slightly darker on hover */
-  border-color: #d0d0d0;
-}
-
-.category-button.selected {
-  background-color: #ffe0e6; /* Soft pink, derived from existing primary color */
-  color: #ff385c; /* Primary color for text */
-  border-color: #ffcdd2; /* Slightly darker pink border */
-  font-weight: 600;
-}
-
-.category-button:active {
-  transform: translateY(1px); /* Slight press effect */
 }
 </style>
