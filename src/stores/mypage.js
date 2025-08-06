@@ -253,6 +253,7 @@ export const useMyPageStore = defineStore('mypage', {
       try {
         const data = await userApi.getBookmarks();
         console.log(data);
+        return data;
       } catch (err) {
         console.error('즐겨찾기 정보 조회 실패:', err);
         this.message = '즐겨찾기 정보를 불러오는 데 실패했습니다.';
@@ -266,10 +267,10 @@ export const useMyPageStore = defineStore('mypage', {
       }
     },
 
-    async postBookmarks() {
+    async postBookmarks(danzi) {
       try {
         const body = {
-          danziId: 101, // ← 여기에 임의값 설정
+          danziId: danzi, // ← 여기에 임의값 설정
         };
         const data = await userApi.postBookmarks(body);
         console.log(data);
@@ -286,10 +287,10 @@ export const useMyPageStore = defineStore('mypage', {
       }
     },
 
-    async deleteBookmarks() {
+    async deleteBookmarks(danzi) {
       try {
         const body = {
-          danziId: 61, // ← 여기에 임의값 설정
+          danziId: danzi, // ← 여기에 임의값 설정
         };
         const data = await userApi.deleteBookmarks(body);
         console.log(data);

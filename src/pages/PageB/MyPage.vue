@@ -4,6 +4,7 @@ import { useMyPageStore } from '@/stores/mypage';
 import { useAuthStore } from '@/stores/auth';
 
 import { storeToRefs } from 'pinia';
+import { getHouseDetailById } from '@/api/detailPageApi';
 
 // 📦 컴포넌트 import
 import ProfileCard from '@/components/mypage/ProfileCard.vue';
@@ -27,14 +28,39 @@ const { user, token } = storeToRefs(authStore);
 const showModal = ref(false);
 const score = ref(0); // ✅ 점수 상태 추가
 
+const houseList = ref([]);
+
 // ✅ 마운트 시 사용자 정보 가져오기
 onMounted(() => {
   store.getUserInfo(); // 사용자 정보 조회
   store.getHouseholdInfo();
   store.getSupportableList(); // ✅ 여기도 추가
-  store.postBookmarks();
-  store.getBookmarks();
+
+  fetchBookmarkedHouses();
 });
+
+const fetchBookmarkedHouses = async () => {
+  try {
+    const result = await store.getBookmarks();
+
+    if (!result || !result.bookmarks) {
+      console.warn('북마크 결과 없음:', result);
+      return;
+    }
+
+    const bookmarkItems = result.bookmarks;
+    const danziIds = bookmarkItems.map((item) => item.danziId);
+
+    const detailResponses = await Promise.all(
+      danziIds.map((id) => getHouseDetailById(id))
+    );
+
+    houseList.value = detailResponses.map((res) => res.data);
+    console.log('불러온 houseList:', houseList.value);
+  } catch (err) {
+    console.error('북마크 주택 불러오기 실패:', err);
+  }
+};
 </script>
 
 <template>
@@ -51,7 +77,7 @@ onMounted(() => {
         <div class="col-md-9">
           <UserInfoSection :userInfo="userInfo" />
           <HouseholdFinanceInfo />
-          <FavoritesCarousel :items="favorites" />
+          <FavoritesCarousel :items="houseList" />
         </div>
 
         <!-- ✅ 모달 위치는 최상단에 -->

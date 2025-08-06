@@ -42,9 +42,7 @@ export default {
 
   // 즐겨찾기 등록
   async postBookmarks(body) {
-    const { data } = await api.post('/bookmark', {
-      data: body,
-    });
+    const { data } = await api.post('/bookmark', body);
     return data;
   },
 
