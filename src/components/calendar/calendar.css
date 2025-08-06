@@ -1,0 +1,426 @@
+/* Calendar.vue */
+.calendar {
+    margin: 0rem;
+    background: var(--calendar-bg-color, white);
+    box-shadow: 0.25rem 0.25rem 2rem rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    font-family: 'Helvetica Neue', sans-serif;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+th {
+    width: calc(100% / 7);
+    padding: 1rem;
+    vertical-align: top;
+    border: 1px solid #f0f0f0;
+    text-align: left;
+}
+
+td {
+    width: 140px;
+    /* 너비 픽셀 고정 */
+    box-sizing: border-box;
+    padding: 1rem;
+    vertical-align: top;
+    border: 1px solid #f0f0f0;
+    text-align: left;
+    height: 190px;
+    /* 높이 고정 */
+    max-height: 190px;
+    /* 높이 고정 */
+    min-height: 190px;
+    /* 높이 고정 */
+}
+
+thead th {
+    background-color: #f8fbf7;
+    color: black;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* 일요일 (첫 번째 열) */
+thead th:first-child,
+tbody td:first-child {
+    color: rgb(251, 83, 83);
+}
+
+/* 토요일 (마지막 열, 7번째) */
+thead th:last-child,
+tbody td:last-child {
+    color: rgb(91, 91, 255);
+}
+
+.date {
+    font-weight: bold;
+    font-size: 0.9em;
+    margin-bottom: 0.5em;
+    /* 수직 가운데 정렬 */
+}
+
+.outside .date {
+    opacity: 0.4;
+}
+
+.cal-event {
+    padding: 0 0.7em;
+    font-size: 0.8rem;
+    font-weight: bolder;
+    line-height: 2em;
+    white-space: nowrap;
+    overflow: hidden;
+    border-radius: 1em;
+    display: flex;
+    align-items: center;
+    color: black;
+    margin-bottom: 0.3em;
+    max-width: 150px;
+}
+
+.dot {
+    width: 0.5em;
+    height: 0.5em;
+    background-color: var(--dot-color, #86A788);
+    border-radius: 50%;
+    margin-right: 0.5em;
+    flex-shrink: 0;
+}
+
+
+.event-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    /* flex 아이템에 필수 */
+    flex-grow: 1;
+    /* 남는 공간 다 차지 */
+}
+
+.cal-all-btn {
+    display: inline-block;
+    margin: 0.5em auto;
+    padding: 0.2rem 0.6rem;
+    background-color: #e9f5ea;
+    border-radius: 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #404040;
+    cursor: pointer;
+    white-space: nowrap;
+    text-align: center;
+    /* 가운데 정렬용 */
+    display: block;
+    width: fit-content;
+}
+
+/* CalendarHeader.vue */
+
+.calendar-header {
+    display: flex;
+    flex-direction: column;
+    /* 세로 정렬 */
+    gap: 0.5rem;
+    /* 위아래 간격 */
+    user-select: none;
+}
+
+.year {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: center;
+    /* ⬅️ year 내부 요소들도 가운데로 */
+    width: 100%;
+    /* ⬅️ 부모 기준 가운데 정렬되게 */
+    background-color: #86A788;
+    padding: 0.7rem;
+    box-shadow: 0.25rem 0.25rem 0.8rem rgba(0, 0, 0, 0.086);
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #ffffff;
+    padding: 0 0.5rem;
+}
+
+.year-select {
+    font-size: 1.2rem;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    border: none;
+    color: white;
+    font-weight: 600;
+    background-color: #86A788;
+}
+
+/* 드롭다운 열렸을 때 (포커스) */
+.year-select:focus {
+    background-color: white;
+    color: black;
+    outline: none;
+    /* 기본 파란 테두리 제거하려면 */
+}
+
+.months {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.month {
+    flex: 1;
+    text-align: center;
+    min-width: 50px;
+    /* 너무 작아지지 않도록 */
+    padding: 0.5rem 0.8rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    color: #555;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.month.active {
+    color: #86A788;
+    border-color: #86A788;
+}
+
+/* CalendarFilterBar.vue */
+
+.filter-wrapper {
+    border: 1px solid #86A788;
+    border-radius: 0.5em;
+    padding: 1rem;
+    margin: 1rem 0rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.filter-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1rem;
+}
+
+.filter-title-text {
+    font-weight: bolder;
+    text-align: center;
+    margin-left: 0.5rem;
+}
+
+.filter-tabs-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-tab {
+    padding: 0.3rem 0.75rem;
+    border-radius: 0.5rem;
+    background-color: white;
+    border: 1px solid #86A788;
+    color: #455746;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.filter-tab.active {
+    background-color: #86A788;
+    color: white;
+}
+
+.choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding-left: 0.2rem;
+}
+
+.choice-block {
+    padding: 0.3rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 1.5rem;
+    font-size: 0.9rem;
+    color: #333;
+    cursor: pointer;
+    background-color: white;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.choice-block.selected {
+    background-color: #e9f5ea;
+    border-color: #86a788;
+    color: #455746;
+}
+
+.filter-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.button-group.top {
+    display: flex;
+    align-items: center;
+}
+
+.reset-btn {
+    background-color: #e57373;
+    color: white;
+    font-weight: bolder;
+    border: none;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.9rem;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.choices.no-wrap {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+
+
+/* DailyModal.vue */
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(81, 80, 80, 0.05);
+    /* 밝은 회색 느낌의 흰색 투명도 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-wrapper {
+    background: white;
+    border-radius: 0.5rem;
+    width: 700px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #86a788;
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid #ddd;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: white;
+}
+
+.modal-title {
+    flex-grow: 2;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    font-weight: bold;
+    cursor: pointer;
+    color: #ffffff;
+}
+
+.modal-content {
+    padding: 1rem 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.event-item {
+    border: 1px solid #ccc;
+    border-radius: 0.8rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    /* background-color: #f8fbf7; */
+}
+
+.event-header {
+    display: flex;
+    justify-content: flex-start;
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+    align-items: center;
+}
+
+.cal-modal-type {
+    padding: 0.2rem 0.5rem;
+    border: 1px solid;
+    /* border: 1px solid #ccc; */
+    border-radius: 1.5rem;
+    font-size: 0.8rem;
+    font-weight: bolder;
+    background-color: white;
+    margin-right: 0.5rem;
+    white-space: nowrap;
+}
+
+.cal-modal-addr {
+    flex: 1 1 100%;
+    /* ✅ 한 줄 전체를 차지하고, 필요하면 줄바꿈 */
+    word-break: break-word;
+    /* ✅ 길어도 줄바꿈 */
+}
+
+.apt-name {
+    font-weight: bold;
+    font-size: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detail-btn {
+    background-color: #e9f5ea;
+    color: black;
+    border: none;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    margin-left: 0.5rem;
+}
+
+.period {
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+    color: #666;
+}

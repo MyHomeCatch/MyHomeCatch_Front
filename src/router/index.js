@@ -4,6 +4,7 @@ import pageARoutes from './pageA';
 import pageBRoutes from './pageB';
 import pageCRoutes from './pageC';
 import authRoutes from './auth';
+import detailRoutes from './DetailPage';
 import SelfCheckPage from '../pages/selfCheck/SelfCheckPage.vue';
 import { useAuthStore } from '../stores/auth';
 import ProfileEdit from '../components/myPage/ProfileEdit.vue';
@@ -20,6 +21,7 @@ const router = createRouter({
     ...pageBRoutes,
     ...pageCRoutes,
     ...authRoutes,
+    ...detailRoutes,
     {
       path: '/self-check',
       name: 'SelfCheck',
