@@ -1,7 +1,13 @@
 <template>
   <div class="self-check-container">
     <SelfCheckStartModal :visible="showStartModal" @start="startSelfCheck" @cancel="router.back()" />
-    <div :class="['book-bg', { 'blurred': showStartModal }]">
+    <SelfCheckResultModal 
+      :visible="showResultModal" 
+      :qualifiedHouses="qualifiedHouses" 
+      :failedHouses="failedHouses"
+      @confirm="onResultConfirm" 
+    />
+    <div :class="['book-bg', { 'blurred': showStartModal || showResultModal }]">
       <div class="questions-row">
         <QuestionCard
           v-if="questions[currentIndex * 2]"
@@ -24,6 +30,7 @@
           :isFirst="currentIndex === 0"
           :isLast="currentIndex === lastIndex"
           :allAnswered="pageAllAnswered"
+          :isSubmitting="isSubmitting"
           @prev="goPrev"
           @next="goNext"
           @submit="submit"
@@ -39,28 +46,30 @@ import { useRouter } from 'vue-router';
 import QuestionCard from '../../components/selfCheck/QuestionCard.vue';
 import NavigationButtons from '../../components/selfCheck/NavigationButtons.vue';
 import SelfCheckStartModal from '../../components/modals/SelfCheckStartModal.vue';
+import SelfCheckResultModal from '../../components/modals/SelfCheckResultModal.vue';
 
-// 예시 질문 데이터
+import selfCheckApi from '../../api/selfCheck.js';
+import { useAuthStore } from '../../stores/auth';
+import authApi from '../../api/auth';
+
 const questions = [
   {
     id: 1,
-    type: 'radio',
-    title: '본인을 포함한 세대구성원이 현재 주택을 소유 중인가요?',
+    type: 'number',
+    title: '현재 거주 기간을 입력해주세요.',
+    subtext: '현재 주소지에서 거주한 기간을 월 단위로 입력해주세요.',
     options: [
-      '본인이 주택 소유중',
-      '본인은 무주택자, 본인 외 다른 세대원이 주택 소유중',
-      '본인 포함 모두 무주택자',
+      '거주 기간 (개월)',
     ],
     required: true,
   },
   {
     id: 2,
     type: 'radio',
-    title: '다음 중 해당되는 것을 골라주세요.',
+    title: '무주택세대구성원인가요?',
     options: [
-      '미혼',
-      '기혼 (맞벌이)',
-      '기혼 (외벌이)',
+      '예',
+      '아니오',
     ],
     required: true,
   },
@@ -78,71 +87,104 @@ const questions = [
   {
     id: 4,
     type: 'radio',
-    title: '세대 전체가 보유하고 있는 총 자산이 얼마인가요?',
-    subtext: '총 자산 = 부동산 + 자동차 + 금융 + 기타 - 부채',
+    title: '다음 중 해당되는 것을 골라주세요.',
     options: [
-      '1억 원 이하',
-      '2억 7,300만원 이하',
-      '3억 원 이하',
+      '미혼',
+      '기혼(외벌이)',
+      '기혼(맞벌이)',
     ],
     required: true,
   },
   {
     id: 5,
     type: 'radio',
-    title: '세대 전체가 보유하고 있는 총 자산이 얼마인가요?',
-    subtext: '총 자산 = 부동산 + 자동차 + 금융 + 기타 - 부채',
+    title: '가구당 월 평균 소득을 선택해주세요.',
+    subtext: '세대원 수에 따른 월 평균 소득 기준을 확인하여 선택해주세요.',
     options: [
-      '1억 원 이하',
-      '2억 7,300만원 이하',
-      '3억 원 이하',
-      '3억 2,800만원 이하',
-      '3억 4,500만원 이하',
-      '3억 8,000만원 이하',
-      '4억 1,400만원 이하',
-      '4억 1,400만원 초과',
-      '몰라',
+      '월평균 소득 70% 이하',
+      '월평균 소득 80% 이하',
+      '월평균 소득 90% 이하',
+      '월평균 소득 100% 이하',
+      '월평균 소득 110% 이하',
+      '월평균 소득 120% 이하',
+      '월평균 소득 120% 초과',
     ],
     required: true,
   },
   {
     id: 6,
     type: 'radio',
-    title: '세대구성원이 보유하고 있는 가장 비싼 차량 가격은 얼마인가요?',
+    title: '총 자산 기준을 확인해주세요.',
+    subtext: '총 자산 = 부동산 + 자동차 + 금융 + 기타 - 부채',
     options: [
-      '없음',
-      '3,708만원 이하',
-      '4,079만원 이하',
-      '4,450만원 이하',
-      '4,450만원 초과',
-      '몰라',
+      '총 자산 10,400만원 이하',
+      '총 자산 25,400만원 이하',
+      '총 자산 33,700만원 이하',
+      '총 자산 33,700만원 초과',
     ],
     required: true,
-    subtext: '보험개발원 > 차량기준가격 조회',
-    subtextLink: 'https://www.kidi.or.kr/auto/aut_0101.do',
   },
   {
     id: 7,
     type: 'radio',
-    title: '청약 통장이 있나요?',
+    title: '자동차 기준을 확인해주세요.',
     options: [
-      '있음',
-      '없음',
+      '자동차 없음',
+      '자동차 3,803만원 이하',
+      '자동차 3,803만원 초과',
     ],
     required: true,
   },
   {
     id: 8,
+    type: 'radio',
+    title: '부동산 기준을 확인해주세요.',
+    options: [
+      '부동산 없음',
+      '부동산 21,550만원 이하',
+      '부동산 21,550만원 초과',
+    ],
+    required: true,
+  },
+  {
+    id: 9,
+    type: 'radio',
+    title: '청약 통장 가입기간 및 납입기간을 선택해주세요.',
+    options: [
+      '없음',
+      '6개월 이상',
+      '12개월 이상',
+      '24개월 이상',
+    ],
+    required: true,
+  },
+  {
+    id: 10,
     type: 'checkbox',
     title: '다음 중 해당되는 것을 모두 골라주세요.',
     options: [
-      '청년(만 19세 ~ 39세) 또는 사회초년생',
-      '대학생 또는 취업준비생',
-      '신혼부부(7년 이내 혼인)',
-      '예비 신혼부부',
-      '한부모 가족(만 6세 이하 자녀)',
-      '보호대상 한부모 가족',
-      '주거급여 수급자(차상위계층)',
+      '철거민',
+      '장애인',
+      '다자녀 가구',
+      '국가유공자',
+      '영구임대퇴거자',
+      '비닐간이공작물 거주자',
+      '신혼부부',
+      '한부모 가족',
+      '무허가건축물 등에 입주한 세입자',
+      '기관추천',
+      '신생아',
+      '생애최초',
+      '노부모부양',
+      '대학생 계층',
+      '청년 계층',
+      '고령자 계층',
+      '주거급여수급자계층',
+      '기초생활수급자',
+      '위안부 피해자',
+      '북한이탈주민',
+      '아동복지시설 퇴소자',
+      '고령 저소득자',
       '해당 없음',
     ],
     required: true,
@@ -153,13 +195,61 @@ const answers = ref(Array(questions.length).fill(null));
 const currentIndex = ref(0);
 const lastIndex = Math.floor((questions.length - 1) / 2);
 const showStartModal = ref(true);
+const showResultModal = ref(false);
+const isSubmitting = ref(false);
+const qualifiedHouses = ref([]);
+const failedHouses = ref([]);
 const router = useRouter();
 
-function startSelfCheck() {
-  showStartModal.value = false;
+async function startSelfCheck() {
+  try {
+    // 토큰 상태 확인
+    const authStore = useAuthStore();
+    if (!authStore.token) {
+      alert('로그인이 필요합니다. 로그인 후 다시 시도해주세요.');
+      router.push('/login');
+      return;
+    }
+
+    // 토큰 유효성 확인을 위해 간단한 API 호출 시도
+    try {
+      await selfCheckApi.initializeDiagnosis();
+      console.log('✅ 토큰 유효성 확인 성공');
+    } catch (error) {
+      if (error.response?.status === 401) {
+        console.log('🔄 토큰 만료 감지, 갱신 시도...');
+        // 토큰 갱신 시도
+        try {
+          await authApi.refreshToken();
+          console.log('✅ 토큰 갱신 성공');
+          // 갱신 후 다시 시도
+          await selfCheckApi.initializeDiagnosis();
+          console.log('✅ 갱신된 토큰으로 유효성 확인 성공');
+        } catch (refreshError) {
+          console.error('❌ 토큰 갱신 실패:', refreshError);
+          alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+          router.push('/login');
+          return;
+        }
+      } else {
+        throw error;
+      }
+    }
+    
+    showStartModal.value = false;
+  } catch (error) {
+    console.error('자가진단 시작 실패:', error);
+
+    if (error.response?.status === 401) {
+      alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+      router.push('/login');
+    } else {
+      alert('자가진단 시작 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
+    showStartModal.value = false;
+  }
 }
 
-// 모달이 열릴 때 스크롤 막기
 watch(showStartModal, (val) => {
   if (val) {
     document.body.style.overflow = 'hidden';
@@ -167,6 +257,19 @@ watch(showStartModal, (val) => {
     document.body.style.overflow = '';
   }
 });
+
+watch(showResultModal, (val) => {
+  if (val) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+});
+
+function onResultConfirm() {
+  showResultModal.value = false;
+  router.push('/');
+}
 onMounted(() => {
   if (showStartModal.value) document.body.style.overflow = 'hidden';
 });
@@ -175,7 +278,6 @@ onUnmounted(() => {
 });
 
 const pageAllAnswered = computed(() => {
-  // 현재 페이지(2개) 모두 답변했는지 체크
   const idx = currentIndex.value * 2;
   return [0, 1].every(i => {
     const q = questions[idx + i];
@@ -193,9 +295,99 @@ function goPrev() {
 function goNext() {
   if (currentIndex.value < lastIndex) currentIndex.value++;
 }
-function submit() {
-  // 결과 처리 로직
-  console.log('선택된 답변:', answers.value);
+
+async function submit() {
+  if (isSubmitting.value) return;
+  
+  isSubmitting.value = true;
+  
+  const diagnosisData = {
+    residencePeriod: Number(answers.value[0]),
+    isHomeless: answers.value[1],
+    houseHoldMembers: Array.isArray(answers.value[2]) ? answers.value[2].join(',') : String(answers.value[2]),
+    maritalStatus: answers.value[3],
+    monthlyIncome: answers.value[4],
+    totalAssets: answers.value[5],
+    carValue: answers.value[6],
+    realEstateValue: answers.value[7],
+    subscriptionPeriod: answers.value[8],
+    targetGroups: Array.isArray(answers.value[9]) ? answers.value[9] : [answers.value[9]],
+  };
+
+  try {
+    // 1. 기존 자가진단 결과 삭제
+    console.log('기존 자가진단 결과 삭제 중...');
+    await selfCheckApi.initializeDiagnosis();
+    console.log('기존 자가진단 결과 삭제 완료');
+
+    // 2. 기존 진단 내용 삭제
+    console.log('기존 진단 내용 삭제 중...');
+    await selfCheckApi.deleteContent();
+    console.log('기존 진단 내용 삭제 완료');
+
+    // 2. 진단 실행
+    const houseTypes = ['국민임대', '행복주택', '공공임대', '영구임대'];
+    const apiCalls = [
+      selfCheckApi.getKookminDiagnosis(diagnosisData),
+      selfCheckApi.getHengBokDiagnosis(diagnosisData),
+      selfCheckApi.getGongGongDiagnosis(diagnosisData),
+      selfCheckApi.get09Diagnosis(diagnosisData)
+    ];
+    
+    const results = [];
+    for (let i = 0; i < apiCalls.length; i++) {
+      try {
+        const result = await apiCalls[i];
+        results.push({ status: 'fulfilled', value: result });
+        
+        // 각 API 호출 후 잠시 대기 (데이터베이스 저장 확인용)
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } catch (error) {
+        console.error(`${houseTypes[i]} 진단 실패:`, error);
+        results.push({ status: 'rejected', reason: error });
+      }
+    }
+
+    // 3. 진단 내용 저장
+    console.log('진단 내용 저장 중...');
+    await selfCheckApi.saveContent(diagnosisData);
+    console.log('진단 내용 저장 완료');
+
+    // 4. 결과 정리
+    const tempQualifiedHouses = [];
+    const tempFailedHouses = [];
+
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        const qualified = result.value.qualified;
+        if (typeof qualified === 'string' && 
+            (!qualified.includes('불가능'))) {
+          tempQualifiedHouses.push(`${houseTypes[index]} (${qualified})`);
+        } else {
+          tempFailedHouses.push(`${houseTypes[index]} (${qualified})`);
+        }
+      } else if (result.status === 'rejected') {
+        tempFailedHouses.push(`${houseTypes[index]} (오류)`);
+      } else {
+        tempFailedHouses.push(houseTypes[index]);
+      }
+    });
+
+    // 5. 결과 모달에 데이터 설정 및 표시
+    qualifiedHouses.value = tempQualifiedHouses;
+    failedHouses.value = tempFailedHouses;
+    showResultModal.value = true;
+  } catch (error) {
+    console.error('전송 실패:', error);
+    if (error.response?.status === 401) {
+      alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+      router.push('/login');
+    } else {
+      alert('서버 연결에 실패했습니다. 백엔드 서버가 실행 중인지 확인해주세요.');
+    }
+  } finally {
+    isSubmitting.value = false;
+  }
 }
 </script>
 
