@@ -14,36 +14,71 @@ const toggleNavShow = () => {
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-sm bg-secondary navbar-light">
-    <div class="container-fluid">
-      <router-link class="navbar-brand" to="/">
+  <nav class="navbar navbar-expand-sm custom-navbar">
+    <div
+      class="container-fluid d-flex justify-content-between align-items-center"
+    >
+      <!-- 왼쪽: 메뉴 그룹 -->
+      <div class="d-flex align-items-center">
+        <MenuGroup :menus="config.menus" />
+      </div>
+
+      <!-- 가운데: 로고 -->
+      <router-link class="navbar-brand mx-auto" to="/">
         <img src="../assets/images/MyHomeCatchLogo.png" alt="로고 이미지" />
       </router-link>
+
+      <!-- 오른쪽: 계정 메뉴 -->
+      <div class="d-flex align-items-center">
+        <AccountMenuGroup />
+      </div>
+
+      <!-- 모바일용 토글 버튼 -->
       <button
-        class="navbar-toggler"
+        class="navbar-toggler position-absolute end-0 me-3"
         type="button"
+        @click="toggleNavShow"
         data-bs-toggle="collapse"
         data-bs-target="#collapsibleNavbar"
-        @click="toggleNavShow"
       >
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div :class="navClass" id="collapsibleNavbar">
-        <MenuGroup :menus="config.menus" />
-        <AccountMenuGroup />
-      </div>
+    </div>
+
+    <!-- 모바일 메뉴 영역 -->
+    <div v-if="state.isNavShow" :class="navClass" id="collapsibleNavbar">
+      <MenuGroup :menus="config.menus" />
+      <AccountMenuGroup />
     </div>
   </nav>
 </template>
 
-<style scope>
-.navbar {
-  background-color: rgba(108, 117, 125, 0.5) !important; /* 반투명한 회색 */
+<style scoped>
+.custom-navbar {
+  background-color: rgba(255, 255, 255, 0.5); /* 반투명한 회색 */
+  backdrop-filter: blur(10px);
+  padding: 0.5rem 1.5rem;
+
+  position: relative;
+  z-index: 1000;
 }
 
-img {
+.navbar-brand img {
   border-radius: 10%;
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
+}
+
+@media (max-width: 768px) {
+  .navbar-brand {
+    margin: 0 auto;
+  }
+
+  #collapsibleNavbar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
 }
 </style>
