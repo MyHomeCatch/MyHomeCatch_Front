@@ -6,6 +6,7 @@ import pageCRoutes from './pageC';
 import authRoutes from './auth';
 import detailRoutes from './DetailPage';
 import SelfCheckPage from '../pages/selfCheck/SelfCheckPage.vue';
+import CalendarRoutes from './calendar';
 import { useAuthStore } from '../stores/auth';
 import ProfileEdit from '../components/myPage/ProfileEdit.vue';
 import ProfileForm from '../components/myPage/ProfileForm.vue';
@@ -21,6 +22,7 @@ const router = createRouter({
     ...pageBRoutes,
     ...pageCRoutes,
     ...authRoutes,
+    ...CalendarRoutes,
     ...detailRoutes,
     {
       path: '/self-check',
