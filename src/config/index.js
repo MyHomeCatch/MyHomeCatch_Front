@@ -4,9 +4,15 @@ export default {
   menus: [
     // 메인 메뉴 구성 정보
     {
-      title: 'PageA1',
-      url: '/pageA/one',
+      title: '청약 공고',
       icon: 'fa-solid fa-paste',
+      children: [
+        {
+          title: '캘린더',
+          url: '/calendar',
+          icon: 'fa-solid fa-paste',
+        },
+      ],
     },
     // {
     //   title: '마이페이지',
@@ -15,13 +21,18 @@ export default {
     // },
     {
       title: '통계',
-      url: '/statics',
       icon: 'fa-regular fa-images',
+      children: [
+        { title: 'StaticsPage', url: '/statics', icon: 'fa-regular fa-images' },
+        { title: 'ProloguePage', url: '/prolog', icon: 'fa-regular fa-images' },
+      ],
     },
     {
       title: '자가진단',
-      url: '/self-Check',
       icon: 'fa-solid fa-check',
+      children: [
+        { title: 'MyPage', url: '/mypage', icon: 'fa-solid fa-check' },
+      ],
     },
   ],
   accoutMenus: {
