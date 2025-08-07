@@ -51,7 +51,6 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 import HouseCard from './HouseCard.vue';
-import RecommendedHouse from './RecomendedHouse.vue';
 import user from '../../api/user.js';
 import HorizontalCardScroller from './HorizontalCardScroller.vue';
 
@@ -78,6 +77,15 @@ const props = defineProps({
     default: () => [],
   },
 });
+
+const emptyConfig = {
+  icon: '🔍',
+  title: '추천할 주택이 없습니다',
+  description:
+    '현재 회원님의 조건에 맞는 주택이 없어요.<br />조건을 조정하시거나 나중에 다시 확인해보세요.',
+  showButton: true,
+  buttonText: '다시 찾아보기',
+};
 
 // Emits
 const emit = defineEmits([
@@ -192,7 +200,6 @@ const loadRecommendedHouses = async () => {
     }
 
     const response = await axios.get(getRecommendedQueryUrl(10));
-    console.log('  ⚠️  : ', getRecommendedQueryUrl(10));
 
     const data = response?.data;
 
