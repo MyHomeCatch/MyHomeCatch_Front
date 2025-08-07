@@ -4,22 +4,12 @@ export default {
   menus: [
     // 메인 메뉴 구성 정보
     {
-      title: 'PageA',
+      title: '청약 공고',
       icon: 'fa-solid fa-paste',
       children: [
         {
-          title: 'PageA1',
-          url: '/pageA/one',
-          icon: 'fa-solid fa-paste',
-        },
-        {
-          title: 'PageA2',
-          url: '/pageA/two',
-          icon: 'fa-solid fa-paste',
-        },
-        {
-          title: 'PageA3',
-          url: '/pageA/three',
+          title: '캘린더',
+          url: '/calendar',
           icon: 'fa-solid fa-paste',
         },
       ],
@@ -35,11 +25,6 @@ export default {
       children: [
         { title: 'StaticsPage', url: '/statics', icon: 'fa-regular fa-images' },
         { title: 'ProloguePage', url: '/prolog', icon: 'fa-regular fa-images' },
-        {
-          title: 'PageCThree',
-          url: '/pageC/three',
-          icon: 'fa-regular fa-images',
-        },
       ],
     },
     {
@@ -47,8 +32,6 @@ export default {
       icon: 'fa-solid fa-check',
       children: [
         { title: 'MyPage', url: '/mypage', icon: 'fa-solid fa-check' },
-        { title: 'PageB2', url: '/pageB/two', icon: 'fa-solid fa-check' },
-        { title: 'PageB3', url: '/pageB/three', icon: 'fa-solid fa-check' },
       ],
     },
   ],
