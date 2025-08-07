@@ -22,18 +22,10 @@
       </div>
     </div>
 
-    <div style="display: flex">
+    <!-- 리스트와 지도 영역 -->
+    <div class="list-map-wrapper">
       <!-- 주택 정보 그리드 -->
-      <div
-        style="
-          min-width: 60%;
-          margin-right: 20px;
-          height: 100vh;
-          overflow-y: scroll;
-          scrollbar-width: none;
-        "
-      >
-        <!-- 주택 목록 -->
+      <div class="house-list">
         <div v-if="!loading && houses.length > 0" class="house-grid">
           <HouseCard
             v-for="house in houses"
@@ -44,13 +36,11 @@
           />
         </div>
 
-        <!-- 로딩 표시 -->
         <div v-if="loading" class="loading">
           <div class="loading-spinner"></div>
           <p>주택 정보를 불러오는 중...</p>
         </div>
 
-        <!-- 결과 없음 -->
         <div v-if="!loading && houses.length === 0" class="no-results">
           <div class="no-results-icon">🏠</div>
           <h3>검색 결과가 없습니다</h3>
@@ -62,7 +52,7 @@
       </div>
 
       <!-- 지도 -->
-      <div style="min-width: 500px" class="map">
+      <div class="map">
         <div class="category-button-wrapper">
           <button
             :class="{
@@ -173,7 +163,7 @@
             문화시설
           </button>
         </div>
-        <div style="flex: 1; height: 800px">
+        <div class="map-content">
           <KakaoMapViewer
             ref="mapViewerRef"
             :houses="houses"
@@ -189,7 +179,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, computed, watch } from 'vue';
+import { reactive, ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 import HouseFilter from '../components/house/HouseFilter.vue';
@@ -197,17 +187,17 @@ import HouseCard from '../components/house/HouseCard.vue';
 import HousePagination from '../components/house/HousePagination.vue';
 import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
 
-// Router
 const router = useRouter();
 const route = useRoute();
 const mapViewerRef = ref(null);
-const selectedCategory = ref(''); // 선택된 시설 카테고리
+const selectedCategory = ref('');
 
 const moveMapToHouse = (house) => {
-  mapViewerRef.value.updateMapWithHouse(house);
+  if (mapViewerRef.value) {
+    mapViewerRef.value.updateMapWithHouse(house);
+  }
 };
 
-// State
 const loading = ref(false);
 const houses = ref([]);
 
@@ -224,7 +214,6 @@ const pageInfo = reactive({
   totalPages: 0,
 });
 
-// URL 쿼리에서 초기값 설정
 const searchQuery = reactive({
   region: route.query.region || '',
   noticeType: route.query.noticeType || '',
@@ -270,7 +259,6 @@ const filterOptions = reactive({
   ],
 });
 
-// URL 업데이트 함수
 const updateUrl = () => {
   const query = {};
 
@@ -283,7 +271,6 @@ const updateUrl = () => {
   router.replace({ query });
 };
 
-// API URL 생성
 const getQueryUrl = () => {
   const params = new URLSearchParams();
   params.append('page', searchQuery.page);
@@ -298,7 +285,6 @@ const getQueryUrl = () => {
   return `/api/api/house?${params.toString()}`;
 };
 
-// 주택 목록 로드
 const loadHouses = async () => {
   loading.value = true;
   try {
@@ -320,7 +306,6 @@ const loadHouses = async () => {
   }
 };
 
-// URL 쿼리에서 searchQuery 업데이트
 const updateSearchQueryFromUrl = () => {
   searchQuery.region = route.query.region || '';
   searchQuery.noticeType = route.query.noticeType || '';
@@ -329,7 +314,6 @@ const updateSearchQueryFromUrl = () => {
   searchQuery.size = parseInt(route.query.size) || 20;
 };
 
-// 필터 이벤트 핸들러
 const updateFilter = ({ key, value }) => {
   searchQuery[key] = value;
   searchQuery.page = 0;
@@ -359,7 +343,6 @@ const searchHouses = () => {
   loadHouses();
 };
 
-// 페이지네이션 이벤트 핸들러
 const changePage = (newPage) => {
   searchQuery.page = newPage;
   moveMapToHouse(null);
@@ -368,7 +351,6 @@ const changePage = (newPage) => {
   window.scrollTo({ top: 200, behavior: 'smooth' });
 };
 
-// 카드 이벤트 핸들러
 const handleCardClick = (house) => {
   moveMapToHouse(house);
 };
@@ -377,11 +359,9 @@ const handleToggleFavorite = ({ houseId, isFavorite }) => {
   console.log('찜하기 토글:', houseId, isFavorite);
 };
 
-// URL 변경 감지 (뒤로가기/앞으로가기 대응)
 watch(
   () => route.query,
   (newQuery, oldQuery) => {
-    // 쿼리가 실제로 변경된 경우에만 업데이트
     if (JSON.stringify(newQuery) !== JSON.stringify(oldQuery)) {
       updateSearchQueryFromUrl();
       loadHouses();
@@ -389,7 +369,6 @@ watch(
   }
 );
 
-// 컴포넌트 마운트 시 실행
 onMounted(() => {
   loadHouses();
 });
@@ -422,12 +401,40 @@ onMounted(() => {
   color: #717171;
 }
 
+.list-map-wrapper {
+  display: flex;
+  /* flex-wrap 제거 */
+  gap: 20px;
+}
+
+/* 주택 리스트 */
+.house-list {
+  flex: 1 1 50%;
+  min-width: 300px;
+  height: 100vh;
+  overflow-y: scroll;
+  scrollbar-width: none;
+}
+
 /* 주택 그리드 */
 .house-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   gap: 24px;
   padding: 0;
+}
+
+/* 지도 영역 */
+.map {
+  flex: 1 1 50%;
+  min-width: 300px;
+  height: 100vh; /* 높이도 리스트와 동일하게 */
+  display: flex;
+  flex-direction: column;
+}
+
+.map-content {
+  flex: 1; /* 버튼 아래 공간 모두 차지 */
 }
 
 /* 로딩 및 결과 없음 */
@@ -512,6 +519,7 @@ onMounted(() => {
   }
 }
 
+/* 768px 이하에서는 지도 숨기기 */
 @media (max-width: 768px) {
   .map {
     display: none;
@@ -522,36 +530,36 @@ onMounted(() => {
 .category-button-wrapper {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px; /* Increased gap for both horizontal and vertical spacing */
-  margin-bottom: 16px; /* Space below the buttons and above the map */
+  gap: 6px;
+  margin-bottom: 16px;
 }
 
 .category-button {
-  background-color: #f0f0f0; /* Soft light gray background */
-  color: #333; /* Dark gray text */
-  border: 1px solid #e0e0e0; /* Subtle border */
-  padding: 8px 14px; /* Consistent padding */
-  border-radius: 6px; /* Slightly rounded corners */
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #e0e0e0;
+  padding: 8px 14px;
+  border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease-in-out; /* Smooth transitions */
-  white-space: nowrap; /* Prevent text wrapping */
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
 }
 
 .category-button:hover {
-  background-color: #e5e5e5; /* Slightly darker on hover */
+  background-color: #e5e5e5;
   border-color: #d0d0d0;
 }
 
 .category-button.selected {
-  background-color: #ffe0e6; /* Soft pink, derived from existing primary color */
-  color: #ff385c; /* Primary color for text */
-  border-color: #ffcdd2; /* Slightly darker pink border */
+  background-color: #ffe0e6;
+  color: #ff385c;
+  border-color: #ffcdd2;
   font-weight: 600;
 }
 
 .category-button:active {
-  transform: translateY(1px); /* Slight press effect */
+  transform: translateY(1px);
 }
 </style>
