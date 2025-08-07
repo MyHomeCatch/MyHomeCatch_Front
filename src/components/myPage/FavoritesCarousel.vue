@@ -1,5 +1,8 @@
 <template>
-  <div style="padding: 1rem 2rem; max-width: 800px; margin: 0 auto">
+  <div
+    class="bookmark-section"
+    style="padding: 1rem 2rem; max-width: 800px; margin: 0 auto"
+  >
     <HorizonzontalCardScroller
       :title="'북마크'"
       :cards="danziList"
@@ -95,4 +98,14 @@ onMounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.bookmark-section {
+  max-width: 100%;
+  padding: 2rem 1.5rem;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 16px;
+  margin-top: 1.5rem;
+}
+</style>
