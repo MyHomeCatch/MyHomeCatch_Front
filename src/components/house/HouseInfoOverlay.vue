@@ -40,20 +40,6 @@
             자세히 보기
           </button>
         </div>
-
-        <!-- 추가 정보 섹션 -->
-        <div class="house-extra-info" v-if="house.monthlyRent || house.deposit">
-          <div class="price-info">
-            <span class="price-label">월세</span>
-            <span class="price-value">{{
-              formatPrice(house.monthlyRent)
-            }}</span>
-          </div>
-          <div class="price-info" v-if="house.deposit">
-            <span class="price-label">보증금</span>
-            <span class="price-value">{{ formatPrice(house.deposit) }}</span>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -95,6 +81,7 @@ const formatPrice = (price) => {
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16), 0 0 1px rgba(0, 0, 0, 0.1),
     0 2px 4px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(0, 0, 0, 0.05);
+  min-width: 190px;
   max-width: 220px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     'Helvetica Neue', sans-serif;
