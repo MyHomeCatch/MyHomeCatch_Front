@@ -1,12 +1,19 @@
 <template>
   <div class="filter-wrapper">
-    <!-- 상단 탭 + 초기화 버튼 -->
+    <!-- 상단 탭 + 초기화 버튼 + 체크박스 -->
     <div class="filter-title">
       <span class="filter-title-text">검색 필터</span>
       <div class="button-group top">
+        <!-- ✅ 내 조건 체크박스 -->
+        <label class="checkbox-label">
+          <input type="checkbox" @change="startSelfCheck" />
+          지원 가능한 청약만 보기
+        </label>
         <button class="reset-btn" @click="resetAll()">필터 초기화</button>
       </div>
     </div>
+
+    <!-- 탭 메뉴 -->
     <div class="filter-tabs-row">
       <div class="filter-tabs">
         <button
@@ -52,40 +59,27 @@
           </div>
         </div>
       </div>
-
-      <!-- 본인대상 -->
-      <div v-if="currentTab === '본인대상'" class="filter-section">
-        <div class="choices no-wrap">
-          <div
-            v-for="option in mineOptions"
-            :key="option"
-            class="choice-block"
-            :class="{ selected: selectedChoice.mine.includes(option) }"
-            @click="toggleOption('mine', option)"
-          >
-            {{ option }}
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { storeToRefs } from 'pinia';
+import { useAuthStore } from '../../stores/auth';
+import { useMyPageStore } from '@/stores/mypage';
 import { calendarColorMap } from '@/assets/calendarColorMap.js';
 
+const router = useRouter();
 const emit = defineEmits(['update:filters']);
 
-// 기본 선택 탭: 공고유형
 const currentTab = ref('공고유형');
-
-const tabOptions = ['공고유형', '공급지역', '본인대상'];
+const tabOptions = ['공고유형', '공급지역'];
 
 const selectedChoice = ref({
   type: [],
   region: [],
-  mine: [],
 });
 
 watch(
@@ -96,7 +90,6 @@ watch(
   { deep: true }
 );
 
-// 필터 옵션
 const typeOptions = ['05', '08', '40', '10', '07', '09', '48'];
 
 const regionOptions = [
@@ -120,8 +113,6 @@ const regionOptions = [
   '제주특별자치도',
 ];
 
-const mineOptions = ['1순위', '우선공급'];
-
 const getTypeStyle = (code) => {
   const isSelected = selectedChoice.value.type.includes(code);
   const color = calendarColorMap[code]?.color || '#ccc';
@@ -138,7 +129,6 @@ const resetAll = () => {
   selectedChoice.value = {
     type: [],
     region: [],
-    mine: [],
   };
 };
 
@@ -153,8 +143,6 @@ const toggleOption = (filterKey, option) => {
     }
   } else {
     if (filterKey === 'region' && selectedArray.includes('전체')) {
-      // ✅ '전체'가 선택된 상태에서 다른 지역 클릭 시:
-      // '전체'와 클릭한 지역을 제거 (나머지 유지)
       selectedChoice.value.region = selectedArray.filter(
         (item) => item !== '전체' && item !== option
       );
@@ -169,4 +157,67 @@ const toggleOption = (filterKey, option) => {
     }
   }
 };
+
+// 스토어
+const myPageStore = useMyPageStore();
+const { supportableList, householdInfoError } = storeToRefs(myPageStore);
+
+// 지원 가능한 공고 보기
+async function startSelfCheck(event) {
+  const isChecked = event.target.checked;
+
+  try {
+    const authStore = useAuthStore();
+
+    // 1. 로그인 안 된 경우
+    if (!authStore.token) {
+      const shouldLogin = window.confirm(
+        '로그인이 필요한 서비스입니다. 로그인 하시겠습니까?'
+      );
+      if (shouldLogin) {
+        router.push('/login');
+      }
+      return;
+    }
+
+    // 2. 로그인된 경우
+    if (isChecked) {
+      await myPageStore.getSupportableList(); // 리스트 호출
+
+      if (!householdInfoError.value) {
+        const shouldSelfCheck = window.confirm(
+          '지원 조건 확인을 위해 자가진단이 필요합니다. 자가진단 페이지로 이동할까요?'
+        );
+        if (shouldSelfCheck) router.push({ name: 'SelfCheck' });
+        return;
+      }
+
+      // calendarColorMap 기반 label → code 매핑 객체 생성
+      const labelToCodeMap = Object.entries(calendarColorMap).reduce(
+        (acc, [code, { label }]) => {
+          acc[label] = code;
+          return acc;
+        },
+        {}
+      );
+
+      // supportableList에서 code 목록 추출
+      const supportedCodes = supportableList.value
+        .map((item) => {
+          // "공공분양"은 "분양주택"으로 매핑
+          const normalizedName =
+            item.name === '공공분양' ? '분양주택' : item.name;
+          return labelToCodeMap[normalizedName];
+        })
+        .filter(Boolean); // undefined 제거
+
+      // 선택한 코드 저장
+      selectedChoice.value.type = supportedCodes;
+    } else {
+      selectedChoice.value.type = [];
+    }
+  } catch (error) {
+    console.error('자가진단 필터 처리 중 오류 발생:', error);
+  }
+}
 </script>
