@@ -118,17 +118,6 @@ const handleToggleFavorite = (data) => {
   emit('toggle-favorite', data);
 };
 
-// favoriteList 변경 감지 (필요시에만 로그)
-watch(
-  () => props.favoriteList,
-  (newList, oldList) => {
-    // 디버깅이 필요한 경우에만 주석 해제
-    // console.log('HouseSearchResults에서 favoriteList 변경 감지:',
-    //   `${oldList?.length || 0} -> ${newList?.length || 0}`);
-  },
-  { deep: true }
-);
-
 // 추천 주택 관련 메소드
 const prefMapper = (pref) => {
   if (pref == '공공분양') return '분양주택';
