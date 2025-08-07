@@ -4,12 +4,14 @@ export default {
   menus: [
     // 메인 메뉴 구성 정보
     {
+
       title: '청약 공고',
       icon: 'fa-solid fa-paste',
       children: [
         {
           title: '캘린더',
           url: '/calendar',
+
           icon: 'fa-solid fa-paste',
         },
       ],
@@ -32,6 +34,7 @@ export default {
       icon: 'fa-solid fa-check',
       children: [
         { title: 'MyPage', url: '/mypage', icon: 'fa-solid fa-check' },
+
       ],
     },
   ],

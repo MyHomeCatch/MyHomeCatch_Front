@@ -24,7 +24,7 @@ import Footer from './Footer.vue';
 .navbar-sticky {
   position: sticky;
   top: 0;
-  z-index: 555555;
+  z-index: 1000;
 }
 
 .footer {
