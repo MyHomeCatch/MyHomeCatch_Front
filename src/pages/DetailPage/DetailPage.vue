@@ -29,7 +29,9 @@
           @click="toggleLike"
         >
           <i class="fa-solid fa-heart"></i>
-          <span id="likeText">{{ isLiked ? '찜 완료' : '찜하기' }}</span>
+          <span id="likeText">{{
+            isLiked ? '즐겨찾기 추가완료' : '즐겨찾기 추가'
+          }}</span>
         </button>
       </div>
     </main>
@@ -181,6 +183,7 @@
             :danzi-info="houseData.danzi"
             :apply-info="houseData.applies"
             :notices="houseData.notices"
+            :bookmark-count="bookmarkCount"
           />
         </div>
       </div>
@@ -194,14 +197,19 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { getHouseCardById, getHouseDetailById } from '@/api/detailPageApi';
+import {
+  getHouseCardById,
+  getHouseDetailById,
+  getBookmarksByHouseId,
+  getHouseDetailByIdWithSelfCheck,
+} from '@/api/detailPageApi';
 import ImageSection from '@/components/DetailPage/ImageSection.vue';
 import InfoPanel from '../../components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
 import DetailMap from '@/components/DetailPage/DetailMap.vue';
 import { useAuthStore } from '@/stores/auth.js';
 import selfCheckAPI from '@/api/selfCheck.js';
-import { getHouseDetailByIdWithSelfCheck } from '../../api/detailPageApi';
+import bookmarkApi from '@/api/bookmarkApi.js';
 
 const route = useRoute();
 const houseData = ref(null);
@@ -211,8 +219,8 @@ const houseCard = ref(null);
 const selectedCategory = ref('');
 const authStore = useAuthStore();
 const isLiked = ref(false);
-const likeCount = ref(0);
 const selfCheckMatchResult = ref(null);
+const bookmarkCount = ref(0);
 
 // API 응답에서 이미지 URL만 추출하여 새로운 배열을 만듭니다.
 const images = computed(() => {
@@ -222,7 +230,6 @@ const images = computed(() => {
   return [];
 });
 
-// 상세정보 페이지에 쓸 정보 불러오기
 onMounted(async () => {
   const danziId = route.params.id;
   if (!danziId) {
@@ -231,6 +238,19 @@ onMounted(async () => {
     return;
   }
 
+  // Fetch house card data for the map
+  const houseCardResponse = await getHouseCardById(danziId);
+  houseCard.value = houseCardResponse.data;
+
+  // Fetch bookmark count
+  const bookmarkResponse = await getBookmarksByHouseId(danziId);
+  bookmarkCount.value = bookmarkResponse.data.count;
+
+  await loadHouseDetail();
+});
+
+const loadHouseDetail = async () => {
+  const danziId = route.params.id;
   try {
     if (authStore.isLoggedIn) {
       const selfCheckResult = await selfCheckAPI.getSelfCheckResult();
@@ -241,49 +261,49 @@ onMounted(async () => {
       );
       if (response) {
         houseData.value = response.data;
-        selfCheckMatchResult.value = response.data.selfCheckMatchResult; // Assuming this field exists in your API response
-        console.log('login user data:', houseData.value);
+        selfCheckMatchResult.value = response.data.selfCheckMatchResult;
       }
     } else {
-      console.log('로그인하지 않은 사용자입니다.');
       const response = await getHouseDetailById(danziId);
       houseData.value = response.data;
     }
-    // 좋아요 수와 상태는 API 응답에 없으므로 일단 주석 처리하거나 가상 데이터로 둡니다.
-    // likeCount.value = response.data.likeCount || 0;
-    // isLiked.value = response.data.isLikedByUser || false;
-  } catch (err) {
-    console.error('데이터를 불러오는 중 에러 발생:', err);
-    error.value = '데이터를 불러오는 데 실패했습니다.';
+  } catch (error) {
+    console.error('데이터 로드 실패:', error);
   } finally {
     loading.value = false;
   }
-});
+};
 
-// HouseCard 불러오기
-onMounted(async () => {
+const toggleLike = async () => {
   const danziId = route.params.id;
-  if (!danziId) {
-    error.value = '잘못된 접근입니다. 주택 ID가 없습니다.';
-    loading.value = false;
-    return;
-  }
   try {
-    const response = await getHouseCardById(danziId);
-    houseCard.value = response.data;
-  } catch (err) {
-    console.error('데이터를 불러오는 중 에러 발생:', err);
-    error.value = '데이터를 불러오는 데 실패했습니다.';
-  } finally {
-    loading.value = false;
-  }
-  console.log(houseCard.value);
-});
+    if (!authStore.isLoggedIn) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
 
-const toggleLike = () => {
-  isLiked.value = !isLiked.value;
-  likeCount.value += isLiked.value ? 1 : -1;
-  // 여기에 실제 서버에 좋아요 상태를 업데이트하는 API 호출을 추가할 수 있습니다.
+    isLiked.value = !isLiked.value;
+
+    const bookmarkData = {
+      userId: authStore.user.id,
+      danziId: danziId,
+    };
+
+    if (isLiked.value) {
+      await bookmarkApi.createBookmark(bookmarkData);
+      alert('즐겨찾기에 추가되었습니다.');
+    } else {
+      await bookmarkApi.deleteBookmark(bookmarkData);
+      isLiked.value = false;
+      alert('즐겨찾기에서 삭제되었습니다.');
+    }
+
+    // 북마크 상태 반영을 위해 새로 로드
+    await loadHouseDetail();
+  } catch (error) {
+    console.error('좋아요 처리 실패:', error);
+    alert('서버 오류가 발생했습니다.');
+  }
 };
 </script>
 
