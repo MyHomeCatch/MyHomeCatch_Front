@@ -1,9 +1,12 @@
 import axios from 'axios';
 import { setupInterceptors } from './commonApi';
 
-// 새 axios 인스턴스 생성
 const detailApi = axios.create({
   baseURL: 'http://localhost:8080/api', // API 기본 경로
+    headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true, // 쿠키를 포함하여 요청
 });
 
 // 인터셉터 설정
@@ -35,7 +38,11 @@ export const getHouseCardById = (danziId) => {
   return detailApi.get(`/house/card/${danziId}`);
 };
 
-export const getHouseDetailByIdWithSelfCheck = async ( userId, selfCheckResult, danziId) => {
+export const getHouseDetailByIdWithSelfCheck = async (
+  userId,
+  selfCheckResult,
+  danziId
+) => {
   if (!danziId) {
     return Promise.reject(new Error('danziId가 제공되지 않았습니다.'));
   }
@@ -52,4 +59,11 @@ export const getHouseDetailByIdWithSelfCheck = async ( userId, selfCheckResult, 
     console.error('주택 상세 정보 가져오기 실패:', error);
     throw error;
   }
+};
+
+export const getBookmarksByHouseId = (houseId) => {
+  if (!houseId) {
+    return Promise.reject(new Error('houseId가 제공되지 않았습니다.'));
+  }
+  return detailApi.get(`/bookmark/${houseId}`);
 };

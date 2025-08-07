@@ -10,9 +10,8 @@
 
     <!-- 즐겨찾기와 접수상태 -->
     <div class="status-wrapper">
-      <!-- 즐겨찾기 (API에 없으므로 가상 데이터) -->
       <span class="favorite-status">
-        즐겨찾기: 5명
+        즐겨찾기: {{ props.bookmarkCount }}명
       </span>
 
       <!-- 접수상태: API의 notices[0].panSs 값 사용 -->
@@ -93,11 +92,13 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
-  // notices는 danziInfo 안에 포함되어 있지 않으므로 별도로 받거나, DetailPage에서 가공해서 내려줘야 합니다.
-  // 여기서는 DetailPage에서 houseData.notices를 넘겨준다고 가정합니다.
   notices: {
     type: Array,
     default: () => [],
+  },
+  bookmarkCount: {
+    type: Number,
+    default: 0,
   }
 });
 
