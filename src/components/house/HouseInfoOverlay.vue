@@ -92,7 +92,8 @@ defineEmits(['close']);
 const router = useRouter();
 
 const handleDetailView = () => {
-  localStorage.setItem('currentHouseDetail', JSON.stringify(props.house));
+  // 이젠 localSotrage 안씀
+  // localStorage.setItem('currentHouseCard', JSON.stringify(props.house));
   const houseId = props.house.houseId || props.house.danziId;
   console.log('자세히 보기 클릭', houseId);
   if (houseId) {
