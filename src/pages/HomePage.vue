@@ -78,7 +78,6 @@ const searchResultsRef = ref(null);
 const mapSectionRef = ref(null);
 const selectedCategory = ref('');
 
-// State
 const loading = ref(false);
 const houses = ref([]);
 const favoriteList = ref([]); // 즐겨찾기 목록 추가
@@ -313,6 +312,21 @@ defineExpose({
 .page-info {
   font-size: 14px;
   color: #717171;
+}
+
+.list-map-wrapper {
+  display: flex;
+  /* flex-wrap 제거 */
+  gap: 20px;
+}
+
+/* 주택 리스트 */
+.house-list {
+  flex: 1 1 50%;
+  min-width: 300px;
+  height: 100vh;
+  overflow-y: scroll;
+  scrollbar-width: none;
 }
 
 @media (max-width: 768px) {
