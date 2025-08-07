@@ -82,6 +82,7 @@ function goToDiagnosis() {
 <style scoped>
 /* 📦 동일한 스타일로 맞춤 */
 .info-section {
+  position: relative; /* ✅ 추가 */
   max-width: 800px;
   margin: 0 auto;
   padding: 1.5rem 1.5rem;
@@ -89,6 +90,7 @@ function goToDiagnosis() {
   background-color: #f9f9f9;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   font-family: 'Pretendard', sans-serif;
+  min-height: 250px; /* ✅ 높이 부족할 수 있으니 추가 */
 }
 
 /* 📝 타이틀 */
@@ -172,6 +174,7 @@ function goToDiagnosis() {
   transition: all 0.3s ease;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
+
 .center-button:hover {
   background-color: #198754;
   color: white;
