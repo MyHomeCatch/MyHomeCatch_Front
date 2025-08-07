@@ -22,6 +22,11 @@ export const getHouseDetailById = (danziId) => {
   return detailApi.get(`/house/${danziId}`);
 };
 
+/**
+ * 특정 ID의 houseCard 가져오는 함수
+ * @param {string | number} danziId - 단지의 고유 ID
+ * @returns {Promise<object>} - 단지의 houseCard
+ */
 export const getHouseCardById = (danziId) => {
   if (!danziId) {
     return Promise.reject(new Error('danziId가 제공되지 않았습니다.'));
