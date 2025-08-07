@@ -184,7 +184,7 @@ async function startSelfCheck(event) {
     if (isChecked) {
       await myPageStore.getSupportableList(); // 리스트 호출
 
-      if (!householdInfoError.value) {
+      if (householdInfoError.value) {
         const shouldSelfCheck = window.confirm(
           '지원 조건 확인을 위해 자가진단이 필요합니다. 자가진단 페이지로 이동할까요?'
         );
