@@ -38,6 +38,7 @@
         :loading="loading"
         :houses="houses"
         :is-logged-in="auth.$state.isLoggedIn"
+        :favorite-list="favoriteList"
         @card-click="handleCardClick"
         @toggle-favorite="handleToggleFavorite"
         @clear-all-filters="clearAllFilters"
@@ -59,13 +60,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from 'vue';
+import { ref, onMounted, computed, nextTick, watch } from 'vue';
 import HouseFilter from '../components/house/HouseFilter.vue';
 import HousePagination from '../components/house/HousePagination.vue';
 import HouseSearchResults from '../components/house/HouseSearchResults.vue';
 import HouseMapSection from '../components/house/HouseMapSection.vue';
 import HouseSearchLogic from '../components/house/HouseSearchLogic.vue';
 import { useAuthStore } from '../stores/auth';
+import { getBookmarks } from '../api/bookmardApi';
 
 // Auth
 const auth = useAuthStore();
@@ -79,6 +81,7 @@ const selectedCategory = ref('');
 // State
 const loading = ref(false);
 const houses = ref([]);
+const favoriteList = ref([]); // 즐겨찾기 목록 추가
 const pageInfo = ref({
   currentPage: 0,
   endItem: 0,
@@ -121,6 +124,23 @@ const allHousesForMap = computed(() => {
     return true;
   });
 });
+
+// 즐겨찾기 관련 메소드
+const loadFavorites = async () => {
+  if (!auth.isLoggedIn) {
+    favoriteList.value = [];
+    return;
+  }
+
+  try {
+    const response = await getBookmarks(auth.token);
+    favoriteList.value = response.bookmarks || [];
+    console.log('즐겨찾기 목록 로드 완료:', favoriteList.value.length); // 디버깅용
+  } catch (error) {
+    console.error('즐겨찾기 목록 로드 실패:', error);
+    favoriteList.value = [];
+  }
+};
 
 // Event handlers from search logic
 const onHousesLoaded = (newHouses) => {
@@ -176,8 +196,34 @@ const handleCardClick = (house) => {
   }
 };
 
-const handleToggleFavorite = ({ houseId, isFavorite }) => {
-  console.log('찜하기 토글:', houseId, isFavorite);
+// 즐겨찾기 토글 핸들러 개선
+const handleToggleFavorite = async (data) => {
+  if (data.action === 'add') {
+    // 이미 존재하는지 확인 후 추가
+    const exists = favoriteList.value.find(
+      (fav) => fav.danziId === data.danziId
+    );
+
+    if (!exists) {
+      const newFavorite = {
+        danziId: data.danziId,
+        userId: auth.user.id,
+        // 추가 필요한 필드들도 여기에 포함
+      };
+      // 새로운 배열 생성으로 반응성 트리거
+      favoriteList.value = [...favoriteList.value, newFavorite];
+    }
+  } else if (data.action === 'remove') {
+    // 배열에서 제거
+    const filteredList = favoriteList.value.filter(
+      (fav) => fav.danziId !== data.danziId
+    );
+    // 새로운 배열 할당으로 반응성 트리거
+    favoriteList.value = [...filteredList];
+  }
+
+  // Vue의 반응성 시스템을 강제로 트리거
+  await nextTick();
 };
 
 const handleCategoryChange = (category) => {
@@ -185,7 +231,7 @@ const handleCategoryChange = (category) => {
 };
 
 const handleGoToSearch = (query) => {
-  if (query.aisTpCdNm && searchLogicRef.value) {
+  if (searchLogicRef.value && query.aisTpCdNm) {
     const newNoticeType = Array.isArray(query.aisTpCdNm)
       ? query.aisTpCdNm
       : [query.aisTpCdNm];
@@ -196,18 +242,27 @@ const handleGoToSearch = (query) => {
   }
 };
 
+// 로그인 상태 변화 감지하여 즐겨찾기 목록 재로드
+watch(
+  () => auth.isLoggedIn,
+  async (newValue, oldValue) => {
+    if (newValue !== oldValue) {
+      await loadFavorites();
+    }
+  },
+  { immediate: false }
+);
+
 // 컴포넌트 마운트 시 실행
 onMounted(async () => {
   try {
+    await loadFavorites();
     // 먼저 searchQuery와 filterOptions를 동기적으로 설정
     if (searchLogicRef.value) {
       searchQuery.value = searchLogicRef.value.searchQuery;
       filterOptions.value = searchLogicRef.value.filterOptions;
       pageInfo.value = searchLogicRef.value.pageInfo;
     }
-
-    // 다음 틱에서 데이터 로드
-    await nextTick();
 
     if (searchLogicRef.value) {
       await searchLogicRef.value.loadHouses();
@@ -220,6 +275,17 @@ onMounted(async () => {
   } catch (error) {
     console.error('HouseList 마운트 오류:', error);
   }
+});
+
+// 즐겨찾기 목록 새로고침 메소드 (필요한 경우 외부에서 호출)
+const refreshFavorites = async () => {
+  await loadFavorites();
+};
+
+// 외부에서 접근 가능하도록 expose
+defineExpose({
+  refreshFavorites,
+  loadFavorites,
 });
 </script>
 

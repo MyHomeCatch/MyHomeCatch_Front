@@ -56,8 +56,9 @@
           >
             <HouseCard
               :house="card"
-              @card-click="$emit('card-click', $event)"
-              @toggle-favorite="$emit('toggle-favorite', $event)"
+              :favorite-list="favoriteList"
+              @card-click="handleCardClick"
+              @toggle-favorite="handleToggleFavorite"
             />
           </div>
         </div>
@@ -88,6 +89,10 @@ const props = defineProps({
     type: String,
     default: 'houseId',
   },
+  favoriteList: {
+    type: Array,
+    default: () => [],
+  },
   emptyConfig: {
     type: Object,
     default: () => ({
@@ -109,6 +114,27 @@ const scrollContainer = ref(null);
 // Scroll state
 const canScrollLeft = ref(false);
 const canScrollRight = ref(true);
+
+// Event handlers
+const handleCardClick = (house) => {
+  emit('card-click', house);
+};
+
+const handleToggleFavorite = (data) => {
+  console.log('HorizontalCardScroller에서 즐겨찾기 이벤트 전달:', data);
+  emit('toggle-favorite', data);
+};
+
+// favoriteList 변경 감지 (디버깅용)
+watch(
+  () => props.favoriteList,
+  (newList, oldList) => {
+    // 필요시 디버깅용 로그
+    // console.log('HorizontalCardScroller favoriteList 변경 감지:',
+    //   `${oldList?.length || 0} -> ${newList?.length || 0}`);
+  },
+  { deep: true }
+);
 
 // Methods
 const handleScroll = () => {

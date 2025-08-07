@@ -4,6 +4,7 @@
     :cards="houses"
     :loading="loading"
     :key-field="'houseId'"
+    :favorite-list="favoriteList"
     :empty-config="emptyConfig"
     @card-click="$emit('card-click', $event)"
     @toggle-favorite="$emit('toggle-favorite', $event)"
@@ -27,6 +28,10 @@ const props = defineProps({
   recommendationQuery: {
     type: Object,
     default: () => ({}),
+  },
+  favoriteList: {
+    type: Array,
+    default: () => [],
   },
 });
 

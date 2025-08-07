@@ -1,15 +1,17 @@
 <template>
   <div class="search-results-section">
     <!-- 추천 주택 목록 -->
-    <RecommendedHouse
+    <HorizontalCardScroller
       v-if="isLoggedIn"
-      :houses="recommendedHouses"
-      :loading="recommendedLoading"
-      :recommendation-query="recommendationQuery"
+      :title="'지원 가능한 맞춤공고'"
+      :cards="houses"
+      :loading="loading"
+      :key-field="'houseId'"
+      :favorite-list="favoriteList"
+      :empty-config="emptyConfig"
       @card-click="$emit('card-click', $event)"
-      @toggle-favorite="$emit('toggle-favorite', $event)"
-      @refresh="loadRecommendedHouses"
-      @go-to-search="$emit('go-to-search', $event)"
+      @toggle-favorite="handleToggleFavorite"
+      @empty-action="$emit('refresh')"
     />
     <div v-else>📋 자가진단을 통해 지원가능한 공고를 확인해 보세요!</div>
 
@@ -20,8 +22,9 @@
         v-for="house in houses"
         :key="house.houseId"
         :house="house"
+        :favorite-list="favoriteList"
         @card-click="$emit('card-click', $event)"
-        @toggle-favorite="$emit('toggle-favorite', $event)"
+        @toggle-favorite="handleToggleFavorite"
       />
     </div>
 
@@ -50,6 +53,7 @@ import axios from 'axios';
 import HouseCard from './HouseCard.vue';
 import RecommendedHouse from './RecomendedHouse.vue';
 import user from '../../api/user.js';
+import HorizontalCardScroller from './HorizontalCardScroller.vue';
 
 // Props
 const props = defineProps({
@@ -68,6 +72,10 @@ const props = defineProps({
   isLoggedIn: {
     type: Boolean,
     default: false,
+  },
+  favoriteList: {
+    type: Array,
+    default: () => [],
   },
 });
 
@@ -88,9 +96,30 @@ const recommendedHouses = ref([]);
 const recommendedLoading = ref(false);
 const userPreferences = ref([]);
 
+// favoriteList가 변경될 때마다 자식 컴포넌트들을 강제 리렌더링하기 위한 키
+// const favoriteListKey = computed(() => {
+//   return props.favoriteList?.length || 0;
+// });
+
 const recommendationQuery = computed(() => ({
   aisTpCdNm: userPreferences.value,
 }));
+
+// 즐겨찾기 토글 핸들러 - 이벤트를 부모로 전달하면서 로그 추가
+const handleToggleFavorite = (data) => {
+  emit('toggle-favorite', data);
+};
+
+// favoriteList 변경 감지 (필요시에만 로그)
+watch(
+  () => props.favoriteList,
+  (newList, oldList) => {
+    // 디버깅이 필요한 경우에만 주석 해제
+    // console.log('HouseSearchResults에서 favoriteList 변경 감지:',
+    //   `${oldList?.length || 0} -> ${newList?.length || 0}`);
+  },
+  { deep: true }
+);
 
 // 추천 주택 관련 메소드
 const prefMapper = (pref) => {
@@ -163,6 +192,8 @@ const loadRecommendedHouses = async () => {
     }
 
     const response = await axios.get(getRecommendedQueryUrl(10));
+    console.log('  ⚠️  : ', getRecommendedQueryUrl(10));
+
     const data = response?.data;
 
     if (data && data.housingList && Array.isArray(data.housingList)) {
