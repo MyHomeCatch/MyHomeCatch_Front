@@ -14,7 +14,7 @@ setupInterceptors(detailApi);
  * @param {string | number} danziId - 단지의 고유 ID
  * @returns {Promise<object>} - 주택 상세 정보
  */
-export const getHouseDetailById = (danziId) => {
+export const getHouseDetailById = (danziId, selfCheckResult = null) => {
   if (!danziId) {
     return Promise.reject(new Error('danziId가 제공되지 않았습니다.'));
   }
@@ -33,4 +33,23 @@ export const getHouseCardById = (danziId) => {
   }
   // API 명세에 따라 /house/card/{danziId} 형태로 요청
   return detailApi.get(`/house/card/${danziId}`);
+};
+
+export const getHouseDetailByIdWithSelfCheck = async ( userId, selfCheckResult, danziId) => {
+  if (!danziId) {
+    return Promise.reject(new Error('danziId가 제공되지 않았습니다.'));
+  }
+  try {
+    // API 명세에 따라 /house/{danziId} 형태로 요청
+    const requestBody = {
+      userId: userId, // 사용자 ID
+      selfCheckResult: selfCheckResult,
+    };
+    console.log('API 요청 본문:', requestBody);
+    // API 요청
+    return detailApi.post(`/house/${danziId}`, requestBody);
+  } catch (error) {
+    console.error('주택 상세 정보 가져오기 실패:', error);
+    throw error;
+  }
 };
