@@ -33,15 +33,16 @@
         </button>
       </div>
     </main>
-    
+
     <div v-if="selfCheckMatchResult" class="container">
       <div class="text-center" role="alert">
-        {{authStore.user.nickname}} 님은 현재 이 공고에 <span class="fw-bold"> {{ selfCheckMatchResult }} </span>한 것으로 확인됩니다.
+        {{ authStore.user.nickname }} 님은 현재 이 공고에
+        <span class="fw-bold"> {{ selfCheckMatchResult }} </span>한 것으로
+        확인됩니다.
       </div>
     </div>
     <!-- 이미지 및 정보 -->
     <ImageSection :images="images" />
-
 
     <div class="container px-4 py-5">
       <!-- 좌측 콘텐츠 영역 -->
@@ -163,33 +164,14 @@
               selected: selectedCategory === 'CT1',
             }"
             @click="selectedCategory = 'CT1'"
-<<<<<<< HEAD
-        >문화시설
-        </button>
-      </div>
-      <div class="col-12 col-lg-7">
-        <DetailMap
-            v-if="houseCard"
-        :houses="[houseCard]"
-        :selectedCategory="selectedCategory"
-        />
-      </div>
-      <!-- 우측 패널 영역 -->
-      <div class="col-12 col-lg-5">
-        <InfoPanel           :danzi-info="houseData.danzi"
-          :apply-info="houseData.applies"
-          :notices="houseData.notices"/>
-=======
           >
             문화시설
           </button>
         </div>
         <div class="col-12 col-lg-7">
           <DetailMap
-            v-if="houseDetail"
-            :initialLat="houseDetail.lat"
-            :initialLng="houseDetail.lng"
-            :houses="[houseDetail]"
+            v-if="houseCard"
+            :houses="[houseCard]"
             :selectedCategory="selectedCategory"
           />
         </div>
@@ -201,7 +183,6 @@
             :notices="houseData.notices"
           />
         </div>
->>>>>>> 32b5d85 (feat: detailPage 사용자 자격진단 결과 포함)
       </div>
     </div>
 
@@ -213,7 +194,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import {getHouseCardById, getHouseDetailById} from '@/api/detailPageApi';
+import { getHouseCardById, getHouseDetailById } from '@/api/detailPageApi';
 import ImageSection from '@/components/DetailPage/ImageSection.vue';
 import InfoPanel from '../../components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
@@ -294,7 +275,6 @@ onMounted(async () => {
   }
 });
 
-<<<<<<< HEAD
 // HouseCard 불러오기
 onMounted(async () => {
   const danziId = route.params.id;
@@ -313,33 +293,8 @@ onMounted(async () => {
     loading.value = false;
   }
   console.log(houseCard.value);
+});
 
-})
-
-// 이젠 localStorage 안씀
-// onMounted(() => {
-//   // const danziId = route.query.danziId;
-//   // console.log(danziId);
-//
-//   const storedHouseData = localStorage.getItem('currentHouseCard');
-//
-//   if (storedHouseData) {
-//     try {
-//       houseCard.value = JSON.parse(storedHouseData);
-//     } catch (e) {
-//       console.error('storedHouseData 파싱 오류');
-//       houseCard.value = null;
-//     }
-//   } else {
-//     console.warn('localStroage에 houseData 없음. 직접URL 접근 또는 데이터 유실 가능성');
-//   }
-//   console.log(houseCard.value);
-//
-// })
-
-
-=======
->>>>>>> 32b5d85 (feat: detailPage 사용자 자격진단 결과 포함)
 const toggleLike = () => {
   isLiked.value = !isLiked.value;
   likeCount.value += isLiked.value ? 1 : -1;
