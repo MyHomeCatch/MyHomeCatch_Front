@@ -197,7 +197,6 @@ const getStatusClass = (status) => {
   width: 100%;
   aspect-ratio: 1;
   overflow: hidden;
-  background: #f8f9fa;
 }
 
 .house-image {

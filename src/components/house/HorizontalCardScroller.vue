@@ -121,7 +121,6 @@ const handleCardClick = (house) => {
 };
 
 const handleToggleFavorite = (data) => {
-  console.log('HorizontalCardScroller에서 즐겨찾기 이벤트 전달:', data);
   emit('toggle-favorite', data);
 };
 
@@ -179,7 +178,6 @@ watch(
 
 <style scoped>
 .card-scroller-section {
-  background: white;
   padding: 4px 0 4px 0;
 }
 
