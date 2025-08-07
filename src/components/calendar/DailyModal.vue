@@ -22,15 +22,14 @@
 
           <div class="apt-name">
             {{ event.danziName }}
-            <button class="detail-btn">공고 보러가기</button>
+            <button class="detail-btn" @click="goToPage(event.danzi_id)">
+              공고 보러가기
+            </button>
           </div>
 
           <div class="period">
             신청 기간:
-            <span v-if="event.startDate === event.endDate">
-              {{ event.startDate }}
-            </span>
-            <span v-else> {{ event.startDate }} ~ {{ event.endDate }} </span>
+            <span>{{ formatEventPeriod(event.startDate, event.endDate) }}</span>
           </div>
         </div>
       </div>
@@ -39,6 +38,13 @@
 </template>
 <script setup>
 import { calendarColorMap } from '@/assets/calendarColorMap.js'; // 코드-색상-라벨 매핑
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+function goToPage(id) {
+  router.push(`detail/${id}`); // 이동할 경로
+}
 
 defineProps({
   events: Array,
@@ -53,4 +59,44 @@ const getEventStyle = (code) => {
     color: color,
   };
 };
+
+function formatEventPeriod(startStr, endStr) {
+  if (!startStr || !endStr) return '';
+
+  const start = new Date(startStr);
+  const end = new Date(endStr);
+
+  const isSameDate =
+    start.getFullYear() === end.getFullYear() &&
+    start.getMonth() === end.getMonth() &&
+    start.getDate() === end.getDate();
+
+  const formatDate = (d) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+      d.getDate()
+    ).padStart(2, '0')}`;
+  const formatTime = (d) =>
+    `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(
+      2,
+      '0'
+    )}`;
+
+  const hasTime =
+    start.getHours() !== 0 ||
+    start.getMinutes() !== 0 ||
+    end.getHours() !== 0 ||
+    end.getMinutes() !== 0;
+
+  if (isSameDate) {
+    if (!hasTime) {
+      return formatDate(start);
+    } else {
+      return `${formatDate(start)} ${formatTime(start)} ~ ${formatTime(end)}`;
+    }
+  } else {
+    return `${formatDate(start)} ${formatTime(start)} ~ ${formatDate(
+      end
+    )} ${formatTime(end)}`;
+  }
+}
 </script>
