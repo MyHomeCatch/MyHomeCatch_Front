@@ -85,6 +85,7 @@ const toggleNavShow = () => {
     gap: 1rem;
     padding: 1rem;
   }
+}
 
 html,
 body {
