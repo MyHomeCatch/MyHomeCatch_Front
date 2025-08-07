@@ -231,21 +231,6 @@ onMounted(async () => {
     return;
   }
 
-  const storedHouseData = localStorage.getItem('currentHouseDetail');
-  if (storedHouseData) {
-    try {
-      houseDetail.value = JSON.parse(storedHouseData);
-    } catch (e) {
-      console.error('storedHouseData 파싱 오류');
-      houseDetail.value = null;
-    }
-  } else {
-    console.warn(
-      'localStroage에 houseData 없음. 직접URL 접근 또는 데이터 유실 가능성'
-    );
-  }
-  console.log(houseDetail.value);
-
   try {
     if (authStore.isLoggedIn) {
       const selfCheckResult = await selfCheckAPI.getSelfCheckResult();
