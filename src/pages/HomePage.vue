@@ -175,6 +175,9 @@
 
     <!-- 페이지네이션 -->
     <HousePagination :page-info="pageInfo" @page-change="changePage" />
+
+    <!-- ChatBot -->
+    <ChatBot></ChatBot>
   </div>
 </template>
 
@@ -186,6 +189,7 @@ import HouseFilter from '../components/house/HouseFilter.vue';
 import HouseCard from '../components/house/HouseCard.vue';
 import HousePagination from '../components/house/HousePagination.vue';
 import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
+import ChatBot from '../AI/ChatBot.vue';
 
 const router = useRouter();
 const route = useRoute();
