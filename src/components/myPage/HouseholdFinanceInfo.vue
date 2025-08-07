@@ -1,21 +1,16 @@
 <template>
-  <div class="info-wrapper">
-    <div :class="['row gx-5 py-4', householdInfoError && 'blurred']">
-      <div class="col-12">
-        <h4 class="section-title mb-3">자가진단 정보</h4>
+  <div class="info-section py-3 mt-4">
+    <h2 class="section-title mb-4">자가진단 정보</h2>
 
-        <!-- ✅ 반응형 Bootstrap Grid -->
-        <div class="row g-3">
-          <div
-            class="col-12 col-md-6"
-            v-for="(item, index) in flattenedHouseholdRows"
-            :key="index"
-          >
-            <div class="d-flex gap-2">
-              <div class="label">{{ item.label }}</div>
-              <div class="value">{{ item.value }}</div>
-            </div>
-          </div>
+    <div :class="['row g-3', householdInfoError && 'blurred']">
+      <div
+        class="col-12 col-md-6"
+        v-for="(item, index) in flattenedHouseholdRows"
+        :key="index"
+      >
+        <div class="d-flex gap-2">
+          <div class="label">{{ item.label }}</div>
+          <div class="value">{{ item.value }}</div>
         </div>
       </div>
     </div>
@@ -48,7 +43,6 @@ function formatHouseholdSize(raw) {
 
 const flattenedHouseholdRows = computed(() => {
   const labelsToStrip = ['총 자산', '자동차', '월평균 소득', '부동산'];
-
   return [
     { label: '거주 기간', value: householdInfo.value.residencePeriod },
     { label: '무주택 여부', value: householdInfo.value.isHomeless },
@@ -86,41 +80,83 @@ function goToDiagnosis() {
 </script>
 
 <style scoped>
-.info-wrapper {
+/* 📦 동일한 스타일로 맞춤 */
+.info-section {
   max-width: 800px;
   margin: 0 auto;
-  padding: 1rem 0;
-  position: relative;
-  min-height: 300px;
+  padding: 1.5rem 1.5rem;
+  border-radius: 14px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  font-family: 'Pretendard', sans-serif;
 }
 
+/* 📝 타이틀 */
 .section-title {
   font-weight: 700;
   font-size: 1.25rem;
   border-bottom: 1px solid #ddd;
   padding-bottom: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
+  color: #222;
 }
 
+/* 🧾 label-value layout */
 .label {
-  color: #666;
   font-weight: 600;
+  width: 90px;
   min-width: 90px;
+  color: #666;
+  flex-shrink: 0;
 }
 
 .value {
-  color: #222;
   font-weight: 500;
-  word-break: keep-word;
+  color: #222;
+  word-break: break-word;
+  flex-grow: 1;
+  text-align: right;
   white-space: pre-line;
 }
 
+/* 📏 행 구조 */
+.d-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.col-md-6 {
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid #eee;
+}
+
+/* 📱 모바일 대응 */
+@media (max-width: 767px) {
+  .value {
+    text-align: left;
+    margin-top: 0.2rem;
+  }
+
+  .d-flex {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .col-md-6 {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+  }
+}
+
+/* 🔒 흐림 처리 */
 .blurred {
   filter: blur(5px);
   pointer-events: none;
   user-select: none;
 }
 
+/* 🟢 자가진단 버튼 */
 .center-button {
   position: absolute;
   top: 50%;
@@ -134,5 +170,10 @@ function goToDiagnosis() {
   border: 2px solid #198754;
   border-radius: 6px;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+.center-button:hover {
+  background-color: #198754;
+  color: white;
 }
 </style>

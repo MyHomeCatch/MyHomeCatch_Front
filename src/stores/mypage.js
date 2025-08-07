@@ -14,6 +14,7 @@ export const useMyPageStore = defineStore('mypage', {
       // preferredRegions: ['-'],
       // hasSubscriptionAccount: '-',
       additionalPoint: 0,
+      additionalPointUpdatedAt: '-',
     },
 
     // // 💰 청약 가점
@@ -164,6 +165,8 @@ export const useMyPageStore = defineStore('mypage', {
         // this.userInfo.preferredRegions = data.preferredRegions || [];
         // this.userInfo.hasSubscriptionAccount = data.hasSubscriptionAccount;
         this.userInfo.additionalPoint = data.additionalPoint;
+        this.userInfo.additionalPointUpdatedAt =
+          data.additionalPointUpdatedAt?.split(' ')[0];
       } catch (err) {
         console.error('사용자 정보 조회 실패:', err);
         this.message = '사용자 정보를 불러오는 데 실패했습니다.';

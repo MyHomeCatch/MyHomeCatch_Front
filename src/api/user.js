@@ -48,6 +48,7 @@ export default {
 
   // 즐겨찾기 삭제
   async deleteBookmarks(body) {
+    // console.log('바디 ' + body);
     const { data } = await api.delete('/bookmark', {
       data: body,
     });

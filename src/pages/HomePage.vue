@@ -37,8 +37,9 @@
         <div v-if="!loading && houses.length > 0" class="house-grid">
           <HouseCard
             v-for="house in houses"
-            :key="house.houseId"
+            :key="house.danziId"
             :house="house"
+            :isFavorite="house.isFavorite"
             @card-click="handleCardClick"
             @toggle-favorite="handleToggleFavorite"
           />
@@ -197,6 +198,10 @@ import HouseCard from '../components/house/HouseCard.vue';
 import HousePagination from '../components/house/HousePagination.vue';
 import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
 
+// 즐겨찾기 조회 함수 사용을 위한 store
+import { useMyPageStore } from '@/stores/mypage';
+const store = useMyPageStore();
+
 // Router
 const router = useRouter();
 const route = useRoute();
@@ -205,6 +210,22 @@ const selectedCategory = ref(''); // 선택된 시설 카테고리
 
 const moveMapToHouse = (house) => {
   mapViewerRef.value.updateMapWithHouse(house);
+};
+
+const bookmarks = ref([]); // 즐겨찾기 단지 ID 배열
+
+const fetchBookmarks = async () => {
+  try {
+    const result = await store.getBookmarks();
+    if (result && result.bookmarks) {
+      bookmarks.value = result.bookmarks.map((b) => b.danziId);
+    } else {
+      bookmarks.value = [];
+    }
+  } catch (err) {
+    console.error('북마크 로딩 실패:', err);
+    bookmarks.value = [];
+  }
 };
 
 // State
@@ -305,7 +326,10 @@ const loadHouses = async () => {
     const { data } = await axios.get(getQueryUrl());
 
     if (data.housingList) {
-      houses.value = data.housingList;
+      houses.value = data.housingList.map((house) => ({
+        ...house,
+        isFavorite: bookmarks.value.includes(Number(house.danziId)), // ✅ 즐겨찾기 여부
+      }));
       Object.assign(pageInfo, data.pageInfo);
     } else {
       houses.value = Array.isArray(data) ? data : [];
@@ -390,8 +414,9 @@ watch(
 );
 
 // 컴포넌트 마운트 시 실행
-onMounted(() => {
-  loadHouses();
+onMounted(async () => {
+  await fetchBookmarks();
+  await loadHouses();
 });
 </script>
 

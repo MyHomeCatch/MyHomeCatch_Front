@@ -93,7 +93,7 @@ const fetchBookmarkedHouses = async () => {
 
 <style scoped>
 .mypage-wrapper {
-  background-image: url('../../assets/images/background1.png');
+  /* background-image: url('../../assets/images/background1.png'); */
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;

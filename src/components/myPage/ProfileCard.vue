@@ -19,6 +19,7 @@ const { userInfo, profileImage } = storeToRefs(store);
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 1rem;
 }
 
 .profile-img {
@@ -26,18 +27,20 @@ const { userInfo, profileImage } = storeToRefs(store);
   height: 140px;
   object-fit: cover;
   border-radius: 50%;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.8rem;
+  border: 2px solid #e5e7eb; /* 연한 테두리로 강조 */
 }
 
 .user-name {
-  font-weight: bold;
-  color: #2563eb;
-  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937; /* 진한 텍스트 (gray-800) */
+  font-size: 1.3rem;
   margin-bottom: 0.2rem;
 }
 
 .nickname {
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 1rem;
+  color: #4b5563; /* 중간 회색 (gray-600) */
+  font-weight: 500;
 }
 </style>

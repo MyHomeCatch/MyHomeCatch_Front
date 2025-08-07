@@ -27,7 +27,7 @@
       />
       <div class="image-overlay">
         <div class="heart-icon" @click.stop="toggleFavorite">
-          {{ isFavorite ? '♥' : '♡' }}
+          {{ localFavorite ? '♥' : '♡' }}
         </div>
       </div>
       <!-- 주택 타입 배지 -->
@@ -69,6 +69,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useMyPageStore } from '@/stores/mypage';
 
 // Props
 const props = defineProps({
@@ -78,25 +79,50 @@ const props = defineProps({
   },
 
   compact: { type: Boolean, default: false }, // 마이페이지 사용
+
+  isFavorite: { type: Boolean, default: false },
 });
 
 // Emits
 const emit = defineEmits(['card-click', 'toggle-favorite']);
 
-// State
-const isFavorite = ref(false);
+// 내부 상태로 따로 관리
+const localFavorite = ref(props.isFavorite);
+
+// // State
+// const isFavorite = ref(false);
 
 // Methods
 const onCardClick = () => {
   emit('card-click', props.house);
 };
 
-const toggleFavorite = () => {
-  isFavorite.value = !isFavorite.value;
-  emit('toggle-favorite', {
-    houseId: props.house.houseId,
-    isFavorite: isFavorite.value,
-  });
+// 즐겨찾기를 사용하기 위한 store
+const store = useMyPageStore();
+
+const toggleFavorite = async () => {
+  const danziId = props.house.danziId;
+  const prev = localFavorite.value;
+
+  try {
+    if (!prev) {
+      await store.postBookmarks(danziId); // 즐겨찾기 등록
+    } else {
+      await store.deleteBookmarks(danziId); // 즐겨찾기 해제
+    }
+
+    // ✅ 성공 시 상태 반영
+    localFavorite.value = !prev;
+
+    emit('toggle-favorite', {
+      houseId: danziId,
+      isFavorite: localFavorite.value,
+    });
+  } catch (err) {
+    console.error('즐겨찾기 처리 실패:', err);
+    // 실패 시 상태 복원
+    localFavorite.value = prev;
+  }
 };
 
 const getStatusClass = (status) => {
