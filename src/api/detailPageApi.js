@@ -65,7 +65,5 @@ export const getBookmarksByHouseId = (houseId) => {
   if (!houseId) {
     return Promise.reject(new Error('houseId가 제공되지 않았습니다.'));
   }
-  // API 명세에 따라 /bookmark/house/{houseId} 형태로 요청
   return detailApi.get(`/bookmark/${houseId}`);
 };
-

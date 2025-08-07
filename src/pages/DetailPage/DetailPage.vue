@@ -244,7 +244,8 @@ onMounted(async () => {
 
   // Fetch bookmark count
   const bookmarkResponse = await getBookmarksByHouseId(danziId);
-  bookmarkCount.value = bookmarkResponse.data.count;
+  bookmarkCount.value = bookmarkResponse.data;
+  console.log('북마크 카운트:', bookmarkCount.value);
 
   await loadHouseDetail();
 });
@@ -298,6 +299,10 @@ const toggleLike = async () => {
       alert('즐겨찾기에서 삭제되었습니다.');
     }
 
+    await getBookmarksByHouseId(danziId).then((response) => {
+      console.log('북마크 카운트:', response.data);
+      bookmarkCount.value = response.data;
+    });
     // 북마크 상태 반영을 위해 새로 로드
     await loadHouseDetail();
   } catch (error) {
