@@ -104,10 +104,8 @@
       </div>
       <div class="col-12 col-lg-7">
         <DetailMap
-            v-if="houseDetail"
-        :initialLat="houseDetail.lat"
-        :initialLng="houseDetail.lng"
-        :houses="[houseDetail]"
+            v-if="houseCard"
+        :houses="[houseCard]"
         :selectedCategory="selectedCategory"
         />
       </div>
@@ -128,7 +126,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { getHouseDetailById } from '@/api/detailPageApi';
+import {getHouseCardById, getHouseDetailById} from '@/api/detailPageApi';
 import ImageSection from '@/components/DetailPage/ImageSection.vue';
 import InfoPanel from '../../components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
@@ -138,7 +136,7 @@ const route = useRoute();
 const houseData = ref(null);
 const loading = ref(true);
 const error = ref(null);
-const houseDetail = ref(null);
+const houseCard = ref(null);
 const selectedCategory = ref('');
 
 const isLiked = ref(false);
@@ -152,6 +150,7 @@ const images = computed(() => {
   return [];
 });
 
+// 상세정보 페이지에 쓸 정보 불러오기
 onMounted(async () => {
   const danziId = route.params.id;
   if (!danziId) {
@@ -174,25 +173,47 @@ onMounted(async () => {
   }
 });
 
-onMounted(() => {
-  const danziId = route.query.danziId;
-  console.log(danziId);
-
-  const storedHouseData = localStorage.getItem('currentHouseDetail');
-
-  if (storedHouseData) {
-    try {
-      houseDetail.value = JSON.parse(storedHouseData);
-    } catch (e) {
-      console.error('storedHouseData 파싱 오류');
-      houseDetail.value = null;
-    }
-  } else {
-    console.warn('localStroage에 houseData 없음. 직접URL 접근 또는 데이터 유실 가능성');
+// HouseCard 불러오기
+onMounted(async () => {
+  const danziId = route.params.id;
+  if (!danziId) {
+    error.value = '잘못된 접근입니다. 주택 ID가 없습니다.';
+    loading.value = false;
+    return;
   }
-  console.log(houseDetail.value);
+  try {
+    const response = await getHouseCardById(danziId);
+    houseCard.value = response.data;
+  } catch (err) {
+    console.error('데이터를 불러오는 중 에러 발생:', err);
+    error.value = '데이터를 불러오는 데 실패했습니다.';
+  } finally {
+    loading.value = false;
+  }
+  console.log(houseCard.value);
 
 })
+
+// 이젠 localStorage 안씀
+// onMounted(() => {
+//   // const danziId = route.query.danziId;
+//   // console.log(danziId);
+//
+//   const storedHouseData = localStorage.getItem('currentHouseCard');
+//
+//   if (storedHouseData) {
+//     try {
+//       houseCard.value = JSON.parse(storedHouseData);
+//     } catch (e) {
+//       console.error('storedHouseData 파싱 오류');
+//       houseCard.value = null;
+//     }
+//   } else {
+//     console.warn('localStroage에 houseData 없음. 직접URL 접근 또는 데이터 유실 가능성');
+//   }
+//   console.log(houseCard.value);
+//
+// })
 
 
 const toggleLike = () => {

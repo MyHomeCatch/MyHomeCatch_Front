@@ -21,3 +21,11 @@ export const getHouseDetailById = (danziId) => {
   // API 명세에 따라 /house/{danziId} 형태로 요청
   return detailApi.get(`/house/${danziId}`);
 };
+
+export const getHouseCardById = (danziId) => {
+  if (!danziId) {
+    return Promise.reject(new Error('danziId가 제공되지 않았습니다.'));
+  }
+  // API 명세에 따라 /house/card/{danziId} 형태로 요청
+  return detailApi.get(`/house/card/${danziId}`);
+};
