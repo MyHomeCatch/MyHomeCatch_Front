@@ -51,14 +51,21 @@ function goToDiagnosis() {
 
 <style scoped>
 .supportable-card {
-  width: 260px;
-  padding: 1rem;
+  width: 320px;
+  min-height: 220px;
+  padding: 1.6rem 1.4rem;
   border-radius: 14px;
-  background-color: #f5eee6;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  background-color: white;
+  border: 1px solid #e4e4e4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   font-family: 'Pretendard', sans-serif;
   text-align: center;
+  transition: all 0.2s ease;
   margin-top: 1.2rem;
+}
+.supportable-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
 .supportable-body {
@@ -73,36 +80,40 @@ function goToDiagnosis() {
 }
 
 .supportable-title {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: #444;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #2d2d2d;
   text-align: center;
+  margin-bottom: 0.25rem;
 }
 
 .supportable-date {
-  font-size: 0.72rem;
-  color: #888;
-  margin-bottom: 0.6rem;
+  font-size: 0.78rem;
+  color: #999;
+  margin-bottom: 1rem;
 }
 
 .supportable-list {
   list-style: none;
   padding: 0;
+  margin: 0;
   width: 100%;
 }
 
 .supportable-item {
-  font-size: 0.82rem;
+  font-size: 0.95rem;
   display: flex;
   justify-content: space-between;
-  padding: 0.35rem 0.5rem;
+  align-items: center;
+  padding: 0.55rem 0.8rem;
   border-top: 1px solid #eee;
+  color: #333;
 }
 
 .badge {
-  font-size: 0.7rem;
-  padding: 0.25em 0.6em;
-  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  padding: 0.45em 1em;
+  border-radius: 1rem;
   color: white;
 }
 
@@ -123,22 +134,33 @@ function goToDiagnosis() {
   color: #555;
 }
 
+/* 자가진단 실패 시 비활성화 */
 .disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   pointer-events: none;
   position: relative;
 }
+
 .disabled::after {
-  content: '자가진단이 필요합니다';
+  content: '자가진단 완료 후 확인할 수 있어요';
   position: absolute;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   color: #b23c3c;
   font-weight: 600;
-  background: #f5eee6;
-  padding: 0.6rem 1.2rem;
-  border-radius: 10px;
+  font-size: 0.9rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(2px);
+  border-radius: 14px;
   z-index: 10;
+  text-align: center;
+  padding: 1rem;
 }
 </style>

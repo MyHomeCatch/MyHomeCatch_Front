@@ -27,98 +27,167 @@
           class="like-btn btn d-flex align-items-center px-3 py-1 gap-2"
           :class="{ liked: isLiked, 'not-liked': !isLiked }"
           @click="toggleLike"
-        > 
+        >
           <i class="fa-solid fa-heart"></i>
-          <span id="likeText">{{ isLiked ? '찜 완료' : '찜하기' }}</span>
+          <span id="likeText">{{
+            isLiked ? '즐겨찾기 추가완료' : '즐겨찾기 추가'
+          }}</span>
         </button>
       </div>
     </main>
 
+    <div v-if="selfCheckMatchResult" class="container">
+      <div class="text-center" role="alert">
+        {{ authStore.user.nickname }} 님은 현재 이 공고에
+        <span class="fw-bold"> {{ selfCheckMatchResult }} </span>한 것으로
+        확인됩니다.
+      </div>
+    </div>
     <!-- 이미지 및 정보 -->
     <ImageSection :images="images" />
 
-  <div class="container px-4 py-5">
-    <!-- 좌측 콘텐츠 영역 -->
-    <div class="row">
-      <div class="category-button-wrapper">
-        <button :class="{'category-button': true,selected: selectedCategory === 'MT1',}"
+    <div class="container px-4 py-5">
+      <!-- 좌측 콘텐츠 영역 -->
+      <div class="row">
+        <div class="category-button-wrapper">
+          <button
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'MT1',
+            }"
             @click="selectedCategory = 'MT1'"
-        >대형마트
-        </button>
+          >
+            대형마트
+          </button>
 
-        <button :class="{'category-button': true,selected: selectedCategory === 'CS2',}"
+          <button
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'CS2',
+            }"
             @click="selectedCategory = 'CS2'"
-        >편의점
-        </button>
+          >
+            편의점
+          </button>
 
-        <button :class="{'category-button': true,selected: selectedCategory === 'PS3',}"
+          <button
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'PS3',
+            }"
             @click="selectedCategory = 'PS3'"
-        >어린이집
-        </button>
+          >
+            어린이집
+          </button>
 
-        <button :class="{'category-button': true,selected: selectedCategory === 'SC4',}"
+          <button
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'SC4',
+            }"
             @click="selectedCategory = 'SC4'"
-        >학교
-        </button>
+          >
+            학교
+          </button>
 
-        <button :class="{'category-button': true,selected: selectedCategory === 'AC5',}"
+          <button
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'AC5',
+            }"
             @click="selectedCategory = 'AC5'"
-        >학원
-        </button>
+          >
+            학원
+          </button>
 
-        <button :class="{'category-button': true,selected: selectedCategory === 'OL7',}"
+          <button
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'OL7',
+            }"
             @click="selectedCategory = 'OL7'"
-        >주유소
-        </button>
+          >
+            주유소
+          </button>
 
-        <button
-            :class="{'category-button': true,selected: selectedCategory === 'SW8',}"
+          <button
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'SW8',
+            }"
             @click="selectedCategory = 'SW8'"
-        >지하철역
-        </button>
+          >
+            지하철역
+          </button>
 
-        <button :class="{'category-button': true,selected: selectedCategory === 'BK9',}"
+          <button
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'BK9',
+            }"
             @click="selectedCategory = 'BK9'"
-        >은행
-        </button>
+          >
+            은행
+          </button>
 
-        <button :class="{'category-button': true,selected: selectedCategory === 'PO3',}"
+          <button
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'PO3',
+            }"
             @click="selectedCategory = 'PO3'"
-        >공공기관
-        </button>
+          >
+            공공기관
+          </button>
 
-        <button :class="{'category-button': true,selected: selectedCategory === 'HP8',}"
+          <button
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'HP8',
+            }"
             @click="selectedCategory = 'HP8'"
-        >병원
-        </button>
+          >
+            병원
+          </button>
 
-        <button :class="{'category-button': true,selected: selectedCategory === 'PM9',}"
+          <button
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'PM9',
+            }"
             @click="selectedCategory = 'PM9'"
-        >약국
-        </button>
+          >
+            약국
+          </button>
 
-        <button :class="{'category-button': true,selected: selectedCategory === 'CT1',}"
+          <button
+            :class="{
+              'category-button': true,
+              selected: selectedCategory === 'CT1',
+            }"
             @click="selectedCategory = 'CT1'"
-        >문화시설
-        </button>
-      </div>
-      <div class="col-12 col-lg-7">
-        <DetailMap
-            v-if="houseDetail"
-        :initialLat="houseDetail.lat"
-        :initialLng="houseDetail.lng"
-        :houses="[houseDetail]"
-        :selectedCategory="selectedCategory"
-        />
-      </div>
-      <!-- 우측 패널 영역 -->
-      <div class="col-12 col-lg-5">
-        <InfoPanel           :danzi-info="houseData.danzi"
-          :apply-info="houseData.applies"
-          :notices="houseData.notices"/>
+          >
+            문화시설
+          </button>
+        </div>
+        <div class="col-12 col-lg-7">
+          <DetailMap
+            v-if="houseCard"
+            :houses="[houseCard]"
+            :selectedCategory="selectedCategory"
+          />
+        </div>
+        <!-- 우측 패널 영역 -->
+        <div class="col-12 col-lg-5">
+          <InfoPanel
+            :danzi-info="houseData.danzi"
+            :apply-info="houseData.applies"
+            :notices="houseData.notices"
+            :bookmark-count="bookmarkCount"
+          />
+        </div>
       </div>
     </div>
-  </div>
 
     <!-- 게시판 -->
     <Comments :danziId="houseData.danzi.danziId" />
@@ -128,21 +197,30 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { getHouseDetailById } from '@/api/detailPageApi';
+import {
+  getHouseCardById,
+  getHouseDetailById,
+  getBookmarksByHouseId,
+  getHouseDetailByIdWithSelfCheck,
+} from '@/api/detailPageApi';
 import ImageSection from '@/components/DetailPage/ImageSection.vue';
 import InfoPanel from '../../components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
 import DetailMap from '@/components/DetailPage/DetailMap.vue';
+import { useAuthStore } from '@/stores/auth.js';
+import selfCheckAPI from '@/api/selfCheck.js';
+import bookmarkApi from '@/api/bookmarkApi.js';
 
 const route = useRoute();
 const houseData = ref(null);
 const loading = ref(true);
 const error = ref(null);
-const houseDetail = ref(null);
+const houseCard = ref(null);
 const selectedCategory = ref('');
-
+const authStore = useAuthStore();
 const isLiked = ref(false);
-const likeCount = ref(0);
+const selfCheckMatchResult = ref(null);
+const bookmarkCount = ref(0);
 
 // API 응답에서 이미지 URL만 추출하여 새로운 배열을 만듭니다.
 const images = computed(() => {
@@ -160,45 +238,77 @@ onMounted(async () => {
     return;
   }
 
+  // Fetch house card data for the map
+  const houseCardResponse = await getHouseCardById(danziId);
+  houseCard.value = houseCardResponse.data;
+
+  // Fetch bookmark count
+  const bookmarkResponse = await getBookmarksByHouseId(danziId);
+  bookmarkCount.value = bookmarkResponse.data;
+  console.log('북마크 카운트:', bookmarkCount.value);
+
+  await loadHouseDetail();
+});
+
+const loadHouseDetail = async () => {
+  const danziId = route.params.id;
   try {
-    const response = await getHouseDetailById(danziId);
-    houseData.value = response.data;
-    // 좋아요 수와 상태는 API 응답에 없으므로 일단 주석 처리하거나 가상 데이터로 둡니다.
-    // likeCount.value = response.data.likeCount || 0;
-    // isLiked.value = response.data.isLikedByUser || false;
-  } catch (err) {
-    console.error('데이터를 불러오는 중 에러 발생:', err);
-    error.value = '데이터를 불러오는 데 실패했습니다.';
+    if (authStore.isLoggedIn) {
+      const selfCheckResult = await selfCheckAPI.getSelfCheckResult();
+      const response = await getHouseDetailByIdWithSelfCheck(
+        authStore.user.id,
+        selfCheckResult,
+        danziId
+      );
+      if (response) {
+        houseData.value = response.data;
+        selfCheckMatchResult.value = response.data.selfCheckMatchResult;
+      }
+    } else {
+      const response = await getHouseDetailById(danziId);
+      houseData.value = response.data;
+    }
+  } catch (error) {
+    console.error('데이터 로드 실패:', error);
   } finally {
     loading.value = false;
   }
-});
+};
 
-onMounted(() => {
-  const danziId = route.query.danziId;
-  console.log(danziId);
-
-  const storedHouseData = localStorage.getItem('currentHouseDetail');
-
-  if (storedHouseData) {
-    try {
-      houseDetail.value = JSON.parse(storedHouseData);
-    } catch (e) {
-      console.error('storedHouseData 파싱 오류');
-      houseDetail.value = null;
+const toggleLike = async () => {
+  const danziId = route.params.id;
+  try {
+    if (!authStore.isLoggedIn) {
+      alert('로그인이 필요합니다.');
+      return;
     }
-  } else {
-    console.warn('localStroage에 houseData 없음. 직접URL 접근 또는 데이터 유실 가능성');
+
+    isLiked.value = !isLiked.value;
+
+    const bookmarkData = {
+      userId: authStore.user.id,
+      danziId: danziId,
+    };
+
+    if (isLiked.value) {
+      await bookmarkApi.createBookmark(bookmarkData);
+      alert('즐겨찾기에 추가되었습니다.');
+    } else {
+      await bookmarkApi.deleteBookmark(bookmarkData);
+      isLiked.value = false;
+      alert('즐겨찾기에서 삭제되었습니다.');
+    }
+
+    await getBookmarksByHouseId(danziId).then((response) => {
+      console.log('북마크 카운트:', response.data);
+      bookmarkCount.value = response.data;
+    });
+    // 북마크 상태 반영을 위해 새로 로드
+    await loadHouseDetail();
+  } catch (error) {
+    console.error('좋아요 처리 실패:', error);
+    alert('서버 오류가 발생했습니다.');
   }
-  console.log(houseDetail.value);
-
-})
-
-
-const toggleLike = () => {
-  isLiked.value = !isLiked.value;
-  likeCount.value += isLiked.value ? 1 : -1;
-  // 여기에 실제 서버에 좋아요 상태를 업데이트하는 API 호출을 추가할 수 있습니다.
 };
 </script>
 

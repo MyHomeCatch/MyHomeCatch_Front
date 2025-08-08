@@ -19,9 +19,20 @@ watch(
 </script>
 
 <template>
-  <DefaultLayout>
-    <RouterView />
-  </DefaultLayout>
+  <div id="app">
+    <DefaultLayout>
+      <RouterView />
+    </DefaultLayout>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+#app {
+  background-image: url('@/assets/images/background1.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+  min-height: 100vh;
+}
+</style>
