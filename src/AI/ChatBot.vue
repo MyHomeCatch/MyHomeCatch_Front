@@ -1,16 +1,16 @@
 <template>
   <div>
-    <!-- Chatbot 버튼 (오른쪽 아래 고정) -->
+    <!-- 챗봇 버튼 -->
     <button class="chatbot-button" @click="isOpen = !isOpen">💬</button>
 
-    <!-- Chatbot 모달 -->
+    <!-- 챗봇 모달 -->
     <div v-if="isOpen" class="chatbot-modal">
       <div class="chatbot-header">
         <span>MHC 챗봇</span>
         <button @click="isOpen = false">✖</button>
       </div>
 
-      <div class="chatbot-body">
+      <div class="chatbot-body" ref="chatBody">
         <div
           v-for="(msg, idx) in messages"
           :key="idx"
@@ -36,26 +36,37 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 import axios from 'axios';
 
 const isOpen = ref(false);
 const userInput = ref('');
 const messages = ref([]);
+const chatBody = ref(null);
 
 const sendMessage = async () => {
-  if (!userInput.value.trim()) return;
+  const text = userInput.value.trim();
+  if (!text) return;
 
-  const userMsg = userInput.value;
-  messages.value.push({ sender: 'User', text: userMsg });
+  messages.value.push({ sender: 'User', text });
   userInput.value = '';
 
   try {
-    const res = await axios.post('/api/chat', { message: userMsg });
-    messages.value.push({ sender: 'Gemini', text: res.data.reply });
-  } catch (e) {
-    messages.value.push({ sender: 'Gemini', text: '에러가 발생했습니다.' });
+    const response = await axios.post('/api/chat', { message: text });
+
+    const reply = response?.data?.reply || '🤖 응답이 없습니다.';
+    messages.value.push({ sender: 'Bot', text: reply });
+  } catch (error) {
+    console.error('❌ API 호출 오류:', error);
+    messages.value.push({
+      sender: 'Bot',
+      text: '❌ 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+    });
   }
+
+  // 스크롤 맨 아래로
+  await nextTick();
+  chatBody.value.scrollTop = chatBody.value.scrollHeight;
 };
 </script>
 
@@ -120,6 +131,8 @@ const sendMessage = async () => {
   font-size: 14px;
   color: #333;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .chatbot-input {
@@ -156,7 +169,7 @@ const sendMessage = async () => {
   display: inline-block;
 }
 
-/* 사용자 메시지 (오른쪽 정렬, 배경색 연한 초록색) */
+/* 사용자 메시지 */
 .user-message {
   background-color: #daf8cb;
   color: #2d572c;
@@ -166,7 +179,7 @@ const sendMessage = async () => {
   border-bottom-right-radius: 0;
 }
 
-/* 봇 메시지 (왼쪽 정렬, 회색 배경) */
+/* 봇 메시지 */
 .bot-message {
   background-color: #f1f0f0;
   color: #333;
@@ -176,14 +189,8 @@ const sendMessage = async () => {
   border-bottom-left-radius: 0;
 }
 
-.chatbot-body {
-  flex: 1;
-  padding: 16px;
-  font-size: 14px;
-  color: #333;
-  overflow-y: auto;
-
-  display: flex;
-  flex-direction: column;
+.bot-message,
+.user-message {
+  white-space: pre-line;
 }
 </style>
