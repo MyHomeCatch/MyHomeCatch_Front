@@ -390,6 +390,12 @@ const getStatusClass = (status) => {
   margin-bottom: 4px;
 }
 
+.region,
+.notice-type,
+.area-info {
+  margin-bottom: 4px; /* ✅ 각 줄 간격 */
+}
+
 .region {
   font-size: 14px;
   color: #4d6b4d;
@@ -413,6 +419,7 @@ const getStatusClass = (status) => {
 .area-info {
   display: flex;
   align-items: baseline;
+  padding-bottom: 4px;
 }
 
 .area-unit {
