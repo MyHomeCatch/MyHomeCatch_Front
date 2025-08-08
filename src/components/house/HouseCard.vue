@@ -21,6 +21,10 @@
         class="house-image"
       />
       <div class="image-overlay" :class="{ 'show-always': localIsFavorited }">
+        <!-- 지도 이동 버튼 -->
+        <div class="map-icon" @click.stop="onMapClick" title="지도에서 보기">
+          <i class="bi bi-geo-alt"></i>
+        </div>
         <div
           class="bookmark-icon"
           :class="{ favorited: localIsFavorited }"
@@ -63,6 +67,7 @@
 <script setup>
 import axios from 'axios';
 import { ref, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import { addBookmark, removeBookmark } from '../../api/bookmardApi';
 
@@ -80,6 +85,9 @@ const props = defineProps({
 
 // Emits
 const emit = defineEmits(['card-click', 'toggle-favorite']);
+
+// Router
+const router = useRouter();
 
 // State
 const favoriteLoading = ref(false);
@@ -127,6 +135,15 @@ watch(
 
 // Methods
 const onCardClick = () => {
+  // 디테일 페이지로 이동
+  const houseId = props.house.houseId || props.house.danziId;
+  if (houseId) {
+    router.push({ name: 'DetailPage', params: { id: houseId } });
+  }
+};
+
+const onMapClick = () => {
+  // 지도 이동을 위해 card-click 이벤트 발생
   emit('card-click', props.house);
 };
 
@@ -232,6 +249,9 @@ const getStatusClass = (status) => {
   right: 12px;
   opacity: 0;
   transition: opacity 0.3s ease;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
 }
 
 /* 호버 시 표시 */
@@ -244,6 +264,35 @@ const getStatusClass = (status) => {
   opacity: 1;
 }
 
+/* 지도 버튼은 호버 시에만 표시 */
+.map-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #4d6b4d;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+}
+
+.house-card:hover .map-icon {
+  opacity: 1;
+}
+
+.map-icon:hover {
+  background: white;
+  color: #a6bfa0;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
 .bookmark-icon {
   width: 32px;
   height: 32px;
@@ -253,7 +302,7 @@ const getStatusClass = (status) => {
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  color: #2d5016;
+  color: #4d6b4d;
   transition: all 0.2s ease;
   cursor: pointer;
   user-select: none;
@@ -262,22 +311,22 @@ const getStatusClass = (status) => {
 
 .bookmark-icon:hover {
   background: white;
-  color: #1a3d0f;
+  color: #a6bfa0;
   transform: scale(1.1);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .bookmark-icon.favorited {
-  color: #ffffff;
-  background: rgba(45, 80, 22, 0.9);
-  box-shadow: 0 2px 8px rgba(45, 80, 22, 0.3);
+  color: #a6bfa0;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .bookmark-icon.favorited:hover {
-  color: #ffffff;
-  background: rgba(45, 80, 22, 1);
+  color: #8baa7f;
+  background: white;
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(45, 80, 22, 0.4);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .bookmark-icon:disabled {
