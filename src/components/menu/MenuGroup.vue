@@ -56,6 +56,7 @@ const toggleSubMenu = (index) => {
 /* 기본 메뉴 글씨 색상 */
 .nav-link {
   color: white; /* 원하는 색상으로 변경 */
+  font-weight: 600;
 }
 
 /* 호버 시 색상 */

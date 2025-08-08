@@ -56,6 +56,9 @@
 
     <!-- 페이지네이션 -->
     <HousePagination :page-info="pageInfo" @page-change="changePage" />
+
+    <!-- ChatBot -->
+    <ChatBot></ChatBot>
   </div>
 </template>
 
@@ -63,6 +66,14 @@
 import { ref, onMounted, computed, nextTick, watch } from 'vue';
 import HouseFilter from '../components/house/HouseFilter.vue';
 import HousePagination from '../components/house/HousePagination.vue';
+
+import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
+import ChatBot from '../AI/ChatBot.vue';
+
+const router = useRouter();
+const route = useRoute();
+const mapViewerRef = ref(null);
+
 import HouseSearchResults from '../components/house/HouseSearchResults.vue';
 import HouseMapSection from '../components/house/HouseMapSection.vue';
 import HouseSearchLogic from '../components/house/HouseSearchLogic.vue';
@@ -76,6 +87,7 @@ const auth = useAuthStore();
 const searchLogicRef = ref(null);
 const searchResultsRef = ref(null);
 const mapSectionRef = ref(null);
+
 const selectedCategory = ref('');
 
 const loading = ref(false);
