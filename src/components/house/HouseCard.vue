@@ -294,7 +294,10 @@ const getStatusClass = (status) => {
 }
 
 .house-info {
-  padding-top: 10px;
+  padding: 12px 16px;
+  background-color: white;
+  border-bottom-left-radius: 10%;
+  border-bottom-right-radius: 10%;
 }
 
 .location-info {
@@ -322,6 +325,12 @@ const getStatusClass = (status) => {
   margin-bottom: 4px;
 }
 
+.region,
+.notice-type,
+.area-info {
+  margin-bottom: 4px; /* ✅ 각 줄 간격 */
+}
+
 .region {
   font-size: 14px;
   color: #717171;
@@ -343,6 +352,7 @@ const getStatusClass = (status) => {
 .area-info {
   display: flex;
   align-items: baseline;
+  padding-bottom: 4px;
 }
 
 .area-unit {
