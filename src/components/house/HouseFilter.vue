@@ -1,12 +1,22 @@
 <template>
   <div class="filter-section">
     <div class="filter-header">
-      <h2 class="filter-title">주택 검색</h2>
+      <div class="header-content">
+        <h2 class="filter-title">
+          <i class="bi bi-funnel"></i>
+          주택 검색 필터
+        </h2>
+        <p class="filter-subtitle">
+          원하는 조건을 선택하여 맞춤형 주택을 찾아보세요
+        </p>
+      </div>
       <button
         v-if="hasActiveFilters"
         @click="clearAllFilters"
         class="clear-button"
+        title="모든 필터 초기화"
       >
+        <i class="bi bi-arrow-clockwise"></i>
         전체 초기화
       </button>
     </div>
@@ -14,20 +24,21 @@
     <div class="filter-grid">
       <!-- 지역 필터 -->
       <div class="filter-item">
-        <label class="filter-label">지역 (다중 선택 가능)</label>
+        <div class="filter-item-header">
+          <label class="filter-label">
+            <i class="bi bi-geo-alt"></i>
+            지역
+          </label>
+          <span class="filter-hint">다중 선택 가능</span>
+        </div>
         <div class="checkbox-group">
           <label
             v-for="region in filterOptions.regions"
             :key="region.code"
             class="checkbox-item"
+            :class="{ checked: filters.region.includes(region.code) }"
+            @click="toggleFilter('region', region.code)"
           >
-            <input
-              type="checkbox"
-              :value="region.code"
-              :checked="filters.region.includes(region.code)"
-              @change="toggleFilter('region', region.code)"
-              class="checkbox-input"
-            />
             <span class="checkbox-label">{{ region.name }}</span>
           </label>
         </div>
@@ -35,20 +46,21 @@
 
       <!-- 공고유형 필터 -->
       <div class="filter-item">
-        <label class="filter-label">공고유형 (다중 선택 가능)</label>
+        <div class="filter-item-header">
+          <label class="filter-label">
+            <i class="bi bi-house"></i>
+            공고유형
+          </label>
+          <span class="filter-hint">다중 선택 가능</span>
+        </div>
         <div class="checkbox-group">
           <label
             v-for="type in filterOptions.noticeTypes"
             :key="type.code"
             class="checkbox-item"
+            :class="{ checked: filters.noticeType.includes(type.code) }"
+            @click="toggleFilter('noticeType', type.code)"
           >
-            <input
-              type="checkbox"
-              :value="type.code"
-              :checked="filters.noticeType.includes(type.code)"
-              @change="toggleFilter('noticeType', type.code)"
-              class="checkbox-input"
-            />
             <span class="checkbox-label">{{ type.name }}</span>
           </label>
         </div>
@@ -56,20 +68,21 @@
 
       <!-- 공고상태 필터 -->
       <div class="filter-item">
-        <label class="filter-label">공고상태 (다중 선택 가능)</label>
+        <div class="filter-item-header">
+          <label class="filter-label">
+            <i class="bi bi-info-circle"></i>
+            공고상태
+          </label>
+          <span class="filter-hint">다중 선택 가능</span>
+        </div>
         <div class="checkbox-group">
           <label
             v-for="status in filterOptions.noticeStatuses"
             :key="status.code"
             class="checkbox-item"
+            :class="{ checked: filters.noticeStatus.includes(status.code) }"
+            @click="toggleFilter('noticeStatus', status.code)"
           >
-            <input
-              type="checkbox"
-              :value="status.code"
-              :checked="filters.noticeStatus.includes(status.code)"
-              @change="toggleFilter('noticeStatus', status.code)"
-              class="checkbox-input"
-            />
             <span class="checkbox-label">{{ status.name }}</span>
           </label>
         </div>
@@ -77,57 +90,76 @@
 
       <!-- 검색 버튼 -->
       <div class="filter-item search-button-container">
-        <button @click="search" class="search-button">
-          <span>🔍</span>
-          검색
+        <button
+          @click="search"
+          class="search-button"
+          :disabled="!hasActiveFilters"
+        >
+          <i class="bi bi-search"></i>
+          <span>검색하기</span>
+          <span v-if="totalSelectedFilters > 0" class="filter-count">
+            ({{ totalSelectedFilters }})
+          </span>
         </button>
       </div>
     </div>
 
     <!-- 활성 필터 태그 -->
     <div v-if="hasActiveFilters" class="active-filters">
-      <span class="active-filter-label">적용된 필터:</span>
+      <div class="active-filter-header">
+        <span class="active-filter-label">
+          <i class="bi bi-tags"></i>
+          적용된 필터
+        </span>
+        <span class="filter-count-badge">{{ totalSelectedFilters }}개</span>
+      </div>
       <div class="filter-tags">
         <!-- 지역 태그들 -->
         <span
           v-for="regionCode in filters.region"
           :key="`region-${regionCode}`"
-          class="filter-tag"
+          class="filter-tag region-tag"
           @click="removeFilter('region', regionCode)"
         >
-          지역: {{ getFilterDisplayName('regions', regionCode) }}
-          <span class="remove-tag">×</span>
+          <i class="bi bi-geo-alt"></i>
+          {{ getFilterDisplayName('regions', regionCode) }}
+          <i class="bi bi-x remove-tag"></i>
         </span>
 
         <!-- 공고유형 태그들 -->
         <span
           v-for="typeCode in filters.noticeType"
           :key="`type-${typeCode}`"
-          class="filter-tag"
+          class="filter-tag type-tag"
           @click="removeFilter('noticeType', typeCode)"
         >
-          유형: {{ getFilterDisplayName('noticeTypes', typeCode) }}
-          <span class="remove-tag">×</span>
+          <i class="bi bi-house"></i>
+          {{ getFilterDisplayName('noticeTypes', typeCode) }}
+          <i class="bi bi-x remove-tag"></i>
         </span>
 
         <!-- 공고상태 태그들 -->
         <span
           v-for="statusCode in filters.noticeStatus"
           :key="`status-${statusCode}`"
-          class="filter-tag"
+          class="filter-tag status-tag"
           @click="removeFilter('noticeStatus', statusCode)"
         >
-          상태: {{ getFilterDisplayName('noticeStatuses', statusCode) }}
-          <span class="remove-tag">×</span>
+          <i class="bi bi-info-circle"></i>
+          {{ getFilterDisplayName('noticeStatuses', statusCode) }}
+          <i class="bi bi-x remove-tag"></i>
         </span>
       </div>
     </div>
 
     <!-- 선택된 항목 수 표시 -->
     <div v-if="hasActiveFilters" class="filter-summary">
-      <span class="summary-text">
-        총 {{ totalSelectedFilters }}개 조건으로 검색
-      </span>
+      <div class="summary-card">
+        <i class="bi bi-funnel-fill"></i>
+        <span class="summary-text">
+          총 <strong>{{ totalSelectedFilters }}개</strong> 조건으로 검색됩니다
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -220,203 +252,566 @@ const getFilterDisplayName = (optionType, code) => {
 </script>
 
 <style scoped>
-.filter-section {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* CSS 변수 정의 */
+:root {
+  --primary-color: #a6bfa0;
+  --primary-hover: #8baa7f;
+  --primary-light: #b7c7b7;
+  --primary-dark: #7fa87f;
+  --secondary-color: #3d6650;
+  --text-primary: #234123;
+  --text-secondary: #4d6b4d;
+  --text-light: #7fa87f;
+  --bg-primary: #fffdfa;
+  --bg-secondary: #f8faf7;
+  --bg-tertiary: #eaf5e6;
+  --border-color: #b7c7b7;
+  --border-hover: #7fa87f;
+  --shadow-sm: 0 1px 2px 0 rgba(166, 191, 160, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(166, 191, 160, 0.15),
+    0 2px 4px -1px rgba(166, 191, 160, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(166, 191, 160, 0.2),
+    0 4px 6px -2px rgba(166, 191, 160, 0.1);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* 메인 컨테이너 */
+.filter-section {
+  background: rgba(255, 253, 250, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+  position: relative;
+}
+
+.filter-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(166, 191, 160, 0.05) 0%,
+    rgba(255, 253, 250, 0.95) 100%
+  );
+  border-radius: var(--radius-xl);
+  z-index: -1;
+}
+
+.filter-section:hover {
+  box-shadow: var(--shadow-lg);
+  background: rgba(255, 253, 250, 0.98);
+}
+
+/* 헤더 섹션 */
 .filter-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.header-content {
+  flex: 1;
 }
 
 .filter-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #222222;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.25rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-title i {
+  color: var(--primary-color);
+  font-size: 1.125rem;
+}
+
+.filter-subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
   margin: 0;
+  line-height: 1.4;
 }
 
 .clear-button {
-  background: #f0f0f0;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  color: #717171;
-  font-size: 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  white-space: nowrap;
 }
 
 .clear-button:hover {
-  background: #e0e0e0;
-  color: #222222;
+  background: var(--border-hover);
+  color: var(--text-primary);
+  transform: translateY(-1px);
 }
 
+.clear-button i {
+  font-size: 0.8125rem;
+}
+
+/* 필터 그리드 */
 .filter-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 24px;
+  gap: 1rem;
   align-items: start;
 }
 
+/* 필터 아이템 */
 .filter-item {
   display: flex;
   flex-direction: column;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.filter-item:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
 }
 
 .filter-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #222222;
-  margin-bottom: 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0;
 }
 
+.filter-label i {
+  color: var(--primary-color);
+  font-size: 0.875rem;
+}
+
+.filter-hint {
+  font-size: 0.6875rem;
+  color: var(--text-light);
+  background: var(--bg-tertiary);
+  padding: 0.1875rem 0.375rem;
+  border-radius: var(--radius-sm);
+}
+
+/* 체크박스 그룹 */
 .checkbox-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 200px;
+  gap: 0.375rem;
+  max-height: 160px;
   overflow-y: auto;
-  padding: 8px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  background: #fafafa;
+  padding: 0.625rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
 }
 
+.checkbox-group::-webkit-scrollbar {
+  width: 4px;
+}
+
+.checkbox-group::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.checkbox-group::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 2px;
+}
+
+.checkbox-group::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+
+/* 체크박스 아이템 */
 .checkbox-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
-  border-radius: 4px;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: var(--transition);
+  user-select: none;
+  border: 2px solid transparent;
+  background: #fffdfa;
 }
 
 .checkbox-item:hover {
-  background: #f0f0f0;
+  background: #eaf5e6;
+  border-color: #b7c7b7;
 }
 
-.checkbox-input {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: #ff385c;
+.checkbox-item.checked {
+  background: #a6bfa0;
+  border-color: #7fa87f;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(166, 191, 160, 0.2);
+}
+
+.checkbox-item.checked:hover {
+  background: #8baa7f;
+  border-color: #7fa87f;
+}
+
+.checkbox-item.checked .checkbox-label {
+  color: white;
+  font-weight: 600;
 }
 
 .checkbox-label {
-  font-size: 14px;
-  color: #222222;
+  font-size: 0.8125rem;
+  color: #234123;
   cursor: pointer;
-  user-select: none;
+  flex: 1;
+  transition: var(--transition);
 }
 
+/* 검색 버튼 */
 .search-button-container {
   display: flex;
   align-items: end;
 }
 
 .search-button {
-  background: #ff385c;
+  background: var(--primary-color);
   color: white;
   border: none;
-  padding: 14px 28px;
-  border-radius: 8px;
-  font-size: 16px;
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition);
   display: flex;
   align-items: center;
-  gap: 8px;
-  width: 100%;
+  gap: 0.375rem;
+  width: auto;
+  min-width: 120px;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.search-button:hover {
-  background: #e31c5f;
+.search-button:hover:not(:disabled) {
+  background: var(--primary-hover);
   transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
+.search-button:disabled {
+  background: var(--bg-tertiary);
+  color: var(--text-light);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.search-button i {
+  font-size: 0.8125rem;
+}
+
+.filter-count {
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+/* 활성 필터 섹션 */
 .active-filters {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #e0e0e0;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.active-filter-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 0.75rem;
 }
 
 .active-filter-label {
-  font-size: 14px;
-  color: #717171;
-  margin-right: 12px;
-  display: block;
-  margin-bottom: 8px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-weight: 500;
 }
 
+.active-filter-label i {
+  color: var(--primary-color);
+}
+
+.filter-count-badge {
+  background: var(--primary-color);
+  color: white;
+  padding: 0.1875rem 0.375rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+/* 필터 태그 */
 .filter-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 0.375rem;
 }
 
 .filter-tag {
-  background: #ff385c;
+  background: var(--primary-color);
   color: white;
-  padding: 8px 12px;
-  border-radius: 20px;
-  font-size: 12px;
+  padding: 0.375rem 0.625rem;
+  border-radius: 16px;
+  font-size: 0.6875rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.25rem;
+  border: none;
+  user-select: none;
 }
 
 .filter-tag:hover {
-  background: #e31c5f;
-  transform: scale(1.05);
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-tag.region-tag {
+  background: #7fa87f;
+}
+
+.filter-tag.region-tag:hover {
+  background: #6b8f6b;
+}
+
+.filter-tag.type-tag {
+  background: #8baa7f;
+}
+
+.filter-tag.type-tag:hover {
+  background: #7a9a6e;
+}
+
+.filter-tag.status-tag {
+  background: #9bbf8f;
+}
+
+.filter-tag.status-tag:hover {
+  background: #8aae7e;
+}
+
+.filter-tag i {
+  font-size: 0.6875rem;
 }
 
 .remove-tag {
-  font-size: 16px;
+  font-size: 0.8125rem;
   font-weight: bold;
+  margin-left: 0.1875rem;
 }
 
+/* 필터 요약 */
 .filter-summary {
-  margin-top: 12px;
-  text-align: center;
+  margin-top: 0.75rem;
+}
+
+.summary-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  justify-content: center;
+}
+
+.summary-card i {
+  color: var(--primary-color);
+  font-size: 1rem;
 }
 
 .summary-text {
-  font-size: 14px;
-  color: #717171;
-  background: #f0f0f0;
-  padding: 8px 16px;
-  border-radius: 20px;
-  display: inline-block;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.summary-text strong {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .filter-section {
+    padding: 1.25rem;
+  }
+
+  .filter-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.875rem;
+  }
+
+  .filter-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.875rem;
+  }
+
+  .clear-button {
+    align-self: flex-end;
+  }
 }
 
 @media (max-width: 768px) {
   .filter-section {
-    padding: 16px;
+    padding: 1rem;
+    margin-bottom: 1rem;
   }
 
   .filter-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 0.875rem;
+  }
+
+  .filter-title {
+    font-size: 1.125rem;
   }
 
   .checkbox-group {
-    max-height: 150px;
+    max-height: 140px;
   }
 
   .filter-tags {
     justify-content: center;
   }
+
+  .active-filter-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.375rem;
+  }
+
+  .filter-count-badge {
+    align-self: flex-start;
+  }
+
+  .search-button {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.75rem;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-section {
+    padding: 0.75rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .filter-title {
+    font-size: 1rem;
+  }
+
+  .filter-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .filter-item {
+    padding: 0.875rem;
+  }
+
+  .search-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    min-width: 90px;
+  }
+
+  .filter-tag {
+    font-size: 0.625rem;
+    padding: 0.3125rem 0.5rem;
+  }
+
+  .summary-card {
+    padding: 0.625rem;
+  }
+
+  .summary-text {
+    font-size: 0.75rem;
+  }
+}
+
+/* 다크 모드 지원 (선택적) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #3a3a3a;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --text-light: #666666;
+    --border-color: #404040;
+    --border-hover: #505050;
+  }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* 포커스 스타일 */
+.checkbox-input:focus-visible ~ .custom-checkbox,
+.search-button:focus-visible,
+.clear-button:focus-visible,
+.filter-tag:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
 }
 </style>

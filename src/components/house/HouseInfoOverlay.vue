@@ -84,15 +84,14 @@ const formatPrice = (price) => {
 };
 </script>
 
-
 <style scoped>
 .airbnb-custom-overlay {
   position: relative;
-  background: white;
+  background: #fffdfa;
   border-radius: 16px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16), 0 0 1px rgba(0, 0, 0, 0.1),
-    0 2px 4px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 28px rgba(166, 191, 160, 0.2),
+    0 0 1px rgba(166, 191, 160, 0.1), 0 2px 4px rgba(166, 191, 160, 0.15);
+  border: 1px solid #eaf5e6;
   min-width: 190px;
   max-width: 220px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
@@ -106,6 +105,8 @@ const formatPrice = (price) => {
 .house-image {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .close-button {
@@ -122,8 +123,8 @@ const formatPrice = (price) => {
   justify-content: center;
   cursor: pointer;
   z-index: 10;
-  color: #484848;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #4d6b4d;
+  box-shadow: 0 2px 8px rgba(166, 191, 160, 0.2);
   transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   backdrop-filter: blur(10px);
 }
@@ -131,7 +132,8 @@ const formatPrice = (price) => {
 .close-button:hover {
   background: rgba(255, 255, 255, 1);
   transform: scale(1.1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(166, 191, 160, 0.3);
+  color: #234123;
 }
 
 .close-button:active {
@@ -151,7 +153,7 @@ const formatPrice = (price) => {
 .house-name {
   font-size: 15px;
   font-weight: 600;
-  color: #222222;
+  color: #234123;
   line-height: 1.3;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -178,29 +180,29 @@ const formatPrice = (price) => {
 }
 
 .action-btn.primary {
-  background: linear-gradient(135deg, #ff385c 0%, #e31c5f 100%);
+  background: linear-gradient(135deg, #a6bfa0 0%, #8baa7f 100%);
   color: white;
-  box-shadow: 0 2px 8px rgba(255, 56, 92, 0.3);
+  box-shadow: 0 2px 8px rgba(166, 191, 160, 0.3);
 }
 
 .action-btn.primary:hover {
-  background: linear-gradient(135deg, #e31c5f 0%, #c13584 100%);
+  background: linear-gradient(135deg, #8baa7f 0%, #7fa87f 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 56, 92, 0.4);
+  box-shadow: 0 6px 20px rgba(166, 191, 160, 0.4);
 }
 
 .action-btn.secondary {
   background: white;
-  color: #484848;
-  border: 2px solid #dddddd;
+  color: #4d6b4d;
+  border: 2px solid #b7c7b7;
 }
 
 .action-btn.secondary:hover {
-  background: #f7f7f7;
-  border-color: #ff385c;
-  color: #ff385c;
+  background: #eaf5e6;
+  border-color: #a6bfa0;
+  color: #234123;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(166, 191, 160, 0.2);
 }
 
 .heart-icon {
@@ -208,14 +210,14 @@ const formatPrice = (price) => {
 }
 
 .action-btn.secondary:hover .heart-icon {
-  fill: #ff385c;
+  fill: #a6bfa0;
 }
 
 .house-extra-info {
   display: flex;
   justify-content: space-between;
   padding: 12px 0 0;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid #eaf5e6;
   margin-top: 4px;
 }
 
@@ -228,13 +230,13 @@ const formatPrice = (price) => {
 
 .price-label {
   font-size: 12px;
-  color: #717171;
+  color: #7fa87f;
   font-weight: 500;
 }
 
 .price-value {
   font-size: 14px;
-  color: #222222;
+  color: #234123;
   font-weight: 700;
 }
 
@@ -248,8 +250,8 @@ const formatPrice = (price) => {
   height: 0;
   border-left: 12px solid transparent;
   border-right: 12px solid transparent;
-  border-top: 12px solid white;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+  border-top: 12px solid #fffdfa;
+  filter: drop-shadow(0 4px 6px rgba(166, 191, 160, 0.2));
 }
 
 .overlay-arrow::before {
@@ -261,7 +263,7 @@ const formatPrice = (price) => {
   height: 0;
   border-left: 13px solid transparent;
   border-right: 13px solid transparent;
-  border-top: 13px solid rgba(0, 0, 0, 0.05);
+  border-top: 13px solid #eaf5e6;
 }
 
 /* 반응형 */

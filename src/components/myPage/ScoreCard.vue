@@ -2,7 +2,9 @@
   <div class="score-card">
     <div class="score-body">
       <p class="score-title">나의 청약 가점</p>
-      <small class="score-date">📅 2025-07-18일 기준</small>
+      <small class="score-date"
+        >📅 {{ userInfo.additionalPointUpdatedAt }}일 기준</small
+      >
       <div class="score-value">{{ userInfo.additionalPoint }}점</div>
       <button class="score-button" @click="$emit('openModal')">
         가점 계산
@@ -21,13 +23,20 @@ const { userInfo } = storeToRefs(store);
 
 <style scoped>
 .score-card {
-  width: 260px; /* 🔽 크기 줄임 */
-  padding: 1rem; /* 🔽 패딩 소폭 축소 */
+  width: 320px;
+  min-height: 220px;
+  padding: 1.6rem 1.4rem;
   border-radius: 14px;
-  background-color: #f5eee6;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  background-color: white;
+  border: 1px solid #e4e4e4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   font-family: 'Pretendard', sans-serif;
   text-align: center;
+  transition: all 0.2s ease;
+}
+.score-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
 .score-body {
@@ -37,37 +46,36 @@ const { userInfo } = storeToRefs(store);
 }
 
 .score-title {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: #444;
-  margin-bottom: 0.2rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #2d2d2d;
+  margin-bottom: 0.25rem;
 }
 
 .score-date {
-  font-size: 0.72rem;
-  color: #888;
+  font-size: 0.78rem;
+  color: #999;
 }
 
 .score-value {
-  font-size: 1.7rem; /* 🔽 약간 줄임 */
-  font-weight: 700;
+  font-size: 2.5rem;
+  font-weight: 800;
   color: #3d6650;
-  margin: 0.7rem 0 1rem;
+  margin: 1.3rem 0 1.4rem;
 }
 
 .score-button {
-  padding: 0.35rem 1rem; /* 🔽 패딩 줄임 */
-  font-size: 0.8rem;
-  font-weight: 500;
+  padding: 0.6rem 1.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
   background-color: white;
   color: #3d6650;
   border: 1px solid #3d6650;
-  border-radius: 10px;
+  border-radius: 14px;
   transition: all 0.2s ease-in-out;
 }
-
 .score-button:hover {
   background-color: #3d6650;
-  color: #fff;
+  color: white;
 }
 </style>
