@@ -237,12 +237,12 @@ onMounted(async () => {
     loading.value = false;
     return;
   }
-
   try {
     loading.value = true;
 
+    await loadHouseDetail();
+
     const houseCardPromise = getHouseCardById(danziId);
-    const houseDetailPromise = loadHouseDetail();
     const bookmarkPromise = getBookmarksByHouseId(danziId)
       .catch(error => {
         console.error('북마크 정보 로드 실패:', error);
@@ -251,9 +251,9 @@ onMounted(async () => {
 
     const [houseCardResponse, bookmarkResponse] = await Promise.all([
       houseCardPromise,
-      bookmarkPromise,
-      houseDetailPromise,
+      bookmarkPromise
     ]);
+
 
     houseCard.value = houseCardResponse.data;
     bookmarkCount.value = bookmarkResponse.data;
@@ -267,6 +267,12 @@ onMounted(async () => {
 
 const loadHouseDetail = async () => {
   const danziId = route.params.id;
+  if (!danziId) {
+    error.value = '잘못된 접근입니다. 주택 ID가 없습니다.';
+    loading.value = false;
+    return;
+  }
+
   try {
     let response;
     if (authStore.isLoggedIn) {
