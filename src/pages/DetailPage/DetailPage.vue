@@ -240,17 +240,23 @@ onMounted(async () => {
 
   try {
     loading.value = true;
-    const promises = [
-      getHouseCardById(danziId),
-      getBookmarksByHouseId(danziId),
-      loadHouseDetail(),
-    ];
 
-    const [houseCardResponse, bookmarkResponse] = await Promise.all(promises);
+    const houseCardPromise = getHouseCardById(danziId);
+    const houseDetailPromise = loadHouseDetail();
+    const bookmarkPromise = getBookmarksByHouseId(danziId)
+      .catch(error => {
+        console.error('북마크 정보 로드 실패:', error);
+        return { data: 0 }; // Return a default value on failure
+      });
+
+    const [houseCardResponse, bookmarkResponse] = await Promise.all([
+      houseCardPromise,
+      bookmarkPromise,
+      houseDetailPromise,
+    ]);
 
     houseCard.value = houseCardResponse.data;
     bookmarkCount.value = bookmarkResponse.data;
-    console.log('북마크 카운트:', bookmarkCount.value);
   } catch (err) {
     console.error('데이터 로드 실패:', err);
     error.value = '데이터를 불러오는 데 실패했습니다.';
