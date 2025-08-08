@@ -55,6 +55,7 @@ const props = defineProps({
   display: block;
   text-decoration: none;
   transition: color 0.2s;
+  font-weight: 600;
 }
 
 .account-menu-item:hover {
