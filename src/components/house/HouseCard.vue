@@ -34,7 +34,7 @@
         </div>
       </div>
       <!-- 주택 타입 배지 -->
-      <div class="housing-type-badge">{{ house.noticeType || '주택' }}</div>
+      <!-- <div class="housing-type-badge">{{ house.noticeType || '주택' }}</div> -->
     </div>
 
     <!-- 아파트 정보 -->
@@ -190,6 +190,16 @@ const getStatusClass = (status) => {
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  background: #fffdfa;
+  box-shadow: 0 4px 6px -1px rgba(166, 191, 160, 0.15),
+    0 2px 4px -1px rgba(166, 191, 160, 0.1);
+  border: 1px solid #eaf5e6;
+}
+
+.house-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(166, 191, 160, 0.2),
+    0 4px 6px -2px rgba(166, 191, 160, 0.1);
 }
 
 .image-container {
@@ -237,30 +247,37 @@ const getStatusClass = (status) => {
 .bookmark-icon {
   width: 32px;
   height: 32px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  color: #717171;
+  color: #2d5016;
   transition: all 0.2s ease;
   cursor: pointer;
   user-select: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .bookmark-icon:hover {
   background: white;
-  color: #ff385c;
+  color: #1a3d0f;
   transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .bookmark-icon.favorited {
-  color: #ff385c;
+  color: #ffffff;
+  background: rgba(45, 80, 22, 0.9);
+  box-shadow: 0 2px 8px rgba(45, 80, 22, 0.3);
 }
 
 .bookmark-icon.favorited:hover {
-  color: #e31c5f;
+  color: #ffffff;
+  background: rgba(45, 80, 22, 1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(45, 80, 22, 0.4);
 }
 
 .bookmark-icon:disabled {
@@ -285,26 +302,28 @@ const getStatusClass = (status) => {
   position: absolute;
   top: 12px;
   left: 12px;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(166, 191, 160, 0.9);
   color: white;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
+  backdrop-filter: blur(4px);
 }
 
 .house-info {
-  padding-top: 10px;
+  padding: 12px 16px;
+  background: #fffdfa;
 }
 
 .location-info {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .house-name {
   font-size: 15px;
   font-weight: 600;
-  color: #222222;
+  color: #234123;
   margin: 0 0 8px 0;
   line-height: 1.3;
   display: -webkit-box;
@@ -324,20 +343,22 @@ const getStatusClass = (status) => {
 
 .region {
   font-size: 14px;
-  color: #717171;
+  color: #4d6b4d;
   margin: 0;
   font-weight: 500;
 }
 
 .value {
   font-size: 14px;
-  color: #222222;
+  color: #234123;
   font-weight: 400;
 }
 
 .notice-type {
   display: block;
   margin-bottom: 4px;
+  color: #7fa87f;
+  font-weight: 500;
 }
 
 .area-info {
@@ -348,35 +369,35 @@ const getStatusClass = (status) => {
 .area-unit {
   font-size: 12px;
   font-weight: 400;
-  color: #717171;
+  color: #7fa87f;
   margin-left: 2px;
 }
 
 .notice-status {
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
 }
 
 .status-active {
-  background: #22c55e;
+  background: #a6bfa0;
   color: white;
 }
 
 .status-closed {
-  background: #ef4444;
+  background: #8baa7f;
   color: white;
 }
 
 .status-default {
-  background: #64748b;
+  background: #7fa87f;
   color: white;
 }
 
 @media (max-width: 480px) {
   .house-info {
-    padding: 16px;
+    padding: 12px;
   }
 
   .house-name {
