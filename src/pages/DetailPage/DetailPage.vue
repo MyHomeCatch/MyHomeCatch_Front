@@ -237,6 +237,7 @@ onMounted(async () => {
     loading.value = false;
     return;
   }
+
   try {
     loading.value = true;
 

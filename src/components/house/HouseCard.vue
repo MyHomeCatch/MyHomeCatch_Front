@@ -20,31 +20,29 @@
         alt="아파트 이미지"
         class="house-image"
       />
-      <div class="image-overlay">
-        <div class="heart-icon" @click.stop="toggleFavorite">
-          {{ isFavorite ? '♥' : '♡' }}
+      <div class="image-overlay" :class="{ 'show-always': localIsFavorited }">
+        <div
+          class="bookmark-icon"
+          :class="{ favorited: localIsFavorited }"
+          @click.stop="toggleFavorite"
+          :disabled="favoriteLoading"
+        >
+          <!-- <span  class="loading-spinner">⏳</span> -->
+          <i v-if="favoriteLoading" class="bi bi-bookmark-fill"></i>
+          <i v-else-if="!localIsFavorited" class="bi bi-bookmark"></i>
+          <i v-else class="bi bi-bookmark-fill"></i>
         </div>
       </div>
       <!-- 주택 타입 배지 -->
-      <div class="housing-type-badge">무엇인가 적을곳</div>
+      <div class="housing-type-badge">{{ house.noticeType || '주택' }}</div>
     </div>
 
     <!-- 아파트 정보 -->
     <div class="house-info">
       <div class="location-info">
         <h3 class="house-name">{{ house.houseName }}</h3>
-        <!-- <p class="address">{{ house.address }}</p> -->
-        <div
-          style="
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-          "
-        >
-          <span class="region">
-            {{ house.region }}
-          </span>
+        <div class="house-details">
+          <span class="region">{{ house.region }}</span>
           <span
             class="value notice-status"
             :class="getStatusClass(house.noticeStatus)"
@@ -52,8 +50,8 @@
             {{ house.noticeStatus }}
           </span>
         </div>
-        <span class="value">{{ house.noticeType }}</span>
-        <div>
+        <span class="value notice-type">{{ house.noticeType }}</span>
+        <div class="area-info">
           <span class="value">{{ house.exclusiveArea }}</span>
           <span class="area-unit">m<sup>2</sup></span>
         </div>
@@ -63,7 +61,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import axios from 'axios';
+import { ref, computed, watch } from 'vue';
+import { useAuthStore } from '../../stores/auth';
+import { addBookmark, removeBookmark } from '../../api/bookmardApi';
 
 // Props
 const props = defineProps({
@@ -71,35 +72,115 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  favoriteList: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 // Emits
 const emit = defineEmits(['card-click', 'toggle-favorite']);
 
 // State
-const isFavorite = ref(false);
+const favoriteLoading = ref(false);
+const localIsFavorited = ref(false);
+const auth = useAuthStore();
+
+// favoriteList prop 기반으로 초기 상태 설정
+const checkIfFavorited = () => {
+  if (!props.favoriteList || !Array.isArray(props.favoriteList)) {
+    return false;
+  }
+
+  const result = props.favoriteList.some((fav) => {
+    return fav.danziId == props.house.danziId;
+  });
+
+  return result;
+};
+
+// favoriteList가 변경될 때만 로컬 상태 업데이트
+watch(
+  () => props.favoriteList,
+  (newFavoriteList, oldFavoriteList) => {
+    const newIsFavorited = checkIfFavorited();
+    if (localIsFavorited.value !== newIsFavorited) {
+      localIsFavorited.value = newIsFavorited;
+    }
+  },
+  {
+    deep: true,
+    immediate: true,
+  }
+);
+
+// danziId 변경 시에도 확인
+watch(
+  () => props.house.danziId,
+  (newDanziId, oldDanziId) => {
+    if (newDanziId !== oldDanziId) {
+      localIsFavorited.value = checkIfFavorited();
+    }
+  },
+  { immediate: true }
+);
 
 // Methods
 const onCardClick = () => {
   emit('card-click', props.house);
 };
 
-const toggleFavorite = () => {
-  isFavorite.value = !isFavorite.value;
-  emit('toggle-favorite', {
-    houseId: props.house.houseId,
-    isFavorite: isFavorite.value,
-  });
+const toggleFavorite = async () => {
+  if (!auth.isLoggedIn) {
+    alert('로그인이 필요합니다.');
+    return;
+  }
+
+  favoriteLoading.value = true;
+  const wasBookmarked = localIsFavorited.value;
+
+  // 낙관적 업데이트
+  localIsFavorited.value = !wasBookmarked;
+
+  try {
+    const bookmarkData = {
+      userId: auth.user.id,
+      danziId: props.house.danziId,
+    };
+
+    let response;
+
+    if (wasBookmarked) {
+      response = await removeBookmark(bookmarkData, auth.token);
+    } else {
+      response = await addBookmark(bookmarkData, auth.token);
+    }
+
+    // 부모 컴포넌트에 변경사항 알림
+    emit('toggle-favorite', {
+      danziId: props.house.danziId,
+      houseId: props.house.houseId,
+      isFavorited: !wasBookmarked,
+      action: wasBookmarked ? 'remove' : 'add',
+      success: true,
+    });
+  } catch (error) {
+    console.error('즐겨찾기 처리 오류:', error);
+
+    if (error.response?.status === 401) {
+      alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+    }
+  } finally {
+    favoriteLoading.value = false;
+  }
 };
 
 const getStatusClass = (status) => {
-  if (status === '접수중' || status === '진행중') return 'status-active';
-  if (status === '마감' || status === '종료') return 'status-closed';
+  if (status === '접수중' || status === '진행중' || status === '공고중')
+    return 'status-active';
+  if (status === '마감' || status === '종료' || status === '접수마감')
+    return 'status-closed';
   return 'status-default';
-};
-
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('ko-KR');
 };
 </script>
 
@@ -116,7 +197,6 @@ const formatDate = (dateString) => {
   width: 100%;
   aspect-ratio: 1;
   overflow: hidden;
-  background: #f8f9fa;
 }
 
 .house-image {
@@ -144,11 +224,17 @@ const formatDate = (dateString) => {
   transition: opacity 0.3s ease;
 }
 
+/* 호버 시 표시 */
 .house-card:hover .image-overlay {
   opacity: 1;
 }
 
-.heart-icon {
+/* 북마크가 되어있으면 항상 표시 */
+.image-overlay.show-always {
+  opacity: 1;
+}
+
+.bookmark-icon {
   width: 32px;
   height: 32px;
   background: rgba(255, 255, 255, 0.9);
@@ -159,12 +245,40 @@ const formatDate = (dateString) => {
   font-size: 16px;
   color: #717171;
   transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none;
 }
 
-.heart-icon:hover {
+.bookmark-icon:hover {
   background: white;
   color: #ff385c;
   transform: scale(1.1);
+}
+
+.bookmark-icon.favorited {
+  color: #ff385c;
+}
+
+.bookmark-icon.favorited:hover {
+  color: #e31c5f;
+}
+
+.bookmark-icon:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .housing-type-badge {
@@ -200,11 +314,12 @@ const formatDate = (dateString) => {
   overflow: hidden;
 }
 
-.address {
-  font-size: 14px;
-  color: #717171;
-  margin: 0 0 4px 0;
-  line-height: 1.4;
+.house-details {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 4px;
 }
 
 .region {
@@ -214,32 +329,20 @@ const formatDate = (dateString) => {
   font-weight: 500;
 }
 
-.supply-info {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-  padding: 12px;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.supply-detail {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.label {
-  font-size: 13px;
-  color: #717171;
-  font-weight: 500;
-}
-
 .value {
   font-size: 14px;
   color: #222222;
   font-weight: 400;
+}
+
+.notice-type {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.area-info {
+  display: flex;
+  align-items: baseline;
 }
 
 .area-unit {
@@ -271,17 +374,6 @@ const formatDate = (dateString) => {
   color: white;
 }
 
-.date-info {
-  border-top: 1px solid #f0f0f0;
-  padding-top: 12px;
-}
-
-.apply-date {
-  font-size: 13px;
-  color: #717171;
-  font-weight: 500;
-}
-
 @media (max-width: 480px) {
   .house-info {
     padding: 16px;
@@ -291,11 +383,7 @@ const formatDate = (dateString) => {
     font-size: 16px;
   }
 
-  .supply-info {
-    padding: 10px;
-  }
-
-  .supply-detail {
+  .house-details {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
