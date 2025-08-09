@@ -1,7 +1,9 @@
 <template>
   <div>
     <!-- 챗봇 버튼 -->
-    <button class="chatbot-button" @click="isOpen = !isOpen">💬</button>
+    <button class="chatbot-button" @click="isOpen = !isOpen">
+      <img src="../assets/images/chatbot.png" alt="챗봇 로고 이미지" />
+    </button>
 
     <!-- 챗봇 모달 -->
     <div v-if="isOpen" class="chatbot-modal">
@@ -125,12 +127,20 @@ const sendMessage = async () => {
   font-weight: bold;
 }
 
-.chatbot-header button {
+::v-deep(.chatbot-header button) {
   background: none;
   border: none;
-  color: white;
+  color: #fff !important;
+  cursor: pointer;
   font-size: 18px;
   cursor: pointer;
+}
+
+.chatbot-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 이미지 비율 유지하면서 안에 맞춤 */
+  border-radius: 50%;
 }
 
 .chatbot-body {
