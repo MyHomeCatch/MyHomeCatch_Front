@@ -36,13 +36,25 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, watch } from 'vue';
 import axios from 'axios';
 
 const isOpen = ref(false);
 const userInput = ref('');
 const messages = ref([]);
 const chatBody = ref(null);
+
+// messages 배열이 변경될 때마다 스크롤을 맨 아래로 이동
+watch(
+  messages,
+  async () => {
+    await nextTick();
+    if (chatBody.value) {
+      chatBody.value.scrollTop = chatBody.value.scrollHeight;
+    }
+  },
+  { deep: true }
+);
 
 const sendMessage = async () => {
   const text = userInput.value.trim();
@@ -63,10 +75,6 @@ const sendMessage = async () => {
       text: '❌ 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
     });
   }
-
-  // 스크롤 맨 아래로
-  await nextTick();
-  chatBody.value.scrollTop = chatBody.value.scrollHeight;
 };
 </script>
 
