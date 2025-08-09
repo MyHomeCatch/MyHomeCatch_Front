@@ -109,7 +109,7 @@ const primaryApply = computed(() => props.applyInfo && props.applyInfo.length > 
 // PDF 공고문 첨부파일 URL 찾기
 const pdfAttachmentUrl = computed(() => {
   if (primaryNotice.value && primaryNotice.value.noticeAttachments) {
-    const pdfFile = primaryNotice.value.noticeAttachments.find(file => file.cmnAhflNm.toLowerCase().endsWith('.pdf'));
+    const pdfFile = primaryNotice.value.noticeAttachments[0];
     return pdfFile ? pdfFile.ahflUrl : null;
   }
   return null;

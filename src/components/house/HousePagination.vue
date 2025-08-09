@@ -79,65 +79,148 @@ const getPageNumbers = () => {
   align-items: center;
   gap: 8px;
   margin-top: 48px;
+  padding: 20px;
 }
 
 .page-button {
-  padding: 8px 16px;
-  border: 1px solid #e0e0e0;
+  padding: 10px 18px;
+  border: 2px solid #b7c7b7;
   background: white;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.2s ease;
+  font-weight: 500;
+  color: #4d6b4d;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(166, 191, 160, 0.1);
 }
 
 .page-button:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  background: #f8faf7;
+  color: #7fa87f;
+  box-shadow: none;
 }
 
 .page-button:not(:disabled):hover {
-  background: #f8f9fa;
-  border-color: #d0d0d0;
+  background: #eaf5e6;
+  border-color: #a6bfa0;
+  color: #234123;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(166, 191, 160, 0.2);
+}
+
+.page-button:not(:disabled):active {
+  transform: translateY(0);
 }
 
 .page-numbers {
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
 .page-number {
-  width: 40px;
-  height: 40px;
-  border: 1px solid #e0e0e0;
+  width: 42px;
+  height: 42px;
+  border: 2px solid #b7c7b7;
   background: white;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
+  color: #4d6b4d;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(166, 191, 160, 0.1);
 }
 
 .page-number:hover {
-  background: #f8f9fa;
-  border-color: #d0d0d0;
+  background: #eaf5e6;
+  border-color: #a6bfa0;
+  color: #234123;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(166, 191, 160, 0.2);
 }
 
 .page-number.active {
-  background: #ff385c;
+  background: linear-gradient(135deg, #a6bfa0 0%, #8baa7f 100%);
   color: white;
-  border-color: #ff385c;
+  border-color: #7fa87f;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(166, 191, 160, 0.3);
+}
+
+.page-number.active:hover {
+  background: linear-gradient(135deg, #8baa7f 0%, #7fa87f 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(166, 191, 160, 0.4);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .pagination {
+    margin-top: 40px;
+    padding: 16px;
+  }
+
+  .page-button {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .page-number {
+    width: 38px;
+    height: 38px;
+    font-size: 13px;
+  }
 }
 
 @media (max-width: 768px) {
   .pagination {
     margin-top: 32px;
+    padding: 14px;
+    gap: 6px;
   }
 
   .page-numbers {
     flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .page-button {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .page-number {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pagination {
+    margin-top: 24px;
+    padding: 12px;
+    gap: 4px;
+    border-radius: 12px;
+  }
+
+  .page-button {
+    padding: 6px 12px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+
+  .page-number {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+    border-radius: 8px;
   }
 }
 </style>

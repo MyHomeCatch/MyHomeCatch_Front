@@ -1,6 +1,7 @@
 <template>
   <div>
     <!-- 챗봇 버튼 -->
+
     <button class="chatbot-button" @click="isOpen = !isOpen">
       <img src="../assets/images/chatbot.png" alt="챗봇 로고 이미지" />
     </button>
@@ -39,12 +40,14 @@
 
 <script setup>
 import { ref, nextTick, watch } from 'vue';
+
 import axios from 'axios';
 
 const isOpen = ref(false);
 const userInput = ref('');
 const messages = ref([]);
 const chatBody = ref(null);
+
 
 // messages 배열이 변경될 때마다 스크롤을 맨 아래로 이동
 watch(
@@ -57,6 +60,7 @@ watch(
   },
   { deep: true }
 );
+
 
 const sendMessage = async () => {
   const text = userInput.value.trim();
@@ -77,6 +81,12 @@ const sendMessage = async () => {
       text: '❌ 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
     });
   }
+
+
+  // 스크롤 맨 아래로
+  await nextTick();
+  chatBody.value.scrollTop = chatBody.value.scrollHeight;
+
 };
 </script>
 
@@ -127,14 +137,17 @@ const sendMessage = async () => {
   font-weight: bold;
 }
 
+
 ::v-deep(.chatbot-header button) {
   background: none;
   border: none;
   color: #fff !important;
   cursor: pointer;
+
   font-size: 18px;
   cursor: pointer;
 }
+
 
 .chatbot-button img {
   width: 100%;
@@ -142,6 +155,7 @@ const sendMessage = async () => {
   object-fit: contain; /* 이미지 비율 유지하면서 안에 맞춤 */
   border-radius: 50%;
 }
+
 
 .chatbot-body {
   flex: 1;

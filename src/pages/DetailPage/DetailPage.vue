@@ -238,40 +238,65 @@ onMounted(async () => {
     return;
   }
 
-  // Fetch house card data for the map
-  const houseCardResponse = await getHouseCardById(danziId);
-  houseCard.value = houseCardResponse.data;
+  try {
+    loading.value = true;
 
-  // Fetch bookmark count
-  const bookmarkResponse = await getBookmarksByHouseId(danziId);
-  bookmarkCount.value = bookmarkResponse.data;
-  console.log('북마크 카운트:', bookmarkCount.value);
+    await loadHouseDetail();
 
-  await loadHouseDetail();
+    const houseCardPromise = getHouseCardById(danziId);
+    const bookmarkPromise = getBookmarksByHouseId(danziId)
+      .catch(error => {
+        console.error('북마크 정보 로드 실패:', error);
+        return { data: 0 }; // Return a default value on failure
+      });
+
+    const [houseCardResponse, bookmarkResponse] = await Promise.all([
+      houseCardPromise,
+      bookmarkPromise
+    ]);
+
+
+    houseCard.value = houseCardResponse.data;
+    bookmarkCount.value = bookmarkResponse.data;
+  } catch (err) {
+    console.error('데이터 로드 실패:', err);
+    error.value = '데이터를 불러오는 데 실패했습니다.';
+  } finally {
+    loading.value = false;
+  }
 });
 
 const loadHouseDetail = async () => {
   const danziId = route.params.id;
+  if (!danziId) {
+    error.value = '잘못된 접근입니다. 주택 ID가 없습니다.';
+    loading.value = false;
+    return;
+  }
+
   try {
+    let response;
     if (authStore.isLoggedIn) {
       const selfCheckResult = await selfCheckAPI.getSelfCheckResult();
-      const response = await getHouseDetailByIdWithSelfCheck(
+      response = await getHouseDetailByIdWithSelfCheck(
         authStore.user.id,
         selfCheckResult,
         danziId
       );
-      if (response) {
-        houseData.value = response.data;
+    } else {
+      response = await getHouseDetailById(danziId);
+    }
+
+    if (response && response.data) {
+      houseData.value = response.data;
+      if (response.data.selfCheckMatchResult) {
         selfCheckMatchResult.value = response.data.selfCheckMatchResult;
       }
-    } else {
-      const response = await getHouseDetailById(danziId);
-      houseData.value = response.data;
     }
   } catch (error) {
-    console.error('데이터 로드 실패:', error);
-  } finally {
-    loading.value = false;
+    console.error('House detail-데이터 로드 실패:', error);
+    // 여기서 에러를 다시 던져 Promise.all이 catch하도록 할 수 있습니다.
+    throw error;
   }
 };
 
@@ -283,28 +308,19 @@ const toggleLike = async () => {
       return;
     }
 
-    isLiked.value = !isLiked.value;
-
     const bookmarkData = {
       userId: authStore.user.id,
       danziId: danziId,
     };
 
     if (isLiked.value) {
-      await bookmarkApi.createBookmark(bookmarkData);
-      alert('즐겨찾기에 추가되었습니다.');
-    } else {
       await bookmarkApi.deleteBookmark(bookmarkData);
-      isLiked.value = false;
-      alert('즐겨찾기에서 삭제되었습니다.');
+      bookmarkCount.value--;
+    } else {
+      await bookmarkApi.createBookmark(bookmarkData);
+      bookmarkCount.value++;
     }
-
-    await getBookmarksByHouseId(danziId).then((response) => {
-      console.log('북마크 카운트:', response.data);
-      bookmarkCount.value = response.data;
-    });
-    // 북마크 상태 반영을 위해 새로 로드
-    await loadHouseDetail();
+    isLiked.value = !isLiked.value;
   } catch (error) {
     console.error('좋아요 처리 실패:', error);
     alert('서버 오류가 발생했습니다.');
