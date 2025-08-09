@@ -64,6 +64,7 @@
 
 <script setup>
 import { ref, onMounted, computed, nextTick, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import HouseFilter from '../components/house/HouseFilter.vue';
 import HousePagination from '../components/house/HousePagination.vue';
 
@@ -79,6 +80,10 @@ import HouseMapSection from '../components/house/HouseMapSection.vue';
 import HouseSearchLogic from '../components/house/HouseSearchLogic.vue';
 import { useAuthStore } from '../stores/auth';
 import { getBookmarks } from '../api/bookmardApi';
+
+const router = useRouter();
+const route = useRoute();
+const mapViewerRef = ref(null);
 
 // Auth
 const auth = useAuthStore();
