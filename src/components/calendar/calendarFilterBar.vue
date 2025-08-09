@@ -6,7 +6,7 @@
       <div class="button-group top">
         <!-- ✅ 내 조건 체크박스 -->
         <label class="checkbox-label">
-          <input type="checkbox" @change="startSelfCheck" />
+          <input type="checkbox" ref="selfCheckRef" @change="startSelfCheck" />
           지원 가능한 청약만 보기
         </label>
         <button class="reset-btn" @click="resetAll()">필터 초기화</button>
@@ -74,6 +74,7 @@ import { calendarColorMap } from '@/assets/calendarColorMap.js';
 const router = useRouter();
 const emit = defineEmits(['update:filters']);
 
+const selfCheckRef = ref(null);
 const currentTab = ref('공고유형');
 const tabOptions = ['공고유형', '공급지역'];
 
@@ -126,10 +127,10 @@ const getTypeStyle = (code) => {
 };
 
 const resetAll = () => {
-  selectedChoice.value = {
-    type: [],
-    region: [],
-  };
+  selectedChoice.value = { type: [], region: [] };
+  if (selfCheckRef.value) {
+    selfCheckRef.value.checked = false; // 체크 해제
+  }
 };
 
 const toggleOption = (filterKey, option) => {
@@ -174,25 +175,29 @@ async function startSelfCheck(event) {
       const shouldLogin = window.confirm(
         '로그인이 필요한 서비스입니다. 로그인 하시겠습니까?'
       );
+      event.target.checked = false;
       if (shouldLogin) {
         router.push('/login');
       }
       return;
     }
 
-    // 2. 로그인된 경우
+    // 2. 로그인 된 경우 → 세대 정보 먼저 최신화
+    await myPageStore.getHouseholdInfo();
+
+    if (householdInfoError.value) {
+      const shouldSelfCheck = window.confirm(
+        '지원 조건 확인을 위해 자가진단이 필요합니다. 자가진단 페이지로 이동할까요?'
+      );
+      if (shouldSelfCheck) router.push({ name: 'SelfCheck' });
+      return;
+    }
+
+    // 4. 체크박스 체크 시 지원가능 리스트 필터 적용
     if (isChecked) {
-      await myPageStore.getSupportableList(); // 리스트 호출
+      await myPageStore.getSupportableList();
 
-      if (householdInfoError.value) {
-        const shouldSelfCheck = window.confirm(
-          '지원 조건 확인을 위해 자가진단이 필요합니다. 자가진단 페이지로 이동할까요?'
-        );
-        if (shouldSelfCheck) router.push({ name: 'SelfCheck' });
-        return;
-      }
-
-      // calendarColorMap 기반 label → code 매핑 객체 생성
+      // calendarColorMap 기반 label → code 매핑 객체
       const labelToCodeMap = Object.entries(calendarColorMap).reduce(
         (acc, [code, { label }]) => {
           acc[label] = code;
@@ -204,20 +209,22 @@ async function startSelfCheck(event) {
       // supportableList에서 code 목록 추출
       const supportedCodes = supportableList.value
         .map((item) => {
-          // "공공분양"은 "분양주택"으로 매핑
+          // "공공분양" → "분양주택" 매핑
           const normalizedName =
             item.name === '공공분양' ? '분양주택' : item.name;
           return labelToCodeMap[normalizedName];
         })
-        .filter(Boolean); // undefined 제거
+        .filter(Boolean);
 
-      // 선택한 코드 저장
+      // 필터에 반영
       selectedChoice.value.type = supportedCodes;
     } else {
+      // 체크 해제 시 필터 해제
       selectedChoice.value.type = [];
     }
   } catch (error) {
     console.error('자가진단 필터 처리 중 오류 발생:', error);
+    event.target.checked = false;
   }
 }
 </script>
