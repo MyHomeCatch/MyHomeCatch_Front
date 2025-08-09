@@ -39,36 +39,6 @@
           <button class="action-btn primary" @click="handleDetailView">
             자세히 보기
           </button>
-          <button class="action-btn secondary" @click="handleFavorite">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              class="heart-icon"
-            >
-              <path
-                d="m8 14.25.345-.666c-.03.014-.069.014-.09 0L8 14.25zm5.697-8.423-.348-.662.348.662zm-.53 5.554-.348-.662.348.662zm-5.513 2.206c.007-.003.016-.003.023 0l-.023 0zm.692 0 .023 0c.007.003.016.003.023 0l-.046 0zm5.167-2.868c.027.047.027.105 0 .152l.696-.38c.174.32.174.712 0 1.032l-.696-.38-.054-.076c-.026-.036-.026-.088 0-.124l.054-.076.696-.38zm-5.513 2.206-.023 0 .023 0zm0 0c-2.344-.88-4.522-2.643-4.522-5.179C3 4.364 4.23 3 5.727 3c1.267 0 2.096.826 2.273 1.543.177-.717 1.006-1.543 2.273-1.543C11.77 3 13 4.364 13 5.746c0 2.536-2.178 4.299-4.522 5.179-.007.003-.016.003-.023 0l.023 0z"
-                stroke="currentColor"
-                fill="none"
-              />
-            </svg>
-            관심 등록
-          </button>
-        </div>
-
-        <!-- 추가 정보 섹션 -->
-        <div class="house-extra-info" v-if="house.monthlyRent || house.deposit">
-          <div class="price-info">
-            <span class="price-label">월세</span>
-            <span class="price-value">{{
-              formatPrice(house.monthlyRent)
-            }}</span>
-          </div>
-          <div class="price-info" v-if="house.deposit">
-            <span class="price-label">보증금</span>
-            <span class="price-value">{{ formatPrice(house.deposit) }}</span>
-          </div>
         </div>
       </div>
     </div>
@@ -92,7 +62,8 @@ defineEmits(['close']);
 const router = useRouter();
 
 const handleDetailView = () => {
-  localStorage.setItem('currentHouseDetail', JSON.stringify(props.house));
+  // 이젠 localSotrage 안씀
+  // localStorage.setItem('currentHouseCard', JSON.stringify(props.house));
   const houseId = props.house.houseId || props.house.danziId;
   console.log('자세히 보기 클릭', houseId);
   if (houseId) {
@@ -122,6 +93,7 @@ const formatPrice = (price) => {
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16), 0 0 1px rgba(0, 0, 0, 0.1),
     0 2px 4px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(0, 0, 0, 0.05);
+  min-width: 190px;
   max-width: 220px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     'Helvetica Neue', sans-serif;

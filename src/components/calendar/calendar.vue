@@ -75,7 +75,6 @@ const totalCount = ref(0); // 전체 건수 저장용
 const filters = ref({
   type: [],
   region: [],
-  mine: [],
 });
 
 // 날짜를 'YYYY-MM-DD' 형식 문자열로 변환
@@ -157,7 +156,7 @@ function filterCheck(array) {
 // 필터 적용된 이벤트 목록 계산
 const filteredEvents = computed(() => {
   return dailyEvents.value.filter((event) => {
-    const { type, region, mine } = filters.value;
+    const { type, region } = filters.value;
 
     // 필터 선택 없으면 모두 true
     const typeMatch = filterCheck(type) || type.includes(event.noticeTypeCode);
@@ -165,10 +164,8 @@ const filteredEvents = computed(() => {
       filterCheck(region) ||
       region.includes('전체') ||
       region.includes(event.region);
-    const mineMatch =
-      filterCheck(mine) || mine.some((m) => event.mine?.includes(m));
 
-    return typeMatch && regionMatch && mineMatch;
+    return typeMatch && regionMatch;
   });
 });
 

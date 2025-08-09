@@ -8,9 +8,7 @@ import Footer from './Footer.vue';
   <div class="app-wrapper">
     <Header />
     <div class="navbar-sticky">
-      <div class="container">
         <NavBar />
-      </div>
     </div>
 
     <div class="container">

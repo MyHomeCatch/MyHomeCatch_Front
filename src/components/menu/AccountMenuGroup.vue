@@ -16,8 +16,8 @@ const { isLoggedIn, user } = storeToRefs(authStore);
       <MenuItem :menu="join" variant="account" />
     </template>
     <template v-else>
-      <li class="nav-item d-flex align-items-center text-white fw-bold me-2">
-        <router-link to="/mypage" class="nav-link text-white fw-bold">
+      <li class="nav-item d-flex align-items-center text-white me-2">
+        <router-link to="/mypage" class="nav-link text-white">
           {{ user.nickname }}님
         </router-link>
       </li>
