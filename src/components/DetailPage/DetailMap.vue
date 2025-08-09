@@ -21,11 +21,8 @@ import { ref, watch, defineProps, computed } from 'vue';
 import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue';
 
-
 const props = defineProps({
-  initialLat: { type: Number, default: 33.450701 },
-  initialLng: { type: Number, default: 126.570667 },
-  houses: { type: Array, default: () => [] }, 
+  houses: { type: Array, default: () => [] },
   selectedCategory: { type: String, default: '' }, // 선택된 주변시설 카테고리
 });
 
@@ -33,8 +30,8 @@ const loading = ref(true);
 
 // 상태 변수
 const coordinate = ref({
-  lat: props.initialLat,
-  lng: props.initialLng,
+  lat: 33.450701,
+  lng: 126.570667,
 });
 
 const geocoder = ref(null);
@@ -44,7 +41,6 @@ const map = ref(null);
 const hasValidCoordinate = computed(() => {
   return !!coordinate.value.lat && !!coordinate.value.lng;
 });
-
 
 const onMapLoad = (mapInstance) => {
   map.value = mapInstance;

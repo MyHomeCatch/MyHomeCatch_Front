@@ -124,4 +124,9 @@ export default {
     return data;
   },
 
+  // 진단 내용
+  async getSelfCheckResult(){
+    const { data } = await api.get('/self-check/results');
+    return data;
+  }
 };

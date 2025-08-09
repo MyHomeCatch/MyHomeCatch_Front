@@ -1,70 +1,111 @@
 <template>
   <div
-    class="position-relative mx-auto"
-    style="max-width: 820px; overflow: visible"
+    class="bookmark-section"
+    style="padding: 1rem 2rem; max-width: 800px; margin: 0 auto"
   >
-    <button class="carousel-arrow start" @click="scrollLeft">
-      <i class="bi bi-chevron-left"></i>
-    </button>
-    <button class="carousel-arrow end" @click="scrollRight">
-      <i class="bi bi-chevron-right"></i>
-    </button>
-
-    <div
-      class="d-flex px-4 gap-3"
-      ref="scrollContainer"
-      style="scroll-behavior: smooth; overflow-x: auto"
-    >
-      <FavoritesCard v-for="(item, i) in items" :key="i" :item="item" />
-    </div>
+    <HorizonzontalCardScroller
+      :title="'북마크'"
+      :cards="danziList"
+      :loading="loading"
+      :key-field="'danziId'"
+      :favorite-list="bookmarks"
+      :empty-config="emptyConfig"
+      @toggle-favorite="handleToggleFavorite"
+      @empty-action="loadBookmarks"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import FavoritesCard from './FavoritesCard.vue';
-defineProps({ items: Array });
-const scrollContainer = ref(null);
-const scrollLeft = () =>
-  scrollContainer.value.scrollBy({ left: -196, behavior: 'smooth' });
-const scrollRight = () =>
-  scrollContainer.value.scrollBy({ left: 196, behavior: 'smooth' });
+import { computed, onMounted, ref, watch } from 'vue';
+import { getBookmarks } from '../../api/bookmardApi';
+import { useAuthStore } from '../../stores/auth';
+import HorizonzontalCardScroller from '../house/HorizontalCardScroller.vue';
+import axios from 'axios';
+
+const auth = useAuthStore();
+
+// State
+const bookmarks = ref([]);
+const danziList = ref([]); // computed가 아닌 ref로 변경
+const loading = ref(false);
+
+// Empty config
+const emptyConfig = {
+  icon: '🏠',
+  title: '북마크한 공고가 없습니다',
+  description: '관심있는 주택을 북마크해보세요.',
+  showButton: false,
+  buttonText: '다시 찾아보기',
+};
+
+// Methods
+const handleToggleFavorite = (data) => {};
+
+const loadBookmarkCards = async (bookmarkList) => {
+  if (!bookmarkList || bookmarkList.length === 0) {
+    danziList.value = [];
+    return;
+  }
+
+  try {
+    // 모든 API 호출을 병렬로 실행
+    const promises = bookmarkList.map((bookmark) =>
+      axios
+        .get(`/api/api/house/card/${bookmark.danziId}`)
+        .then((response) => response.data)
+        .catch((error) => {
+          console.error(
+            `카드 로드 실패 (danziId: ${bookmark.danziId}):`,
+            error
+          );
+          return null; // 실패한 경우 null 반환
+        })
+    );
+
+    const results = await Promise.all(promises);
+
+    // null이 아닌 결과만 필터링
+    danziList.value = results.filter((data) => data !== null);
+  } catch (error) {
+    console.error('북마크 카드 로드 중 오류:', error);
+    danziList.value = [];
+  }
+};
+
+const loadBookmarks = async () => {
+  loading.value = true;
+
+  try {
+    const res = await getBookmarks(auth.token);
+    bookmarks.value = [...res.bookmarks];
+
+    // 북마크 목록이 로드되면 각 카드 정보를 가져옴
+    await loadBookmarkCards(bookmarks.value);
+  } catch (error) {
+    console.error('북마크 로드 실패:', error);
+    bookmarks.value = [];
+    danziList.value = [];
+  } finally {
+    loading.value = false;
+    console.log('  ⚠️  : ', danziList.value);
+  }
+};
+
+// 컴포넌트 마운트 시 초기화
+onMounted(() => {
+  loadBookmarks();
+});
 </script>
 
 <style scoped>
-.d-flex::-webkit-scrollbar {
-  display: none;
-}
-.d-flex {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* 화살표 */
-.carousel-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 34px;
-  height: 34px;
-  border: none;
-  background-color: white;
-  border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  color: #333;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-.carousel-arrow:hover {
-  background-color: #f0f0f0;
-}
-.carousel-arrow.start {
-  left: -12px;
-}
-.carousel-arrow.end {
-  right: -12px;
+.bookmark-section {
+  max-width: 100%;
+  padding: 2rem 1.5rem;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 16px;
+  margin-top: 1.5rem;
 }
 </style>

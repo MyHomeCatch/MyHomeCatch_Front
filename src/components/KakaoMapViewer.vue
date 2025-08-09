@@ -22,6 +22,9 @@ const selectedPlaceInfo = ref(null); // 인포윈도우에 표시될 장소 정�
 const selectedMarker = ref(null); // LH 단지 인포윈도우 정보
 const activeHouseCenter = ref(null); // 현재 선택된 HouseCard의 좌표
 const currentCategory = ref(props.selectedCategory); // 현재 선택된 카테고리
+const isLoading = ref(false); // 로딩 상태
+const loadingProgress = ref(0); // 로딩 진행률
+const totalHouses = ref(0); // 전체 주택 수
 let customOverlay = null;
 let geocoder = null;
 let places = null; // 장소 검색 객체
@@ -46,7 +49,13 @@ watch(
   (newCategory) => {
     currentCategory.value = newCategory;
     if (newCategory && map.value && activeHouseCenter.value) {
-      searchPlaces( newCategory, new kakao.maps.LatLng(activeHouseCenter.value.lat, activeHouseCenter.value.lng)  );
+      searchPlaces(
+        newCategory,
+        new kakao.maps.LatLng(
+          activeHouseCenter.value.lat,
+          activeHouseCenter.value.lng
+        )
+      );
     } else {
       publicFacilityMarkers.value = [];
       // 카테고리 없으면 마커 초기화
@@ -73,9 +82,9 @@ const placesSearchCB = (data, status, pagination) => {
   if (status === window.kakao.maps.services.Status.OK) {
     displayPlaces(data);
   } else if (status === window.kakao.maps.services.Status.ZERO_RESULT) {
-    console.warn('검색 결과가 없습니다.');
+    // console.warn('검색 결과가 없습니다.');
   } else if (status === window.kakao.maps.services.Status.ERROR) {
-    console.error('장소 검색 중 오류가 발생했습니다.');
+    // console.error('장소 검색 중 오류가 발생했습니다.');
   }
 };
 
@@ -111,7 +120,12 @@ const displayPlaces = (placesData) => {
   //   map.value.setCenter(newLatLng);
   //   // 카카오맵을 단지 마커가 중심으로 가게 고정
   // }
-  map.value.setCenter(new kakao.maps.LatLng(activeHouseCenter.value.lat, activeHouseCenter.value.lng));
+  map.value.setCenter(
+    new kakao.maps.LatLng(
+      activeHouseCenter.value.lat,
+      activeHouseCenter.value.lng
+    )
+  );
   map.value.setLevel(5);
 };
 
@@ -119,8 +133,6 @@ const displayPlaces = (placesData) => {
 watch(
   () => props.houses,
   (newHouses) => {
-    console.log('  ⚠️  : ', newHouses);
-
     if (!map.value) return;
 
     if (newHouses.length > 0) {
@@ -131,6 +143,8 @@ watch(
       selectedPlaceInfo.value = null;
       selectedMarker.value = null;
       activeHouseCenter.value = null;
+      isLoading.value = false;
+      loadingProgress.value = 0;
     }
   },
   { deep: true }
@@ -142,16 +156,33 @@ const loadAllComplexes = async () => {
     return;
   }
 
-  markers.value = []; // 기존 마커 초기화
+  // 로딩 시작
+  isLoading.value = true;
+  loadingProgress.value = 0;
+  totalHouses.value = props.houses.length;
+
+  // 마커를 임시로 숨김
+  markers.value = [];
   publicFacilityMarkers.value = []; // 기존 단지주변 공공시설 마커 초기화
   const bounds = new window.kakao.maps.LatLngBounds(); // 지도 영역 설정용
+  const tempMarkers = []; // 임시 마커 배열
 
   // 각 단지에 대해 지오코딩 수행
-  for (const house of props.houses) {
-    await geocodeComplex(house, bounds);
+  for (let i = 0; i < props.houses.length; i++) {
+    const house = props.houses[i];
+    const result = await geocodeComplex(house, bounds);
+    if (result) {
+      tempMarkers.push(result);
+    }
+
+    // 진행률 업데이트
+    loadingProgress.value = Math.round(((i + 1) / props.houses.length) * 100);
   }
 
-  console.log('  ⚠️  : ', bounds);
+  // 로딩 완료 후 한번에 마커 표시
+  markers.value = tempMarkers;
+  isLoading.value = false;
+  loadingProgress.value = 0;
 
   if (markers.value.length === 1) {
     // 마커가 하나뿐인 경우 해당 위치로 이동하고 적절한 줌 레벨 설정
@@ -241,9 +272,6 @@ const geocodeDetailedAddress = (
         house: house, // 원본 complex 데이터 보관
       };
 
-      // 마커 배열에 추가
-      markers.value.push(markerData);
-
       // 첫 번째 단지의 경우 지도 중심으로 설정하고 주변 시설 검색
       if (searchFacilities && map.value && map.value.map) {
         coordinate.value = { lat: newLat, lng: newLng };
@@ -254,7 +282,7 @@ const geocodeDetailedAddress = (
 
       if (callback) callback(markerData);
     } else {
-      console.warn(`주소 검색 실패: ${fullAddress} (${status})`);
+      // console.warn(`주소 검색 실패: ${fullAddress} (${status})`);
       // 첫 번째 시도 실패 시 두 번째 시도
       if (attempt === 0) {
         geocodeDetailedAddress(house, 1, searchFacilities, callback);
@@ -287,7 +315,10 @@ const updateMapWithHouse = (house) => {
 
   if (existingMarker) {
     coordinate.value = { lat: existingMarker.lat, lng: existingMarker.lng };
-    activeHouseCenter.value = {lat: existingMarker.lat, lng: existingMarker.lng };
+    activeHouseCenter.value = {
+      lat: existingMarker.lat,
+      lng: existingMarker.lng,
+    };
 
     // 기존 공공시설 마커 초기화
     publicFacilityMarkers.value = [];
@@ -297,8 +328,6 @@ const updateMapWithHouse = (house) => {
         existingMarker.lat,
         existingMarker.lng
       );
-
-      console.log('  ⚠️  : ', '지도 변경');
 
       map.value.setCenter(newLatLng);
       map.value.setLevel(5);
@@ -318,7 +347,6 @@ const onLoadKakaoMap = (newMap) => {
 
 // 인포윈도우 열기 (LH 단지) - 레거시
 const openComplexInfowindow = (marker) => {
-  console.log('LH 단지 마커 클릭:', marker);
   selectedMarker.value = marker;
 };
 
@@ -334,7 +362,25 @@ defineExpose({
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; height: 100%">
+  <div
+    style="
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+    "
+  >
+    <!-- 상단 로딩 표시 -->
+    <div v-if="isLoading" class="top-loading">
+      <div class="loading-indicator">
+        <span class="loading-dots">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </span>
+      </div>
+    </div>
+
     <div style="flex-grow: 1">
       <KakaoMap
         :lat="coordinate.lat"
@@ -391,4 +437,101 @@ defineExpose({
   </div>
 </template>
 
-<style></style>
+<style scoped>
+.top-loading {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(166, 191, 160, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.loading-text-small {
+  color: #234123;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.loading-dots {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  background: #a6bfa0;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: dotPulse 1.4s infinite;
+}
+
+.dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dotPulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .top-loading {
+    top: 12px;
+  }
+
+  .loading-indicator {
+    padding: 0.375rem 0.625rem;
+  }
+
+  .dot {
+    width: 5px;
+    height: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .top-loading {
+    top: 8px;
+  }
+
+  .loading-indicator {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .dot {
+    width: 4px;
+    height: 4px;
+  }
+}
+</style>
