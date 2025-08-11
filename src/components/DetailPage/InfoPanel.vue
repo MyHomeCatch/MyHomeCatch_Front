@@ -88,7 +88,7 @@
             공고 PDF 다운로드
           </button>
           <button
-            @click="$emit('showSummary')"
+            @click="handleShowSummary"
             class="action-button-outline summary-button"
           >
             공고 요약
@@ -100,7 +100,7 @@
 </template>
 
 <script setup>
-import { defineProps, computed } from 'vue';
+import { defineProps, defineEmits, computed } from 'vue';
 
 const props = defineProps({
   danziInfo: {
@@ -135,6 +135,19 @@ const pdfAttachmentUrl = computed(() => {
   }
   return null;
 });
+
+const emit = defineEmits(['request-summary']);
+
+const hasPdf = computed(() => !!pdfAttachmentUrl.value);
+
+const handleShowSummary = () => {
+  if (!hasPdf.value) {
+    alert('공고 PDF를 찾을 수 없습니다.');
+    return;
+  }
+  console.log('[InfoPanel] emit request-summary'); // 디버그
+  emit('request-summary');
+};
 
 const applyStatusText = computed(
   () => primaryNotice.value.panSs || '정보 없음'
