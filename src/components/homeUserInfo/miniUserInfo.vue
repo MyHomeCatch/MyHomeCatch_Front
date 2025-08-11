@@ -73,33 +73,6 @@
 
     <!-- 오른쪽: 자격진단 & 가점계산 -->
     <div class="right-panel">
-      <!-- 자격진단 -->
-      <div class="qualification-check">
-        <h3>자격 진단</h3>
-        <div
-          class="content-box qualification-content"
-          :class="{
-            'large-box': householdInfoError,
-            'small-box': !householdInfoError,
-          }"
-        >
-          <template v-if="householdInfoError">
-            <p>아직 자격 진단을 완료하지 않았습니다.</p>
-            <button class="center-button" @click="goToDiagnosis">
-              자가진단 하러가기
-            </button>
-          </template>
-
-          <template v-else>
-            <ul class="qualification-list">
-              <li v-for="item in qualificationItems" :key="item.label">
-                <strong>{{ item.label }}:</strong> {{ item.value }}
-              </li>
-            </ul>
-          </template>
-        </div>
-      </div>
-
       <!-- 가점계산 -->
       <div class="score-calculation">
         <h3>가점 계산</h3>
