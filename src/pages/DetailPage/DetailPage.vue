@@ -244,17 +244,15 @@ onMounted(async () => {
     await loadHouseDetail();
 
     const houseCardPromise = getHouseCardById(danziId);
-    const bookmarkPromise = getBookmarksByHouseId(danziId)
-      .catch(error => {
-        console.error('북마크 정보 로드 실패:', error);
-        return { data: 0 }; // Return a default value on failure
-      });
+    const bookmarkPromise = getBookmarksByHouseId(danziId).catch((error) => {
+      console.error('북마크 정보 로드 실패:', error);
+      return { data: 0 }; // Return a default value on failure
+    });
 
     const [houseCardResponse, bookmarkResponse] = await Promise.all([
       houseCardPromise,
-      bookmarkPromise
+      bookmarkPromise,
     ]);
-
 
     houseCard.value = houseCardResponse.data;
     bookmarkCount.value = bookmarkResponse.data;
