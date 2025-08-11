@@ -1,123 +1,136 @@
 <template>
-  <div class="container-layout">
-    <!-- 왼쪽: 유저 정보 -->
-    <div class="left-panel">
-      <div class="supportable-card" :class="{ disabled: householdInfoError }">
-        <div class="supportable-body">
-          <p class="user-name">{{ userInfo.nickname }} 님은 지금</p>
-          <div class="supportable-title-wrapper">
-            <p class="supportable-title">{{ availableCount }}개 지원 가능</p>
-            <span
-              v-if="!householdInfoError"
-              class="recheck-link"
-              @click="goToDiagnosis"
-            >
-              재진단 &gt;
-            </span>
-          </div>
-
-          <small class="supportable-date">📅 2025-07-18 기준</small>
-
-          <ul class="supportable-list">
-            <li
-              v-for="item in supportableList"
-              :key="item.name"
-              class="supportable-item"
-            >
-              {{ item.name }}
-              <span class="badge bg-success">
-                {{ item.available }}
+  <div class="main-container">
+    <div v-if="!isLoggedIn" class="login-overlay">
+      <div class="login-prompt">
+        <p>로그인 후 이용해주세요</p>
+        <button @click="goToLogin">로그인 하러가기</button>
+      </div>
+    </div>
+    <div class="container-layout" :class="{ blurred: !isLoggedIn }">
+      <!-- 왼쪽: 유저 정보 -->
+      <div class="left-panel">
+        <div class="supportable-card" :class="{ disabled: householdInfoError }">
+          <div class="supportable-body">
+            <p class="user-name">{{ userInfo.nickname }} 님은 지금</p>
+            <div class="supportable-title-wrapper">
+              <p class="supportable-title">{{ availableCount }}개 지원 가능</p>
+              <span
+                v-if="!householdInfoError"
+                class="recheck-link"
+                @click="goToDiagnosis"
+              >
+                재진단 &gt;
               </span>
-            </li>
+            </div>
+
+            <small class="supportable-date">📅 2025-07-18 기준</small>
+
+            <ul class="supportable-list">
+              <li
+                v-for="item in supportableList"
+                :key="item.name"
+                class="supportable-item"
+              >
+                {{ item.name }}
+                <span class="badge bg-success">
+                  {{ item.available }}
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 지원/불가 공고 정보 -->
+        <div class="announcement-info">
+          <h3>공고 현황</h3>
+          <ul>
+            <li>지원 가능: {{ availableCount }}건</li>
+            <li>지원 불가: {{ unavailableCount }}건</li>
           </ul>
         </div>
       </div>
 
-      <!-- 지원/불가 공고 정보 -->
-      <div class="announcement-info">
-        <h3>공고 현황</h3>
-        <ul>
-          <li>지원 가능: {{ availableCount }}건</li>
-          <li>지원 불가: {{ unavailableCount }}건</li>
-        </ul>
-      </div>
-    </div>
+      <!-- 중앙: 진단 정보 -->
+      <div class="center-panel">
+        <h2 class="section-title">진단 정보</h2>
 
-    <!-- 중앙: 진단 정보 -->
-    <div class="center-panel">
-      <h2 class="section-title">진단 정보</h2>
+        <div :class="['info-section', householdInfoError && 'blurred']">
+          <div class="row g-3">
+            <div
+              class="col-12 col-md-6"
+              v-for="(item, index) in flattenedHouseholdRows"
+              :key="index"
+            >
+              <div class="d-flex gap-2">
+                <div class="label">{{ item.label }}</div>
+                <div class="value">{{ item.value }}</div>
+              </div>
+            </div>
+          </div>
 
-      <div :class="['info-section', householdInfoError && 'blurred']">
-        <div class="row g-3">
-          <div
-            class="col-12 col-md-6"
-            v-for="(item, index) in flattenedHouseholdRows"
-            :key="index"
+          <button
+            v-if="householdInfoError"
+            class="center-button"
+            @click="goToDiagnosis"
           >
-            <div class="d-flex gap-2">
-              <div class="label">{{ item.label }}</div>
-              <div class="value">{{ item.value }}</div>
+            자가진단 하러가기
+          </button>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 자격진단 & 가점계산 -->
+      <div class="right-panel">
+        <!-- 가점계산 -->
+        <div class="score-calculation">
+          <h3>가점 계산</h3>
+          <div class="content-box">
+            <div class="score-body">
+              <p class="score-title">나의 청약 가점</p>
+              <small class="score-date">
+                📅 {{ userInfo.additionalPointUpdatedAt }}일 기준</small
+              >
+              <div class="score-value">{{ userInfo.additionalPoint }}점</div>
+              <button class="score-button" @click="showScoreModal = true">
+                가점 계산
+              </button>
             </div>
           </div>
         </div>
-
-        <button
-          v-if="householdInfoError"
-          class="center-button"
-          @click="goToDiagnosis"
-        >
-          자가진단 하러가기
-        </button>
       </div>
     </div>
-
-    <!-- 오른쪽: 자격진단 & 가점계산 -->
-    <div class="right-panel">
-      <!-- 가점계산 -->
-      <div class="score-calculation">
-        <h3>가점 계산</h3>
-        <div class="content-box">
-          <div class="score-body">
-            <p class="score-title">나의 청약 가점</p>
-            <small class="score-date">
-              📅 {{ userInfo.additionalPointUpdatedAt }}일 기준</small
-            >
-            <div class="score-value">{{ userInfo.additionalPoint }}점</div>
-            <button class="score-button" @click="showScoreModal = true">
-              가점 계산
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <SubscriptionScoreModal
+      v-if="showScoreModal"
+      @close="showScoreModal = false"
+      @calculated="score = $event"
+    />
   </div>
-  <SubscriptionScoreModal
-    v-if="showScoreModal"
-    @close="showScoreModal = false"
-    @calculated="score = $event"
-  />
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMyPageStore } from '@/stores/mypage';
+import { useAuthStore } from '@/stores/auth';
 import { storeToRefs } from 'pinia';
 import SubscriptionScoreModal from '@/components/mypage/SubscriptionScoreModal.vue';
 
 const router = useRouter();
-const store = useMyPageStore();
+const mypageStore = useMyPageStore();
+const authStore = useAuthStore();
 
 const showScoreModal = ref(false);
 const score = ref(0);
 
 const { userInfo, supportableList, householdInfo, householdInfoError } =
-  storeToRefs(store);
+  storeToRefs(mypageStore);
+const { isLoggedIn } = storeToRefs(authStore);
 
 onMounted(() => {
-  store.getUserInfo();
-  store.getHouseholdInfo();
-  store.getSupportableList();
+  if (isLoggedIn.value) {
+    mypageStore.getUserInfo();
+    mypageStore.getHouseholdInfo();
+    mypageStore.getSupportableList();
+  }
 });
 
 const availableCount = computed(
@@ -131,10 +144,15 @@ function goToDiagnosis() {
   router.push({ name: 'SelfCheck' });
 }
 
+function goToLogin() {
+  router.push({ name: 'login' });
+}
+
 function formatHouseholdSize(raw) {
   if (!raw) return '-';
   const [adults, children] = raw.split(',');
-  return `${adults}인 (본인 포함)\n자녀 ${children}명 (태아 포함)`;
+  return `${adults}인 (본인 포함)
+자녀 ${children}명 (태아 포함)`;
 }
 
 const flattenedHouseholdRows = computed(() => {
@@ -185,6 +203,52 @@ const qualificationItems = computed(() => [
 </script>
 
 <style scoped>
+.main-container {
+  position: relative;
+}
+
+.login-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.login-prompt {
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.login-prompt p {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.login-prompt button {
+  padding: 0.8rem 2.2rem;
+  font-weight: bold;
+  background-color: #198754;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.login-prompt button:hover {
+  background-color: #146c43;
+}
+
 .container-layout {
   display: grid;
   grid-template-columns: 0.9fr 1.7fr 0.9fr; /* 1 : 2 : 0.5 비율 */
