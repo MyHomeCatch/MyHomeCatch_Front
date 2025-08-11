@@ -355,9 +355,37 @@ const closeOverlay = () => {
   selectedMarker.value = null;
 };
 
+// 지도 줌 인
+const zoomIn = () => {
+  if (map.value) {
+    const currentLevel = map.value.getLevel();
+    map.value.setLevel(currentLevel - 1);
+  }
+};
+
+// 지도 줌 아웃
+const zoomOut = () => {
+  if (map.value) {
+    const currentLevel = map.value.getLevel();
+    map.value.setLevel(currentLevel + 1);
+  }
+};
+
+// 전체화면 토글
+const toggleFullscreen = () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+};
+
 // 부모 컴포넌트에서 호출할 수 있도록 노출
 defineExpose({
   updateMapWithHouse,
+  zoomIn,
+  zoomOut,
+  toggleFullscreen,
 });
 </script>
 
@@ -366,6 +394,7 @@ defineExpose({
     style="
       display: flex;
       flex-direction: column;
+      width: 100%;
       height: 100%;
       position: relative;
     "

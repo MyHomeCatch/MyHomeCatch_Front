@@ -29,6 +29,11 @@ const router = createRouter({
       name: 'SelfCheck',
       component: SelfCheckPage,
     },
+    {
+      path: '/map',
+      name: 'Map',
+      component: () => import('../pages/MapPage.vue'),
+    },
     // { path: '/mypage', name: 'MyPage', component: MyPage },
     {
       path: '/profile/edit',
