@@ -1,30 +1,30 @@
 <template>
-  <div v-if="loading" class="container py-5 text-center">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Loading...</span>
+  <div v-if="loading" class="detail-container">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>로딩 중...</p>
     </div>
   </div>
 
-  <div v-else-if="error" class="container py-5 text-center">
-    <div class="alert alert-danger" role="alert">
-      {{ error }}
+  <div v-else-if="error" class="detail-container">
+    <div class="error-message">
+      <i class="fa-solid fa-exclamation-triangle"></i>
+      <p>{{ error }}</p>
     </div>
   </div>
 
   <template v-else-if="houseData && houseData.danzi">
-    <main class="container py-4">
-      <div
-        class="d-flex justify-content-between align-items-start position-relative"
-      >
-        <div>
-          <h1 class="h3 fw-bold text-dark">{{ houseData.danzi.bzdtNm }}</h1>
-          <p class="text-muted mt-1">
+    <main class="detail-main">
+      <div class="detail-header">
+        <div class="header-content">
+          <h1 class="detail-title">{{ houseData.danzi.bzdtNm }}</h1>
+          <p class="detail-address">
             {{ houseData.danzi.lctAraAdr }} {{ houseData.danzi.lctAraDtlAdr }}
           </p>
         </div>
         <button
           id="likeButton"
-          class="like-btn btn d-flex align-items-center px-3 py-1 gap-2"
+          class="like-btn"
           :class="{ liked: isLiked, 'not-liked': !isLiked }"
           @click="toggleLike"
         >
@@ -36,20 +36,24 @@
       </div>
     </main>
 
-    <div v-if="selfCheckMatchResult" class="container">
-      <div class="text-center" role="alert">
-        {{ authStore.user.nickname }} 님은 현재 이 공고에
-        <span class="fw-bold"> {{ selfCheckMatchResult }} </span>한 것으로
-        확인됩니다.
+    <div v-if="selfCheckMatchResult" class="self-check-result">
+      <div class="result-content">
+        <i class="fa-solid fa-info-circle"></i>
+        <span
+          >{{ authStore.user.nickname }} 님은 현재 이 공고에
+          <strong>{{ selfCheckMatchResult }}</strong
+          >한 것으로 확인됩니다.</span
+        >
       </div>
     </div>
+
     <!-- 이미지 및 정보 -->
     <ImageSection :images="images" />
 
-    <div class="container px-4 py-5">
+    <div class="detail-content">
       <!-- 좌측 콘텐츠 영역 -->
-      <div class="row">
-        <div class="category-button-wrapper">
+      <div class="content-wrapper">
+        <div class="category-section">
           <button
             :class="{
               'category-button': true,
@@ -170,21 +174,25 @@
             문화시설
           </button>
         </div>
-        <div class="col-12 col-lg-7">
-          <DetailMap
-            v-if="houseCard"
-            :houses="[houseCard]"
-            :selectedCategory="selectedCategory"
-          />
-        </div>
-        <!-- 우측 패널 영역 -->
-        <div class="col-12 col-lg-5">
-          <InfoPanel
-            :danzi-info="houseData.danzi"
-            :apply-info="houseData.applies"
-            :notices="houseData.notices"
-            :bookmark-count="bookmarkCount"
-          />
+
+        <div class="content-grid">
+          <div class="map-section">
+            <DetailMap
+              v-if="houseCard"
+              :houses="[houseCard]"
+              :selectedCategory="selectedCategory"
+            />
+          </div>
+
+          <!-- 우측 패널 영역 -->
+          <div class="info-section">
+            <InfoPanel
+              :danzi-info="houseData.danzi"
+              :apply-info="houseData.applies"
+              :notices="houseData.notices"
+              :bookmark-count="bookmarkCount"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -244,17 +252,15 @@ onMounted(async () => {
     await loadHouseDetail();
 
     const houseCardPromise = getHouseCardById(danziId);
-    const bookmarkPromise = getBookmarksByHouseId(danziId)
-      .catch(error => {
-        console.error('북마크 정보 로드 실패:', error);
-        return { data: 0 }; // Return a default value on failure
-      });
+    const bookmarkPromise = getBookmarksByHouseId(danziId).catch((error) => {
+      console.error('북마크 정보 로드 실패:', error);
+      return { data: 0 }; // Return a default value on failure
+    });
 
     const [houseCardResponse, bookmarkResponse] = await Promise.all([
       houseCardPromise,
-      bookmarkPromise
+      bookmarkPromise,
     ]);
-
 
     houseCard.value = houseCardResponse.data;
     bookmarkCount.value = bookmarkResponse.data;
@@ -328,69 +334,246 @@ const toggleLike = async () => {
 };
 </script>
 
-<style scope>
-.like-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-}
-.liked {
-  background-color: #db2777;
-  color: white;
-  border: none;
-}
-.not-liked {
-  background-color: #fce7f3;
-  color: #db2777;
-  border: 1px solid #db2777;
-}
-.not-liked:hover {
-  background-color: #fbcfe8;
+<style scoped>
+/* 전체 컨테이너 */
+.detail-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
 }
 
-@media (max-width: 768px) {
-  .map {
-    display: none;
+/* 로딩 스피너 */
+.loading-spinner {
+  text-align: center;
+  color: #64748b;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }
 
-/* Category Button for Map */
-.category-button-wrapper {
+/* 에러 메시지 */
+.error-message {
+  text-align: center;
+  color: #ef4444;
+  padding: 2rem;
+}
+
+.error-message i {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* 메인 영역 */
+.detail-main {
+  background: white;
+  padding: 2rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.detail-header {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+}
+
+.header-content {
+  max-width: 70%;
+}
+
+.detail-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.detail-address {
+  color: #64748b;
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* 좋아요 버튼 */
+.like-btn {
+  position: absolute;
+  top: 0;
+  right: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.liked {
+  background-color: #ef4444;
+  color: white;
+}
+
+.not-liked {
+  background-color: #fef2f2;
+  color: #ef4444;
+  border: 2px solid #ef4444;
+}
+
+.not-liked:hover {
+  background-color: #fee2e2;
+}
+
+/* 자체점검 결과 */
+.self-check-result {
+  background: #f0f9ff;
+  border: 1px solid #3b82f6;
+  border-radius: 12px;
+  margin: 2rem auto;
+  max-width: 1200px;
+  padding: 1rem 2rem;
+}
+
+.result-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #1e40af;
+  font-weight: 500;
+}
+
+.result-content i {
+  color: #3b82f6;
+  font-size: 1.1rem;
+}
+
+/* 콘텐츠 영역 */
+.detail-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* 카테고리 섹션 */
+.category-section {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px; /* Increased gap for both horizontal and vertical spacing */
-  margin-bottom: 16px; /* Space below the buttons and above the map */
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .category-button {
-  background-color: #f0f0f0; /* Soft light gray background */
-  color: #333; /* Dark gray text */
-  border: 1px solid #e0e0e0; /* Subtle border */
-  padding: 8px 14px; /* Consistent padding */
-  border-radius: 6px; /* Slightly rounded corners */
-  font-size: 14px;
-  font-weight: 500;
+  background-color: white;
+  color: #475569;
+  border: 2px solid #e2e8f0;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease-in-out; /* Smooth transitions */
-  white-space: nowrap; /* Prevent text wrapping */
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .category-button:hover {
-  background-color: #e5e5e5; /* Slightly darker on hover */
-  border-color: #d0d0d0;
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background-color: #f0f9ff;
 }
 
 .category-button.selected {
-  background-color: #ffe0e6; /* Soft pink, derived from existing primary color */
-  color: #ff385c; /* Primary color for text */
-  border-color: #ffcdd2; /* Slightly darker pink border */
-  font-weight: 600;
+  background-color: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+  font-weight: 700;
 }
 
-.category-button:active {
-  transform: translateY(1px); /* Slight press effect */
+/* 콘텐츠 그리드 */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+}
+
+.map-section {
+  min-height: 500px;
+}
+
+.info-section {
+  min-height: 500px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .info-section {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .detail-header {
+    padding: 0 1rem;
+  }
+
+  .detail-content {
+    padding: 1rem;
+  }
+
+  .detail-title {
+    font-size: 1.5rem;
+  }
+
+  .like-btn {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin-top: 1rem;
+    align-self: flex-start;
+  }
+
+  .header-content {
+    max-width: 100%;
+  }
+
+  .category-section {
+    gap: 0.5rem;
+  }
+
+  .category-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
 }
 </style>

@@ -74,41 +74,41 @@ const handleGoogleLogin = () => {
   <div class="auth-bg">
     <div class="auth-card">
       <div class="auth-card-bar"></div>
-      <h2 class="auth-title">LOG IN</h2>
+      <h2 class="auth-title">로그인</h2>
       <form @submit.prevent="handleLogin">
         <div class="auth-input-group">
-          <label>Email</label>
+          <label>이메일</label>
           <input type="email" v-model="email" required />
           <div v-if="emailError" class="auth-error">{{ emailError }}</div>
         </div>
         <div class="auth-input-group">
-          <label>Password</label>
+          <label>비밀번호</label>
           <input type="password" v-model="password" required />
           <div v-if="passwordError" class="auth-error">{{ passwordError }}</div>
         </div>
-        <div class="auth-divider"><span>Social LogIn</span></div>
+        <div class="auth-divider"><span>소셜 로그인</span></div>
         <div class="auth-social-row">
           <button
             type="button"
             class="auth-social-btn"
             @click="handleGoogleLogin"
           >
-            <span class="icon-google"></span> Google
+            <span class="icon-google"></span> 구글
           </button>
           <button @click="kakaoLogin" type="button" class="auth-social-btn">
-            <span class="icon-kakao"></span> Kakao
+            <span class="icon-kakao"></span> 카카오
           </button>
         </div>
         <div class="auth-forgot">
-          <a href="#" @click.prevent="showPwModal = true">Forgot Password</a>
+          <a href="#" @click.prevent="showPwModal = true">비밀번호 찾기</a>
         </div>
-        <button type="submit" class="auth-submit">Log In</button>
+        <button type="submit" class="auth-submit">로그인</button>
         <div v-if="errorMessage" class="auth-error">{{ errorMessage }}</div>
       </form>
     </div>
     <div class="auth-side">
-      <p>Don't have an account?</p>
-      <button class="auth-side-btn" @click="goToSignUp">Sign Up</button>
+      <p>계정이 없으신가요?</p>
+      <button class="auth-side-btn" @click="goToSignUp">회원가입</button>
     </div>
     <PasswordResetModal :show="showPwModal" @close="showPwModal = false" />
   </div>
