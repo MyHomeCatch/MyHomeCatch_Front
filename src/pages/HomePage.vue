@@ -1,6 +1,6 @@
 <template>
   <div class="house-container">
-    <!-- mini user info -->
+    <!-- 미니 유저 가점정보 -->
     <div class="mini-user-info-container">
       <MiniUserInfo v-if="isMiniUserInfoVisible" />
       <button

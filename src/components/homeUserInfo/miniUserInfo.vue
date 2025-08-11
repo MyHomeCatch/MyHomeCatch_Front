@@ -43,7 +43,7 @@
       </div>
     </div>
 
-    <!-- 중앙: 진단 정보 -->
+    <!-- 중앙: 자가 진단 정보 -->
     <div class="center-panel">
       <h2 class="section-title">진단 정보</h2>
 
