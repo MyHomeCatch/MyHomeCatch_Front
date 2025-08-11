@@ -179,12 +179,21 @@
         </div>
         <!-- 우측 패널 영역 -->
         <div class="col-12 col-lg-5">
-          <InfoPanel
-            :danzi-info="houseData.danzi"
-            :apply-info="houseData.applies"
-            :notices="houseData.notices"
-            :bookmark-count="bookmarkCount"
-          />
+          <div class="info-panel-wrapper">
+            <InfoPanel
+              :danzi-info="houseData.danzi"
+              :apply-info="houseData.applies"
+              :notices="houseData.notices"
+              :bookmark-count="bookmarkCount"
+              @showSummary="showSummary = true"
+            />
+            <!-- PdfSummary 오버레이 -->
+            <PdfSummary
+              v-if="showSummary"
+              @close="showSummary = false"
+              :summaryData="houseData.notices && houseData.notices.length > 0 ? houseData.notices[0].summaryData : ''"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -207,6 +216,7 @@ import ImageSection from '@/components/DetailPage/ImageSection.vue';
 import InfoPanel from '../../components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
 import DetailMap from '@/components/DetailPage/DetailMap.vue';
+import PdfSummary from '@/components/DetailPage/PdfSummary.vue';
 import { useAuthStore } from '@/stores/auth.js';
 import selfCheckAPI from '@/api/selfCheck.js';
 import bookmarkApi from '@/api/bookmarkApi.js';
@@ -221,6 +231,7 @@ const authStore = useAuthStore();
 const isLiked = ref(false);
 const selfCheckMatchResult = ref(null);
 const bookmarkCount = ref(0);
+const showSummary = ref(false);
 
 // API 응답에서 이미지 URL만 추출하여 새로운 배열을 만듭니다.
 const images = computed(() => {
@@ -390,5 +401,9 @@ const toggleLike = async () => {
 
 .category-button:active {
   transform: translateY(1px); /* Slight press effect */
+}
+
+.info-panel-wrapper {
+  position: relative;
 }
 </style>

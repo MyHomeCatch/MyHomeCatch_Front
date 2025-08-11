@@ -1,9 +1,6 @@
 <template>
   <div class="info-panel-container-wrapper">
-    <div
-      v-if="danziInfo"
-      :class="['info-panel-container', { 'shift-left': showSummary }]"
-    >
+    <div class="info-panel-container">
       <!-- 조회수 -->
       <h3 class="view-count">
         지금까지
@@ -91,7 +88,7 @@
             공고 PDF 다운로드
           </button>
           <button
-            @click="showSummary = true"
+            @click="$emit('showSummary')"
             class="action-button-outline summary-button"
           >
             공고 요약
@@ -99,20 +96,11 @@
         </div>
       </div>
     </div>
-
-    <!-- PdfSummary 컴포넌트 오른쪽 고정, showSummary 상태에 따라 표시 -->
-    <PdfSummary
-      v-if="showSummary"
-      @close="showSummary = false"
-      :summaryData="primaryNotice.summaryData"
-      class="pdf-summary-wrapper"
-    />
   </div>
 </template>
 
 <script setup>
-import { defineProps, computed, ref } from 'vue';
-import PdfSummary from './PdfSummary.vue';
+import { defineProps, computed } from 'vue';
 
 const props = defineProps({
   danziInfo: {
@@ -132,8 +120,6 @@ const props = defineProps({
     default: 0,
   },
 });
-
-const showSummary = ref(false);
 
 const primaryNotice = computed(() =>
   props.notices && props.notices.length > 0 ? props.notices[0] : {}
@@ -225,38 +211,7 @@ const openLink = (url) => {
   padding: 16px;
   font-size: 14px;
   width: 100%; /* 넓게 */
-  transition: transform 0.3s ease;
   box-sizing: border-box;
-}
-
-.info-panel-container.shift-left {
-  transform: translateX(-25%);
-}
-
-.pdf-summary-wrapper {
-  position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
-  width: 30%;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 16px;
-  box-sizing: border-box;
-  animation: slideIn 0.3s ease forwards;
-  z-index: 10;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
 
 .view-count {
