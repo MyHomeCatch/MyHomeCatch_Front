@@ -1,5 +1,16 @@
 <template>
   <div class="house-container">
+    <!-- mini user info -->
+    <div class="mini-user-info-container">
+      <MiniUserInfo v-if="isMiniUserInfoVisible" />
+      <button
+        @click="isMiniUserInfoVisible = !isMiniUserInfoVisible"
+        class="toggle-button"
+      >
+        {{ isMiniUserInfoVisible ? '접기' : '펼치기' }}
+      </button>
+    </div>
+
     <!-- 검색 로직 컴포넌트 (UI 없음, 로직만) -->
     <HouseSearchLogic
       ref="searchLogicRef"
@@ -71,15 +82,14 @@ import HousePagination from '../components/house/HousePagination.vue';
 import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
 import ChatBot from '../AI/ChatBot.vue';
 
-const router = useRouter();
-const route = useRoute();
-const mapViewerRef = ref(null);
-
 import HouseSearchResults from '../components/house/HouseSearchResults.vue';
 import HouseMapSection from '../components/house/HouseMapSection.vue';
 import HouseSearchLogic from '../components/house/HouseSearchLogic.vue';
 import { useAuthStore } from '../stores/auth';
 import { getBookmarks } from '../api/bookmardApi';
+import MiniUserInfo from '../components/homeUserInfo/miniUserInfo.vue';
+
+const isMiniUserInfoVisible = ref(true);
 
 const router = useRouter();
 const route = useRoute();
@@ -362,5 +372,28 @@ defineExpose({
   .house-container {
     padding: 12px;
   }
+}
+
+.mini-user-info-container {
+  position: relative;
+  padding-bottom: 40px; /* space for the button */
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.toggle-button {
+  position: absolute;
+  bottom: 5px;
+  right: 0;
+  padding: 5px 15px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  background-color: #f8f8f8;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.toggle-button:hover {
+  background-color: #eee;
 }
 </style>
