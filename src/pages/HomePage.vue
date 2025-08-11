@@ -71,10 +71,6 @@ import HousePagination from '../components/house/HousePagination.vue';
 import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
 import ChatBot from '../AI/ChatBot.vue';
 
-const router = useRouter();
-const route = useRoute();
-const mapViewerRef = ref(null);
-
 import HouseSearchResults from '../components/house/HouseSearchResults.vue';
 import HouseMapSection from '../components/house/HouseMapSection.vue';
 import HouseSearchLogic from '../components/house/HouseSearchLogic.vue';
