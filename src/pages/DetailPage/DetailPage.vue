@@ -192,6 +192,7 @@
               v-if="showSummary"
               @close="showSummary = false"
               :summaryData="houseData.notices && houseData.notices.length > 0 ? houseData.notices[0].summaryData : ''"
+              :title="houseData.danzi ? houseData.danzi.bzdtNm : ''"
             />
           </div>
         </div>
