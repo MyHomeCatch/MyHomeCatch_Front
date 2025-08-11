@@ -37,47 +37,194 @@ onMounted(() => {
 
 <template>
   <div class="mypage-wrapper">
-    <div class="container">
-      <!-- ✅ 추가: 중앙 정렬 -->
-      <div class="row">
-        <div class="col-md-3 d-flex flex-column align-items-center">
+    <div class="mypage-container">
+      <!-- 메인 콘텐츠 -->
+      <div class="mypage-content">
+        <div class="sidebar-section">
           <ProfileCard />
           <SupportableCard />
           <ScoreCard :score="score" @openModal="showModal = true" />
         </div>
 
-        <div class="col-md-9">
+        <div class="main-section">
           <UserInfoSection :userInfo="userInfo" />
           <HouseholdFinanceInfo />
           <FavoritesCarousel :items="favorites" />
         </div>
-
-        <!-- ✅ 모달 위치는 최상단에 -->
-        <SubscriptionScoreModal
-          v-if="showModal"
-          @close="showModal = false"
-          @calculated="score = $event"
-        />
       </div>
+
+      <!-- 모달 -->
+      <SubscriptionScoreModal
+        v-if="showModal"
+        @close="showModal = false"
+        @calculated="score = $event"
+      />
     </div>
   </div>
 </template>
 
 <style scoped>
 .mypage-wrapper {
-  /* background-image: url('../../assets/images/background1.png'); */
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
   min-height: 100vh;
-  padding: 1rem 2rem 2rem; /* ✅ 상단 padding 줄이기 */
+
+  padding: 2rem 0;
 }
 
-.col-md-3 {
+.mypage-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.header-content {
+  position: relative;
+  z-index: 2;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 500;
+}
+
+.header-decoration {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  opacity: 0.1;
+}
+
+.decoration-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.decoration-circle:nth-child(1) {
+  width: 200px;
+  height: 200px;
+  top: -100px;
+  left: -100px;
+}
+
+.decoration-circle:nth-child(2) {
+  width: 150px;
+  height: 150px;
+  top: 50px;
+  right: -75px;
+}
+
+.decoration-circle:nth-child(3) {
+  width: 100px;
+  height: 100px;
+  bottom: -50px;
+  left: 50px;
+}
+
+.mypage-content {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.sidebar-section {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 2rem; /* ✅ 이 줄 추가 */
+  gap: 1.5rem;
+  position: sticky;
+  top: 2rem;
+}
+
+.main-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+  .mypage-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .sidebar-section {
+    position: static;
+    order: 2;
+  }
+
+  .main-section {
+    order: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .mypage-wrapper {
+    padding: 1rem 0;
+  }
+
+  .mypage-container {
+    padding: 0 1rem;
+  }
+
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
+  .page-title {
+    font-size: 2rem;
+  }
+
+  .page-subtitle {
+    font-size: 1rem;
+  }
+
+  .mypage-content {
+    gap: 1rem;
+  }
+
+  .sidebar-section {
+    gap: 1rem;
+  }
+
+  .main-section {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mypage-container {
+    padding: 0 0.5rem;
+  }
+
+  .page-title {
+    font-size: 1.8rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem;
+  }
 }
 </style>

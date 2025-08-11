@@ -10,47 +10,148 @@ const { isLoggedIn, user } = storeToRefs(authStore);
 </script>
 
 <template>
-  <ul class="navbar-nav ms-auto">
+  <div class="account-menu-group">
     <template v-if="!authStore.isLoggedIn">
       <MenuItem :menu="login" variant="account" />
       <MenuItem :menu="join" variant="account" />
     </template>
     <template v-else>
-      <li class="nav-item d-flex align-items-center text-white me-2">
-        <router-link to="/mypage" class="nav-link text-white">
-          {{ user.nickname }}님
+      <div class="user-profile">
+        <router-link to="/mypage" class="user-link">
+          <div class="user-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <span class="user-name">{{ user.nickname }}님</span>
         </router-link>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#" @click.prevent="authStore.logout()">
-          <i :class="logout.icon"></i>
-          {{ logout.title }}
-        </a>
-      </li>
+      </div>
+      <button class="logout-button" @click="authStore.logout()">
+        <i :class="logout.icon"></i>
+        <span>{{ logout.title }}</span>
+      </button>
     </template>
-  </ul>
+  </div>
 </template>
 
 <style scoped>
-/* 기본 nav-link 텍스트 색상 */
-.nav-link {
-  color: white;
-  font-weight: bold;
+.account-menu-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-/* 호버 시 색상 */
-.nav-link:hover {
-  color: #86a788;
+.user-profile {
+  display: flex;
+  align-items: center;
 }
 
-/* router-link도 동일한 스타일 적용 */
-.router-link-active,
-.router-link-exact-active {
-  color: white;
+.user-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  padding: 8px 12px;
+  transition: color 0.3s ease;
+  color: #374151;
 }
 
-.router-link-active:hover,
-.router-link-exact-active:hover {
-  color: #86a788;
+.user-link:hover {
+  color: #1f40af;
+  text-decoration: none;
+}
+
+.user-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+  font-size: 12px;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.logout-button:hover {
+  color: #1f40af;
+}
+
+.logout-button i {
+  font-size: 12px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .account-menu-group {
+    gap: 12px;
+  }
+
+  .user-link {
+    padding: 6px 10px;
+  }
+
+  .user-name {
+    font-size: 13px;
+  }
+
+  .logout-button {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .user-link {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: white;
+  }
+
+  .user-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: white;
+  }
+
+  .user-avatar {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+
+  .user-name {
+    color: white;
+  }
+
+  .logout-button {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: white;
+  }
+
+  .logout-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: white;
+  }
 }
 </style>

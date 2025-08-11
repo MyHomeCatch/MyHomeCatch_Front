@@ -1,18 +1,33 @@
 <template>
-  <div
-    class="bookmark-section"
-    style="padding: 1rem 2rem; max-width: 800px; margin: 0 auto"
-  >
-    <HorizonzontalCardScroller
-      :title="'북마크'"
-      :cards="danziList"
-      :loading="loading"
-      :key-field="'danziId'"
-      :favorite-list="bookmarks"
-      :empty-config="emptyConfig"
-      @toggle-favorite="handleToggleFavorite"
-      @empty-action="loadBookmarks"
-    />
+  <div class="favorites-carousel-section">
+    <div class="section-header">
+      <div class="header-icon">
+        <span>❤️</span>
+      </div>
+      <div class="header-content">
+        <h2 class="section-title">북마크한 공고</h2>
+        <p class="section-subtitle">관심있는 주택 공고를 한눈에 확인하세요</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-refresh" @click="loadBookmarks" :disabled="loading">
+          <span class="refresh-icon" :class="{ spinning: loading }">🔄</span>
+          <span>새로고침</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="carousel-content">
+      <HorizonzontalCardScroller
+        :title="'즐겨찾기'"
+        :cards="danziList"
+        :loading="loading"
+        :key-field="'danziId'"
+        :favorite-list="bookmarks"
+        :empty-config="emptyConfig"
+        @toggle-favorite="handleToggleFavorite"
+        @empty-action="loadBookmarks"
+      />
+    </div>
   </div>
 </template>
 
@@ -27,7 +42,7 @@ const auth = useAuthStore();
 
 // State
 const bookmarks = ref([]);
-const danziList = ref([]); // computed가 아닌 ref로 변경
+const danziList = ref([]);
 const loading = ref(false);
 
 // Empty config
@@ -99,13 +114,145 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.bookmark-section {
-  max-width: 100%;
-  padding: 2rem 1.5rem;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
+.favorites-carousel-section {
+  background: white;
   border-radius: 16px;
-  margin-top: 1.5rem;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.header-icon {
+  width: 48px;
+  height: 48px;
+  background: #f3f4f6;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.header-content {
+  flex: 1;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.section-subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.btn-refresh {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.refresh-icon {
+  font-size: 14px;
+}
+
+.refresh-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.carousel-content {
+  margin-top: 16px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .favorites-carousel-section {
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .header-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+  }
+
+  .header-actions {
+    align-self: stretch;
+  }
+
+  .btn-refresh {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .favorites-carousel-section {
+    padding: 16px;
+  }
+
+  .section-header {
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+
+  .btn-refresh {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
 }
 </style>

@@ -28,13 +28,4 @@ watch(
   </div>
 </template>
 
-<style scoped>
-#app {
-  background-image: url('@/assets/images/background1.png');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-position: center;
-  min-height: 100vh;
-}
-</style>
+<style scoped></style>

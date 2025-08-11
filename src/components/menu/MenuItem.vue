@@ -49,21 +49,37 @@ const props = defineProps({
 
 /* 로그인/회원가입용 스타일 */
 .account-menu-item {
-  color: white;
+  color: #374151;
   background-color: transparent;
-  padding: 0.5rem 1rem;
-  display: block;
+  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color 0.3s ease;
   font-weight: 600;
 }
 
 .account-menu-item:hover {
-  color: #86a788;
+  color: #1f40af;
 }
 
 .account-menu-item i {
   margin-right: 6px;
   color: inherit;
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .account-menu-item {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .account-menu-item:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
 }
 </style>
