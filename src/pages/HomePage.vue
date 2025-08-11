@@ -57,12 +57,12 @@
       />
 
       <!-- 지도 섹션 -->
-      <HouseMapSection
+      <!-- <HouseMapSection
         ref="mapSectionRef"
         :houses="allHousesForMap"
         :selected-category="selectedCategory"
         @category-change="handleCategoryChange"
-      />
+      /> -->
     </div>
 
     <!-- 페이지네이션 -->
