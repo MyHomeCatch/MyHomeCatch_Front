@@ -3,7 +3,7 @@ import { setupInterceptors } from './commonApi';
 
 const detailApi = axios.create({
   baseURL: 'http://localhost:8080/api', // API 기본 경로
-    headers: {
+  headers: {
     'Content-Type': 'application/json',
   },
   withCredentials: true, // 쿠키를 포함하여 요청
@@ -66,4 +66,30 @@ export const getBookmarksByHouseId = (houseId) => {
     return Promise.reject(new Error('houseId가 제공되지 않았습니다.'));
   }
   return detailApi.get(`/bookmark/${houseId}`);
+};
+
+/**
+ * AI를 통해 PDF 공고 요약(마크다운)을 받아오는 함수
+ * @param {string | number} danziId - LH 공고 danziId
+ * @param {string} pdfUrl - PDF 파일 URL
+ * @returns {Promise<object>} - AI 요약 결과 (마크다운 텍스트)
+ */
+export const getDynamicSummary = (danziId, pdfUrl) => {
+  if (!danziId || !pdfUrl) {
+    return Promise.reject(
+      new Error('danziId 또는 pdfUrl이 제공되지 않았습니다.')
+    );
+  }
+
+  // pdfUrl을 안전하게 쿼리 파라미터에 포함시키기 위해 인코딩
+  const encodedUrl = encodeURIComponent(pdfUrl);
+
+  return detailApi.get(
+    `/summary/dynamic?danziId=${danziId}&pdfUrl=${encodedUrl}`,
+    {
+      headers: {
+        Accept: 'text/markdown', // 마크다운 응답 받기
+      },
+    }
+  );
 };
