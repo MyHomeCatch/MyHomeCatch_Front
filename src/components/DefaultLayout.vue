@@ -8,7 +8,7 @@ import Footer from './Footer.vue';
   <div class="app-wrapper">
     <Header />
     <div class="navbar-sticky">
-        <NavBar />
+      <NavBar />
     </div>
 
     <div class="container">
@@ -22,7 +22,7 @@ import Footer from './Footer.vue';
 
 <style scoped>
 .navbar-sticky {
-  position: sticky;
+  /* position: sticky; */
   top: 0;
   z-index: 1000;
 }

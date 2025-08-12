@@ -22,7 +22,12 @@
       />
       <div class="image-overlay" :class="{ 'show-always': localIsFavorited }">
         <!-- 지도 이동 버튼 -->
-        <div class="map-icon" @click.stop="onMapClick" title="지도에서 보기">
+        <div
+          v-if="showMapButton"
+          class="map-icon"
+          @click.stop="onMapClick"
+          title="지도에서 보기"
+        >
           <i class="bi bi-geo-alt"></i>
         </div>
         <div
@@ -80,6 +85,10 @@ const props = defineProps({
   favoriteList: {
     type: Array,
     default: () => [],
+  },
+  showMapButton: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -207,16 +216,13 @@ const getStatusClass = (status) => {
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  background: #fffdfa;
-  box-shadow: 0 4px 6px -1px rgba(166, 191, 160, 0.15),
-    0 2px 4px -1px rgba(166, 191, 160, 0.1);
-  border: 1px solid #eaf5e6;
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
 }
 
 .house-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(166, 191, 160, 0.2),
-    0 4px 6px -2px rgba(166, 191, 160, 0.1);
+  transform: translateY(-4px);
+  border-color: #d0d0d0;
 }
 
 .image-container {
@@ -252,6 +258,7 @@ const getStatusClass = (status) => {
   display: flex;
   gap: 8px;
   align-items: flex-start;
+  justify-content: flex-end;
 }
 
 /* 호버 시 표시 */
@@ -264,6 +271,15 @@ const getStatusClass = (status) => {
   opacity: 1;
 }
 
+/* 지도 버튼이 없을 때 북마크 버튼 위치 조정 */
+.image-overlay:not(:has(.map-icon)) {
+  justify-content: flex-end;
+}
+
+.image-overlay:not(:has(.map-icon)) .bookmark-icon {
+  margin-left: auto;
+}
+
 /* 지도 버튼은 호버 시에만 표시 */
 .map-icon {
   width: 32px;
@@ -274,7 +290,7 @@ const getStatusClass = (status) => {
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  color: #4d6b4d;
+  color: #2c3e50;
   transition: all 0.2s ease;
   cursor: pointer;
   user-select: none;
@@ -288,7 +304,7 @@ const getStatusClass = (status) => {
 
 .map-icon:hover {
   background: white;
-  color: #a6bfa0;
+  color: #3498db;
   transform: scale(1.1);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
@@ -302,7 +318,7 @@ const getStatusClass = (status) => {
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  color: #4d6b4d;
+  color: #2c3e50;
   transition: all 0.2s ease;
   cursor: pointer;
   user-select: none;
@@ -311,19 +327,19 @@ const getStatusClass = (status) => {
 
 .bookmark-icon:hover {
   background: white;
-  color: #a6bfa0;
+  color: #e74c3c;
   transform: scale(1.1);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .bookmark-icon.favorited {
-  color: #a6bfa0;
+  color: #e74c3c;
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .bookmark-icon.favorited:hover {
-  color: #8baa7f;
+  color: #c0392b;
   background: white;
   transform: scale(1.1);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -362,7 +378,7 @@ const getStatusClass = (status) => {
 
 .house-info {
   padding: 12px 16px;
-  background: #fffdfa;
+  background: #ffffff;
 }
 
 .location-info {
@@ -371,8 +387,8 @@ const getStatusClass = (status) => {
 
 .house-name {
   font-size: 15px;
-  font-weight: 600;
-  color: #234123;
+  font-weight: 700;
+  color: #1a1a1a;
   margin: 0 0 8px 0;
   line-height: 1.3;
   display: -webkit-box;
@@ -398,22 +414,22 @@ const getStatusClass = (status) => {
 
 .region {
   font-size: 14px;
-  color: #4d6b4d;
+  color: #2c3e50;
   margin: 0;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .value {
   font-size: 14px;
-  color: #234123;
-  font-weight: 400;
+  color: #34495e;
+  font-weight: 500;
 }
 
 .notice-type {
   display: block;
   margin-bottom: 4px;
-  color: #7fa87f;
-  font-weight: 500;
+  color: #5d6d7e;
+  font-weight: 600;
 }
 
 .area-info {
@@ -424,8 +440,8 @@ const getStatusClass = (status) => {
 
 .area-unit {
   font-size: 12px;
-  font-weight: 400;
-  color: #7fa87f;
+  font-weight: 500;
+  color: #5d6d7e;
   margin-left: 2px;
 }
 
@@ -437,17 +453,17 @@ const getStatusClass = (status) => {
 }
 
 .status-active {
-  background: #a6bfa0;
+  background: #3498db;
   color: white;
 }
 
 .status-closed {
-  background: #8baa7f;
+  background: #e74c3c;
   color: white;
 }
 
 .status-default {
-  background: #7fa87f;
+  background: #95a5a6;
   color: white;
 }
 

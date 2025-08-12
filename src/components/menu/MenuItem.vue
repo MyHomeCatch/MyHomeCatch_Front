@@ -38,7 +38,7 @@ const props = defineProps({
 }
 
 .menu-dropdown-item:hover {
-  color: #86a788;
+  color: #4caf50;
   background-color: #f5f5f5;
 }
 
@@ -49,7 +49,7 @@ const props = defineProps({
 
 /* 로그인/회원가입용 스타일 */
 .account-menu-item {
-  color: white;
+  color: black;
   background-color: transparent;
   padding: 0.5rem 1rem;
   display: block;
@@ -59,7 +59,7 @@ const props = defineProps({
 }
 
 .account-menu-item:hover {
-  color: #86a788;
+  color: #4caf50;
 }
 
 .account-menu-item i {
