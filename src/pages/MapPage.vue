@@ -144,13 +144,31 @@
         </div>
       </div>
 
+      <div class="social-facility-filters">
+        <div
+          class="filter-button"
+          v-for="(category, index) in socialFacilityCategories"
+          :key="index"
+          :class="{ active: selectedSocialFacility === category.code }"
+          @click="
+            toggleSocialFacilityFilter(category.code),
+              $emit('update:selectedCategory', category.code)
+          "
+        >
+          {{ category.label }}
+        </div>
+      </div>
+
       <!-- 지도 컴포넌트 -->
       <div class="map-container">
         <KakaoMapViewer
           ref="mapViewerRef"
           :houses="filteredHouses"
           :selected-category="selectedCategory"
+          :selectedCategory="selectedSocialFacility"
           @category-change="handleCategoryChange"
+          @marker-select="handleMarkerSelect"
+          @marker-deselect="handleMarkerDeselect"
         />
       </div>
 
@@ -189,8 +207,12 @@ const auth = useAuthStore();
 // Refs
 const mapViewerRef = ref(null);
 
-// State
-const selectedCategory = ref('');
+const selectedMarker = ref(null); // 클릭으로 선택된 마커
+const previousMapCenter = ref(null); // 마커선택 취소 후 롤백시킬 지도 중심위치
+const previousZoomLevel = ref(null); // 마커선택 취소 후 롤백시킬 지도 확대Level
+const selectedSocialFacility = ref(null); // 주변 공공시설 카테고리 필터
+
+const selectedCategory = ref(''); // 주택 유형 필터
 const activeFilters = ref(['all']);
 const selectedRegion = ref('');
 const houses = ref([]);
@@ -261,6 +283,21 @@ const filterOptions = reactive({
     { code: '접수중', name: '접수중' },
   ],
 });
+
+const socialFacilityCategories = [
+  { code: 'MT1', label: '대형마트' },
+  { code: 'CS2', label: '편의점' },
+  { code: 'PS3', label: '어린이집' },
+  { code: 'SC4', label: '학교' },
+  { code: 'AC5', label: '학원' },
+  { code: 'OL7', label: '주유소' },
+  { code: 'SW8', label: '지하철역' },
+  { code: 'BK9', label: '은행' },
+  { code: 'PO3', label: '공공기관' },
+  { code: 'HP8', label: '병원' },
+  { code: 'PM9', label: '약국' },
+  { code: 'CT1', label: '문화시설' },
+];
 
 // 지역 데이터 (API에서 동적으로 업데이트)
 const regionData = ref([]);
@@ -455,9 +492,19 @@ const toggleFilter = (filterType) => {
         .filter(Boolean);
     }
   }
-
   // 필터 변경 시 API 호출
   loadHouses();
+};
+
+// 주변 공공시설 필터 토글
+const toggleSocialFacilityFilter = (filterType) => {
+  // 이미 선택된 필터면 해제
+  if (filterType === selectedSocialFacility.value) {
+    filterType = null;
+    selectedSocialFacility.value = null;
+  }
+  // 새로운 필터 선택
+  selectedSocialFacility.value = filterType;
 };
 
 // 지도 컨트롤
@@ -525,6 +572,37 @@ const handleHouseCardClick = (house) => {
 const handleToggleFavorite = (data) => {
   console.log('즐겨찾기 토글:', data);
   // 즐겨찾기 상태 업데이트 로직
+};
+
+// 마커 클릭 핸들러
+const handleMarkerSelect = ({ marker, house, position }) => {
+  // 마커선택 이전 지도상태 저장
+  if (mapViewerRef.value && selectedMarker.value === null) {
+    previousMapCenter.value = mapViewerRef.value.getMapCenter();
+    previousZoomLevel.value = mapViewerRef.value.getMapLevel();
+  }
+  // 마커 선택 저장
+  selectedMarker.value = marker;
+  // 지도 마커위치로 이동, Level : 5
+  if (mapViewerRef.value) {
+    mapViewerRef.value.moveToPosition(position, 5);
+  }
+};
+
+const handleMarkerDeselect = () => {
+  // 마커 선택 해제
+  selectedMarker.value = null;
+  // 이전 지도 상태로 복원
+  if (
+    previousMapCenter.value &&
+    previousZoomLevel.value &&
+    mapViewerRef.value
+  ) {
+    mapViewerRef.value.moveToPosition(
+      previousMapCenter.value,
+      previousZoomLevel.value
+    );
+  }
 };
 
 // 로그인 상태 변화 감지
@@ -796,7 +874,7 @@ defineExpose({
   background: #f5f5f5;
 }
 
-/* 지도 위 필터링 버튼들 */
+/* 지도 위 주택 유형 필터링 버튼들 */
 .map-filters {
   position: absolute;
   top: 20px;
@@ -831,6 +909,21 @@ defineExpose({
 
 .filter-button:hover:not(.active) {
   background: #f5f5f5;
+}
+
+/* 지도 위 주변 공공시설 필터링 버튼들 */
+.social-facility-filters {
+  position: absolute;
+  top: 90px; /* map-filters 아래에 위치 */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 1000;
+  background: white;
+  padding: 12px;
+  border-radius: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* 지도 컨테이너 */
