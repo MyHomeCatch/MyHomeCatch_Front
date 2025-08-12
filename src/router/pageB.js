@@ -1,8 +1,8 @@
 export default [
   {
-    path: '/pageB/one',
+    path: '/mypage',
     name: 'pageBOne',
-    component: () => import('../pages/PageB/PageB1.vue'),
+    component: () => import('../pages/PageB/MyPage.vue'),
   },
   {
     path: '/pageB/two',

@@ -40,7 +40,7 @@ jobs:
           chmod +x ./gradlew
           ./gradlew clean build -x test
           
-		  # 6. 배포 패키지 생성 (압축)
+      # 6. 배포 패키지 생성 (압축)
       - name: Create deployment package
         run: |
           # 배포에 필요한 파일들을 모을 deploy 디렉터리 생성
