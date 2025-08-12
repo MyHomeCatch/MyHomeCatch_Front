@@ -58,8 +58,17 @@
           :danzi-info="houseData.danzi"
           :apply-info="houseData.applies"
           :notices="houseData.notices"
+           @request-summary="handleShowSummaryClick"
           :bookmark-count="bookmarkCount"
         />
+
+        <PdfSummary
+          v-if="showSummary"
+          :title="houseData.danzi ? houseData.danzi.bzdtNm : ''"
+          :summary-data="summaryMarkdown"
+          :loading="loadingSummary"
+          :error="summaryError"
+          @close="showSummary = false" />
       </div>
     </div>
 
@@ -92,7 +101,6 @@ import { useAuthStore } from '@/stores/auth.js';
 import selfCheckAPI from '@/api/selfCheck.js';
 import bookmarkApi from '@/api/bookmarkApi.js';
 import MapCategory from '@/components/DetailPage/MapCategory.vue';
-
 import { getDynamicSummary } from '@/api/detailPageApi';
 
 const route = useRoute();
@@ -307,6 +315,10 @@ const toggleLike = async () => {
 
 .col-12.col-lg-5 {
   height: 600px; /* 위와 동일하게 맞춰줌 */
+}
+
+.info-panel-wrapper {
+  position: relative;
 }
 
 .info-panel-wrapper {
