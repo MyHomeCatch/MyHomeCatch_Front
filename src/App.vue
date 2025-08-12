@@ -30,7 +30,7 @@ watch(
 
 <style scoped>
 #app {
-  background-image: url('@/assets/images/background1.png');
+  /* background-image: url('@/assets/images/background1.png'); */
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
