@@ -4,17 +4,9 @@ export default {
   menus: [
     // 메인 메뉴 구성 정보
     {
-
-      title: '청약 공고',
+      title: '캘린더',
+      url: '/calendar',
       icon: 'fa-solid fa-paste',
-      children: [
-        {
-          title: '캘린더',
-          url: '/calendar',
-
-          icon: 'fa-solid fa-paste',
-        },
-      ],
     },
     // {
     //   title: '마이페이지',
@@ -31,11 +23,8 @@ export default {
     },
     {
       title: '자가진단',
+      url: '/mypage',
       icon: 'fa-solid fa-check',
-      children: [
-        { title: 'MyPage', url: '/mypage', icon: 'fa-solid fa-check' },
-
-      ],
     },
   ],
   accoutMenus: {

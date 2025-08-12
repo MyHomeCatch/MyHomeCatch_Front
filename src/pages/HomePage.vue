@@ -78,7 +78,6 @@ import { ref, onMounted, computed, nextTick, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import HouseFilter from '../components/house/HouseFilter.vue';
 import HousePagination from '../components/house/HousePagination.vue';
-
 import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
 import ChatBot from '../AI/ChatBot.vue';
 
@@ -90,10 +89,6 @@ import { getBookmarks } from '../api/bookmardApi';
 import MiniUserInfo from '../components/homeUserInfo/miniUserInfo.vue';
 
 const isMiniUserInfoVisible = ref(true);
-
-const router = useRouter();
-const route = useRoute();
-const mapViewerRef = ref(null);
 
 // Auth
 const auth = useAuthStore();

@@ -1,7 +1,8 @@
 <template>
   <ul class="navbar-nav ms-3">
-    <li v-for="(menu, index) in menus" :key="index" class="nav-item dropdown">
-      <a
+    <li v-for="(menu, index) in menus" :key="index" class="nav-item" :class="{ dropdown: menu.children }">
+      <!-- 자식 메뉴가 있는 경우 (드롭다운) -->
+      <a v-if="menu.children"
         class="nav-link dropdown-toggle"
         href="#"
         role="button"
@@ -11,7 +12,14 @@
       >
         <i :class="menu.icon" /> {{ menu.title }}
       </a>
-      <ul
+      
+      <!-- 자식 메뉴가 없는 경우 (일반 링크) -->
+      <router-link v-else :to="menu.url" class="nav-link">
+        <i :class="menu.icon" /> {{ menu.title }}
+      </router-link>
+
+      <!-- 드롭다운 메뉴 -->
+      <ul v-if="menu.children"
         class="dropdown-menu"
         :class="{ show: activeMenuIndex === index }"
         aria-labelledby="navbarDropdown"

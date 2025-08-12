@@ -108,7 +108,7 @@ export const useMyPageStore = defineStore('mypage', {
       },
     ],
 
-    // ✅ 지원 가능 여부 리스트
+    // 지원 가능 여부 리스트
     supportableList: [],
     householdInfoError: true, //
   }),

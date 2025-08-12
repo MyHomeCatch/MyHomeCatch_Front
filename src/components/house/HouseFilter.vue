@@ -480,13 +480,13 @@ onUnmounted(() => {
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-xl: 20px;
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 메인 컨테이너 */
 .filter-section {
-  background: rgba(255, 253, 250, 0.95);
+  /* background: rgba(255, 253, 250, 0.95); */
   backdrop-filter: blur(10px);
   /* border-radius: var(--radius-xl); */
   border-radius: 16px;
@@ -496,6 +496,7 @@ onUnmounted(() => {
   border: 1px solid var(--border-color);
   transition: var(--transition);
   position: relative;
+  overflow: hidden; /* 추가 */
 }
 
 .filter-section::before {
@@ -505,9 +506,9 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
+  /* background: linear-gradient(
     135deg,
-    rgba(166, 191, 160, 0.05) 0%,
+    rgba(166, 191, 160, 0.05) 0%, 
     rgba(255, 253, 250, 0.95) 100%
   );
   /* border-radius: var(--radius-xl); */
@@ -517,7 +518,7 @@ onUnmounted(() => {
 
 .filter-section:hover {
   box-shadow: var(--shadow-lg);
-  background: rgba(255, 253, 250, 0.98);
+  /* background: rgba(255, 253, 250, 0.98); */
 }
 
 /* 헤더 섹션 */
@@ -743,7 +744,7 @@ onUnmounted(() => {
   transition: var(--transition);
   user-select: none;
   border: 2px solid transparent;
-  background: #ffffff;
+  background: #fffdfa;
 }
 
 .dropdown-option:hover {
