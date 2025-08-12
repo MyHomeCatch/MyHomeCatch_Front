@@ -39,6 +39,10 @@
       </div>
       <!-- 주택 타입 배지 -->
       <!-- <div class="housing-type-badge">{{ house.noticeType || '주택' }}</div> -->
+       <div v-if="selfCheckMatchResult" class="self-check-badge" :title="selfCheckMatchResult">
+        <i class="bi bi-check-circle-fill"></i>
+        <span> {{ selfCheckMatchResult }} </span>
+    </div>
     </div>
 
     <!-- 아파트 정보 -->
@@ -66,10 +70,12 @@
 
 <script setup>
 import axios from 'axios';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../../stores/auth';
-import { addBookmark, removeBookmark } from '../../api/bookmardApi';
+import { useAuthStore } from '@/stores/auth';
+import { addBookmark, removeBookmark } from '@/api/bookmardApi';
+import selfCheckAPI from '@/api/selfCheck';
+import {getHouseDetailByIdWithSelfCheck} from '@/api/detailPageApi';  
 
 // Props
 const props = defineProps({
@@ -93,6 +99,7 @@ const router = useRouter();
 const favoriteLoading = ref(false);
 const localIsFavorited = ref(false);
 const auth = useAuthStore();
+const selfCheckMatchResult = ref(null);
 
 // favoriteList prop 기반으로 초기 상태 설정
 const checkIfFavorited = () => {
@@ -106,6 +113,30 @@ const checkIfFavorited = () => {
 
   return result;
 };
+
+onMounted(async () => {
+if(auth.isLoggedIn && auth.user?.id){
+  try{
+    const selfCheckResult = await selfCheckAPI.getSelfCheckResult();
+    if (selfCheckResult) {
+      const response = await getHouseDetailByIdWithSelfCheck(
+      auth.user.id,
+      selfCheckResult,  
+      props.house.danziId,
+        
+      );
+      if (response.data) {
+        selfCheckMatchResult.value = response.data.selfCheckMatchResult;
+      } else {
+        selfCheckMatchResult.value = null;
+      }
+    }
+  } catch (error) {
+    console.error('자기 점검 결과 로드 실패:', error);
+    selfCheckMatchResult.value = null;
+  }
+}
+});
 
 // favoriteList가 변경될 때만 로컬 상태 업데이트
 watch(
@@ -449,6 +480,25 @@ const getStatusClass = (status) => {
 .status-default {
   background: #7fa87f;
   color: white;
+}
+
+.self-check-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 45, 45, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.self-check-badge i {
+  font-size: 16px;
 }
 
 @media (max-width: 480px) {
