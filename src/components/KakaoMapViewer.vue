@@ -14,6 +14,8 @@ const props = defineProps({
   selectedCategory: { type: String, default: '' }, // 선택된 주변시설 카테고리
 });
 
+const emit = defineEmits(['marker-select', 'marker-deselect']);
+
 const map = ref(null);
 const coordinate = ref({ lat: props.initialLat, lng: props.initialLng });
 const markers = ref([]); // LH 단지 마커
@@ -345,14 +347,37 @@ const onLoadKakaoMap = (newMap) => {
   map.value = newMap;
 };
 
-// 인포윈도우 열기 (LH 단지) - 레거시
+// 인포윈도우 열기 (LH 단지) - 마커선택 기능 추가됨
 const openComplexInfowindow = (marker) => {
-  selectedMarker.value = marker;
+  // 이미 선택된 마커 다시 클릭하면 선택해제
+  if (selectedMarker.value === marker) {
+    selectedMarker.value = null;
+    activeHouseCenter.value = null;
+    publicFacilityMarkers.value = [];
+    emit('marker-deselect');
+  } else {
+    // 새로운 마커 선택
+    selectedMarker.value = marker;
+    activeHouseCenter.value = { lat: marker.lat, lng: marker.lng };
+    emit('marker-select', {
+      marker,
+      house: marker.house,
+      position: new kakao.maps.LatLng(marker.lat, marker.lng),
+    });
+    // 카테고리 이미 선택되어있을 경우 바로 주변시설 검색
+    if (currentCategory.value) {
+      searchPlaces(
+        currentCategory.value,
+        new kakao.maps.LatLng(marker.lat, marker.lng)
+      );
+    }
+  }
 };
 
 // 인포윈도우 닫기
 const closeOverlay = () => {
   selectedMarker.value = null;
+  emit('marker-deselect');
 };
 
 // 지도 줌 인
@@ -380,12 +405,42 @@ const toggleFullscreen = () => {
   }
 };
 
+// MapPage에서 마커 선택시 지도이동시키기 위한 함수들
+
+// 지도 중심 이동 및 확대level 설정
+const moveToPosition = (position, zoomLevel) => {
+  if (map.value) {
+    map.value.setCenter(position);
+    map.value.setLevel(zoomLevel);
+  }
+};
+
+// 현재 지도 중심 위치 반환
+const getMapCenter = () => {
+  if (map.value) {
+    return map.value.getCenter();
+  }
+  return null;
+};
+
+// 현재 지도 확대level 반환
+const getMapLevel = () => {
+  if (map.value) {
+    return map.value.getLevel();
+  }
+  return null;
+};
+
 // 부모 컴포넌트에서 호출할 수 있도록 노출
 defineExpose({
+  // handleMarkerClick,
   updateMapWithHouse,
   zoomIn,
   zoomOut,
   toggleFullscreen,
+  moveToPosition,
+  getMapCenter,
+  getMapLevel,
 });
 </script>
 
