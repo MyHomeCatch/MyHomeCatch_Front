@@ -27,6 +27,13 @@ import Footer from './Footer.vue';
   z-index: 1000;
 }
 
+.container {
+  max-width: 100% !important;
+  margin: 0 !important; /* 좌우·상하 마진 제거 */
+  padding: 0 !important; /* 필요 시 좌우 패딩도 제거 */
+  font-family: 'Pretendard', sans-serif;
+}
+
 .footer {
   background-color: white;
   width: 100vw;

@@ -20,7 +20,7 @@
           </button>
         </div>
       </div>
-      <div class="hero-visual">
+      <!-- <div class="hero-visual">
         <div class="floating-card card-1">
           <div class="card-icon">🏢</div>
           <div class="card-text">청약 정보</div>
@@ -33,62 +33,86 @@
           <div class="card-icon">🎯</div>
           <div class="card-text">가점 분석</div>
         </div>
-      </div>
+      </div> -->
     </section>
 
     <!-- Features Grid -->
     <section class="features-section">
       <div class="container">
+        <div class="features-title">청약 신청 전 확인해보세요!</div>
         <div class="features-grid">
           <!-- 지원 가능한 유형 -->
-          <div class="feature-card" :class="{ 'logged-in': auth.isLoggedIn }">
+          <div
+            class="feature-card"
+            :class="{ 'logged-in': auth.isLoggedIn }"
+            @click="goToSelfCheck"
+          >
+            <!-- 제목 영역 -->
             <div class="feature-header">
-              <div class="feature-icon">
-                <span class="icon">🎯</span>
+              <div class="feature-title-wrapper">
+                <h3 class="feature-title">🎯 자가진단</h3>
+                <p
+                  class="feature-description"
+                  v-if="auth.isLoggedIn && supportableList.length === 0"
+                >
+                  자가진단을 통해 지원 가능한 유형을 확인하세요!
+                </p>
+                <p class="feature-description" v-else-if="!auth.isLoggedIn">
+                  자가진단을 통해 지원 가능한 유형을 확인하세요!
+                </p>
               </div>
-              <h3 class="feature-title">지원 가능한 유형</h3>
             </div>
-            <div class="feature-content">
-              <div v-if="auth.isLoggedIn && supportableList.length > 0">
-                <div class="supportable-types">
-                  <div
-                    v-for="type in supportableList"
-                    :key="type"
-                    class="type-tag"
-                  >
-                    {{ type }}
-                  </div>
+
+            <!-- 태그 영역 -->
+            <div
+              class="feature-content"
+              v-if="auth.isLoggedIn && supportableList.length > 0"
+            >
+              <div class="supportable-types">
+                <div
+                  v-for="type in supportableList"
+                  :key="type"
+                  :style="getEventStyle(type)"
+                  class="type-tag"
+                >
+                  {{ type }}
                 </div>
               </div>
-              <div v-else-if="auth.isLoggedIn && supportableList.length === 0">
-                <p class="feature-description">
-                  자가진단을 통해 지원 가능한 유형을 확인하세요!
-                </p>
-              </div>
-              <div v-else>
-                <p class="feature-description">
-                  자가진단을 통해 지원 가능한 유형을 확인하세요!
-                </p>
-              </div>
-              <div class="feature-status">
-                <span @click="goToSelfCheck" class="status-badge">
-                  {{
-                    auth.isLoggedIn && supportableList.length > 0
-                      ? '다시 진단하기'
-                      : '진단하기'
-                  }}
-                </span>
-              </div>
             </div>
+
+            <!-- <div class="feature-status">
+              <span @click="goToSelfCheck" class="status-badge">
+                {{
+                  auth.isLoggedIn && supportableList.length > 0
+                    ? '다시 진단하기'
+                    : '진단하기'
+                }}
+              </span>
+            </div> -->
           </div>
 
           <!-- 나의 청약 가점 -->
-          <div class="feature-card" :class="{ 'logged-in': auth.isLoggedIn }">
+          <div
+            class="feature-card"
+            :class="{ 'logged-in': auth.isLoggedIn }"
+            @click="goToScore"
+          >
             <div class="feature-header">
-              <div class="feature-icon">
+              <!-- <div class="feature-icon">
                 <span class="icon">📊</span>
+              </div> -->
+              <div class="feature-title-wrapper">
+                <h3 class="feature-title">📊 가점 계산기</h3>
+                <p
+                  class="feature-description"
+                  v-if="auth.isLoggedIn && additionalPoint === null"
+                >
+                  가점진단을 통해 현재 수준을 파악하세요!
+                </p>
+                <p class="feature-description" v-else-if="!auth.isLoggedIn">
+                  가점진단을 통해 현재 수준을 파악하세요!
+                </p>
               </div>
-              <h3 class="feature-title">나의 청약 가점</h3>
             </div>
             <div class="feature-content">
               <div v-if="auth.isLoggedIn && additionalPoint !== null">
@@ -100,45 +124,49 @@
                     <div class="point-bar-container">
                       <div
                         class="point-bar"
-                        :style="{ height: (additionalPoint / 100) * 100 + '%' }"
+                        :style="{ width: additionalPoint + '%' }"
                       ></div>
                     </div>
-                    <div class="point-percentage">
+                    <!-- <div class="point-percentage">
                       {{ Math.round((additionalPoint / 100) * 100) }}%
-                    </div>
+                    </div> -->
                   </div>
                 </div>
               </div>
-              <div v-else-if="auth.isLoggedIn && additionalPoint === null">
-                <p class="feature-description">
-                  가점진단을 통해 현재 수준을 파악하세요!
-                </p>
-              </div>
-              <div v-else>
-                <p class="feature-description">
-                  가점진단을 통해 현재 수준을 파악하세요!
-                </p>
-              </div>
-              <div class="feature-status">
-                <span @click="goToScore" class="status-badge">{{
-                  auth.isLoggedIn && additionalPoint !== null > 0
-                    ? '다시 진단하기'
-                    : '진단하기'
-                }}</span>
-              </div>
+              <!-- <div class="feature-status">
+                <span @click="goToScore" class="status-badge">
+                  {{
+                    auth.isLoggedIn && additionalPoint !== null
+                      ? '다시 진단하기'
+                      : '진단하기'
+                  }}
+                </span>
+              </div> -->
             </div>
           </div>
 
           <!-- 민간분양 당첨 가능성 -->
           <div class="feature-card" :class="{ 'logged-in': auth.isLoggedIn }">
             <div class="feature-header">
-              <div class="feature-icon">
+              <!-- <div class="feature-icon">
                 <span class="icon">🎲</span>
+              </div> -->
+              <div class="feature-title-wrapper">
+                <h3 class="feature-title">📅 오늘 신청가능한 청약</h3>
+                <p
+                  class="feature-description"
+                  v-if="auth.isLoggedIn && additionalPoint === null"
+                >
+                  오늘 신청 가능한 청약을 확인하세요!
+                </p>
+                <p class="feature-description" v-else-if="!auth.isLoggedIn">
+                  오늘 신청 가능한 청약을 확인하세요!
+                </p>
               </div>
-              <h3 class="feature-title">당첨 가능성</h3>
             </div>
             <div class="feature-content">
-              <div v-if="auth.isLoggedIn && additionalPoint !== null">
+              <!-- <div class="applyNotice">{{ todayEventCount }} 개</div> -->
+              <!-- <div v-if="auth.isLoggedIn && additionalPoint !== null">
                 <div class="winning-probability">
                   <div class="probability-display">
                     <div class="probability-left">
@@ -159,23 +187,13 @@
                     </div>
                   </div>
                 </div>
-              </div>
-              <div v-else-if="auth.isLoggedIn && additionalPoint === null">
-                <p class="feature-description">
-                  가점진단을 통해 당첨 가능성을 확인하세요!
-                </p>
-              </div>
-              <div v-else>
-                <p class="feature-description">
-                  가점진단 후 당첨 가능성을 확인하세요!
-                </p>
-              </div>
-              <div
+              </div> -->
+              <!-- <div
                 v-if="!auth.isLoggedIn && additionalPoint === null"
                 class="feature-status"
               >
                 <span @click="goToScore" class="status-badge">진단하기</span>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -183,12 +201,11 @@
     </section>
 
     <!-- 공고 scroll -->
-    <section class="scroll-section">
+    <section v-if="auth.isLoggedIn" class="scroll-section">
       <HorizontalCardScroller
-        :title="'서울에 자취한다면 봐야할 공고'"
-        :cards="seoulHouses"
-        :loading="seoulHousesLoading"
+        :title="`${auth.user.nickname}님에게 추천하는 공고`"
         :key-field="'danziId'"
+        :cards="favoriteList"
         :favorite-list="favoriteList"
         @card-click="handleCardClick"
         @toggle-favorite="handleToggleFavorite"
@@ -198,9 +215,22 @@
 
     <section class="scroll-section">
       <HorizontalCardScroller
-        :title="'경기도에 자취한다면 봐야할 공고'"
+        :title="'사람들이 많이 찾는 공고'"
         :cards="geunggiHouses"
         :loading="geunggiHousesLoading"
+        :key-field="'danziId'"
+        :favorite-list="favoriteList"
+        @card-click="handleCardClick"
+        @toggle-favorite="handleToggleFavorite"
+        @empty-action="handleRefresh"
+      />
+    </section>
+
+    <section v-if="!auth.isLoggedIn" class="scroll-section">
+      <HorizontalCardScroller
+        :title="'서울에 자취한다면 봐야할 공고'"
+        :cards="seoulHouses"
+        :loading="seoulHousesLoading"
         :key-field="'danziId'"
         :favorite-list="favoriteList"
         @card-click="handleCardClick"
@@ -264,6 +294,7 @@ import user from '../api/user';
 import axios from 'axios';
 import HorizontalCardScroller from '../components/house/HorizontalCardScroller.vue';
 import { getBookmarks } from '../api/bookmardApi';
+import { calendarColorMap } from '@/assets/calendarColorMap.js';
 
 const router = useRouter();
 
@@ -327,6 +358,53 @@ const loadFavorites = async () => {
     console.error('즐겨찾기 목록 로드 실패:', error);
     favoriteList.value = [];
   }
+};
+
+// 즐겨찾기 토글 핸들러 개선
+const handleToggleFavorite = async (data) => {
+  if (data.action === 'add') {
+    // 이미 존재하는지 확인 후 추가
+    const exists = favoriteList.value.find(
+      (fav) => fav.danziId === data.danziId
+    );
+
+    if (!exists) {
+      const newFavorite = {
+        danziId: data.danziId,
+        userId: auth.user.id,
+        // 추가 필요한 필드들도 여기에 포함
+      };
+      // 새로운 배열 생성으로 반응성 트리거
+      favoriteList.value = [...favoriteList.value, newFavorite];
+    }
+  } else if (data.action === 'remove') {
+    // 배열에서 제거
+    const filteredList = favoriteList.value.filter(
+      (fav) => fav.danziId !== data.danziId
+    );
+    // 새로운 배열 할당으로 반응성 트리거
+    favoriteList.value = [...filteredList];
+  }
+
+  // Vue의 반응성 시스템을 강제로 트리거
+  await nextTick();
+};
+
+// 유형 별 색상 설정
+const getEventStyle = (label) => {
+  // 특정 label 치환
+  if (label === '공공분양') {
+    label = '분양주택';
+  }
+
+  const entry = Object.values(calendarColorMap).find(
+    (item) => item.label === label
+  );
+  const color = entry?.color || '#4caf50'; // 기본색
+  return {
+    color: `${color}`,
+    border: `1px solid ${color}`,
+  };
 };
 
 // 점수 등급 계산 함수
@@ -404,10 +482,10 @@ const handleCardClick = (event) => {
   // 카드 클릭 시 처리 로직
 };
 
-const handleToggleFavorite = (event) => {
-  console.log('Toggle favorite:', event);
-  // 즐겨찾기 토글 처리 로직
-};
+// const handleToggleFavorite = (event) => {
+//   console.log('Toggle favorite:', event);
+//   // 즐겨찾기 토글 처리 로직
+// };
 
 const handleRefresh = () => {
   console.log('Refresh requested');
@@ -435,6 +513,12 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+}
+
+.features-title {
+  font-size: 22px;
+  font-weight: bolder;
+  margin-bottom: 1rem;
 }
 
 /* Hero Section */
@@ -504,18 +588,19 @@ onMounted(() => {
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  /* box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); */
 }
 
 .btn-secondary {
   background: white;
   color: #4caf50;
-  border: 2px solid #4caf50;
+  border: 2px solid transparent;
 }
 
 .btn-secondary:hover {
-  background: #4caf50;
+  /* background: #4caf50; */
   color: white;
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
 }
 
 .btn-icon {
@@ -562,8 +647,8 @@ onMounted(() => {
 }
 
 .floating-card:nth-child(3) {
-  top: 80%;
-  right: 35%;
+  top: 50%;
+  left: 25%;
   animation-delay: 4s;
 }
 
@@ -590,8 +675,9 @@ onMounted(() => {
 
 /* Features Section */
 .features-section {
-  padding: 30px 0 0 0;
+  /* padding: 30px 0 0 0; */
   background: white;
+  margin: 4rem 0;
 }
 
 .section-title {
@@ -609,10 +695,10 @@ onMounted(() => {
 }
 
 .feature-card {
-  background: white;
-  border-radius: 24px;
+  background: #f7f7f9;
+  border-radius: 20px;
   max-height: 150px;
-  padding: 20px 24px;
+  padding: 32px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
   border: 2px solid transparent;
   position: relative;
@@ -626,7 +712,7 @@ onMounted(() => {
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
+  height: 0px;
   background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
   transform: scaleX(0);
   transition: transform 0.3s ease;
@@ -637,11 +723,12 @@ onMounted(() => {
 }
 
 .feature-card:hover {
-  border-color: #4caf50;
+  /* border-color: #4caf50; */
+  transform: translateY(-5px);
 }
 
 .feature-card.logged-in {
-  border-color: #4caf50;
+  /* border-color: #4caf50; */
 }
 
 .feature-card.logged-in::before {
@@ -682,7 +769,6 @@ onMounted(() => {
 .feature-description {
   color: #64748b;
   line-height: 1.4;
-  text-align: center;
   margin-bottom: 12px;
   font-size: 0.85rem;
 }
@@ -696,7 +782,6 @@ onMounted(() => {
 
 .status-badge {
   color: #4caf50;
-  text-decoration: underline;
   cursor: pointer;
   padding: 6px 12px;
   border-radius: 16px;
@@ -706,34 +791,36 @@ onMounted(() => {
 }
 
 .status-badge:hover {
-  background: rgba(59, 130, 246, 0.1);
-  color: #1d4ed8;
+  /* background: rgba(59, 130, 246, 0.1); */
+  color: #388e3c;
+  text-decoration: underline;
 }
 
 .supportable-types {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 10px;
-  max-height: 40px;
-  overflow-y: auto;
+  margin-top: 6px; /* 아래 간격 */
+  max-height: none; /* 높이 제한 해제 */
+  overflow: visible; /* 스크롤 제거 */
 }
 
 .type-tag {
-  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  background-color: white;
   color: white;
   padding: 4px 10px;
-  border-radius: 14px;
+  border-radius: 5px;
+  border: 1px solid #4caf50;
   font-size: 0.8rem;
   font-weight: 600;
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  /* box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3); */
 }
 
 .point-display {
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 16px;
+  gap: 12px; /* 간격 줄임 */
+  margin-bottom: 12px; /* 마진 줄임 */
 }
 
 .point-left {
@@ -741,11 +828,12 @@ onMounted(() => {
 }
 
 .point-number {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #3b82f6;
-  margin-bottom: 8px;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  font-size: 1.8rem; /* 폰트 크기 줄임 */
+  font-weight: 600;
+  color: #4caf50;
+  margin-bottom: 6px;
+  background-color: #4caf50;
+  /* background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); */
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -754,17 +842,17 @@ onMounted(() => {
 .point-label {
   color: #64748b;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.75rem; /* 폰트 크기 줄임 */
 }
 
 .point-right {
   flex-grow: 1;
-  text-align: right;
+  text-align: left; /* 오른쪽 정렬에서 왼쪽 정렬로 변경 */
 }
 
 .point-bar-container {
-  width: 30px;
-  height: 80px;
+  width: 100%; /* 가로 너비 최대 */
+  height: 12px; /* 높이 작게 */
   background-color: #e2e8f0;
   border-radius: 15px;
   overflow: hidden;
@@ -773,29 +861,32 @@ onMounted(() => {
 }
 
 .point-bar {
-  width: 100%;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  height: 100%; /* 높이 100% */
+  width: 0%; /* 초기 너비 0% */
+
   border-radius: 15px;
-  transition: height 0.3s ease-in-out;
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  transition: width 0.3s ease-in-out; /* height → width로 변경 */
   position: absolute;
-  bottom: 0;
-  height: 0;
+  top: 0;
+  left: 0;
 }
 
 .point-percentage {
-  font-size: 0.875rem;
+  font-size: 0.75rem; /* 폰트 크기 줄임 */
   font-weight: 600;
   color: #64748b;
+  text-align: right;
 }
 
 .winning-probability {
-  margin-bottom: 16px;
+  margin-bottom: 12px; /* 마진 줄임 */
 }
 
 .probability-display {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px; /* 간격 줄임 */
 }
 
 .probability-left {
@@ -808,19 +899,19 @@ onMounted(() => {
 }
 
 .probability-bar-container {
-  width: 30px;
-  height: 80px;
+  width: 20px; /* 폭 줄임 */
+  height: 60px; /* 높이 줄임 */
   background-color: #e2e8f0;
-  border-radius: 15px;
+  border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   position: relative;
 }
 
 .probability-bar {
   width: 100%;
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  border-radius: 15px;
+  border-radius: 10px;
   transition: height 0.3s ease-in-out;
   position: absolute;
   bottom: 0;
@@ -828,21 +919,21 @@ onMounted(() => {
 }
 
 .probability-grade {
-  font-size: 0.875rem;
+  font-size: 0.75rem; /* 폰트 작게 */
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .probability-grade-large {
-  font-size: 2rem;
+  font-size: 1.4rem; /* 폰트 크기 줄임 */
   font-weight: 800;
   text-align: center;
-  padding: 20px;
-  border-radius: 16px;
+  padding: 10px; /* 패딩 줄임 */
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  min-width: 120px;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  min-width: 80px; /* 최소 너비 줄임 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -873,9 +964,9 @@ onMounted(() => {
 }
 
 .point-grade {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .point-grade.high {
@@ -895,9 +986,9 @@ onMounted(() => {
 }
 
 .probability-message {
-  font-size: 0.875rem;
+  font-size: 0.75rem; /* 폰트 크기 줄임 */
   color: #64748b;
-  margin-top: 8px;
+  margin-top: 4px; /* 간격 줄임 */
 }
 
 .probability-message.low {
@@ -922,7 +1013,6 @@ onMounted(() => {
 }
 
 .scroll-section {
-  background: white;
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;

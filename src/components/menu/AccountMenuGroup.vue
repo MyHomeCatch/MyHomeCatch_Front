@@ -17,7 +17,7 @@ const { isLoggedIn, user } = storeToRefs(authStore);
     </template>
     <template v-else>
       <li class="nav-item d-flex align-items-center text-white me-2">
-        <router-link to="/mypage" class="nav-link text-white">
+        <router-link to="/mypage" class="nav-link">
           {{ user.nickname }}님
         </router-link>
       </li>

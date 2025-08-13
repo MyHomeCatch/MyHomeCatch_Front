@@ -60,10 +60,11 @@ const toggleNavShow = () => {
 
 <style scoped>
 .custom-navbar {
-  background-color: white(134, 167, 136, 0.8);
+  background-color: white;
   padding: 0;
   width: 100%;
   margin: 0;
+  font-family: 'Pretendard', sans-serif;
 }
 
 .navbar-brand img {

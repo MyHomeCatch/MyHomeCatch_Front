@@ -50,7 +50,7 @@ const categories = [
   padding-bottom: 4px; /* 스크롤 공간 확보용 약간 여백 */
   -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
   scrollbar-width: thin; /* 얇게 */
-  scrollbar-color: #86a788 white;
+  scrollbar-color: #4caf50 white;
 }
 
 .category-button {

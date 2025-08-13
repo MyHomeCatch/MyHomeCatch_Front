@@ -185,7 +185,7 @@ watch(
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  margin-left: 5%;
+  /* margin-left: 5%; */
 }
 
 .section-header h2 {

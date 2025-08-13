@@ -43,8 +43,8 @@
     </div>
 
     <!-- dailymap과 infopanel 가로 배치 -->
-    <div class="row d-flex align-items-stretch mb-4">
-      <div class="col-12 col-lg-7 d-flex flex-column">
+    <div class="custom-layout">
+      <div class="custom-left">
         <div class="section-title">📍 단지 위치 및 인프라 정보</div>
         <DetailMap
           v-if="houseCard"
@@ -52,7 +52,8 @@
           :selectedCategory="selectedCategory"
         />
       </div>
-      <div class="col-12 col-lg-5 d-flex flex-column">
+
+      <div class="custom-right">
         <div class="section-title">🏠 공급 정보</div>
         <InfoPanel
           :danzi-info="houseData.danzi"
@@ -218,7 +219,6 @@ const toggleLike = async () => {
 
 .image-section-wrapper {
   position: relative;
-  margin-top: 5rem;
   border-radius: 12px;
   padding: 12px;
   /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
@@ -248,17 +248,38 @@ const toggleLike = async () => {
   font-weight: bolder;
 }
 
-@media (max-width: 768px) {
-  .map {
-    display: none;
+.custom-layout {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* 좌우 여백 */
+  margin-bottom: 2rem; /* 아래 여백 */
+}
+
+.custom-left,
+.custom-right {
+  background: white; /* 필요 시 배경색 */
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 600px; /* 높이 맞춤 */
+}
+
+.custom-left {
+  flex: 7; /* 비율 7 */
+  margin-left: 6rem;
+}
+
+.custom-right {
+  flex: 5; /* 비율 5 */
+  margin-right: 6rem;
+}
+
+@media (max-width: 992px) {
+  .custom-layout {
+    flex-direction: column;
   }
-}
-
-.col-12.col-lg-7 {
-  height: 600px; /* 원하는 높이 직접 지정 가능 */
-}
-
-.col-12.col-lg-5 {
-  height: 600px; /* 위와 동일하게 맞춰줌 */
+  .custom-left,
+  .custom-right {
+    min-height: auto;
+  }
 }
 </style>
