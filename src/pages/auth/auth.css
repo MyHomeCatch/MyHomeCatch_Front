@@ -10,7 +10,8 @@
   border-radius: 8px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.12);
   width: 494px;
-  height: 700px;
+  min-height: 700px;
+  height: auto;
   padding: 38px 46px 34px 46px;
   position: relative;
   display: flex;
@@ -193,7 +194,7 @@ form {
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s;
-  margin-top: 24px;
+  margin-top: 0px;
   height: 34.2px;
   display: flex;
   align-items: center;

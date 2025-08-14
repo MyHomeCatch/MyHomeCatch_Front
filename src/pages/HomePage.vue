@@ -550,10 +550,17 @@ const handleRefresh = () => {
 
 // 컴포넌트 마운트 시 실행
 onMounted(() => {
-  mypage.getUserInfo();
-  loadUserSupportableList();
-  loadUser();
+  // 로그인된 사용자만 사용자 관련 API 호출
+  if (auth.isLoggedIn) {
+    loadUserSupportableList();
+    loadUser();
+    mypage.getUserInfo();
+  }
+  
+  // 즐겨찾기는 로그인 상태와 관계없이 호출 (내부에서 로그인 상태 확인)
   loadFavorites();
+  
+  // 공고 목록은 로그인 상태와 관계없이 호출 (공개 정보)
   loadSeoulHouses();
   loadGeunggiHouses();
   loadTodayApply();
