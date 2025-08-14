@@ -14,7 +14,7 @@
   <template v-else-if="houseData && houseData.danzi">
     <main class="container py-4">
       <div
-        class="d-flex justify-content-between align-items-start position-relative"
+        class="d-flex justify-content-between align-items-start position-relative mb-4"
       >
         <div>
           <h1 class="h3 fw-bold text-dark">{{ houseData.danzi.bzdtNm }}</h1>
@@ -28,14 +28,12 @@
           :class="{ liked: isLiked, 'not-liked': !isLiked }"
           @click="toggleLike"
         >
-          <i class="fa-solid fa-heart"></i>
           <span id="likeText">{{
             isLiked ? '즐겨찾기 추가완료' : '즐겨찾기 추가'
           }}</span>
         </button>
       </div>
     </main>
-
     <div v-if="selfCheckMatchResult" class="container">
       <div class="text-center" role="alert">
         {{ authStore.user.nickname }} 님은 현재 이 공고에
@@ -43,166 +41,36 @@
         확인됩니다.
       </div>
     </div>
-    <!-- 이미지 및 정보 -->
-    <ImageSection :images="images" />
 
-    <div class="container px-4 py-5">
-      <!-- 좌측 콘텐츠 영역 -->
-      <div class="row">
-        <div class="category-button-wrapper">
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'MT1',
-            }"
-            @click="selectedCategory = 'MT1'"
-          >
-            대형마트
-          </button>
+    <!-- dailymap과 infopanel 가로 배치 -->
+    <div class="custom-layout">
+      <div class="custom-left">
+        <div class="section-title">📍 단지 위치 및 인프라 정보</div>
+        <DetailMap
+          v-if="houseCard"
+          :houses="[houseCard]"
+          :selectedCategory="selectedCategory"
+        />
+      </div>
 
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'CS2',
-            }"
-            @click="selectedCategory = 'CS2'"
-          >
-            편의점
-          </button>
-
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'PS3',
-            }"
-            @click="selectedCategory = 'PS3'"
-          >
-            어린이집
-          </button>
-
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'SC4',
-            }"
-            @click="selectedCategory = 'SC4'"
-          >
-            학교
-          </button>
-
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'AC5',
-            }"
-            @click="selectedCategory = 'AC5'"
-          >
-            학원
-          </button>
-
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'OL7',
-            }"
-            @click="selectedCategory = 'OL7'"
-          >
-            주유소
-          </button>
-
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'SW8',
-            }"
-            @click="selectedCategory = 'SW8'"
-          >
-            지하철역
-          </button>
-
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'BK9',
-            }"
-            @click="selectedCategory = 'BK9'"
-          >
-            은행
-          </button>
-
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'PO3',
-            }"
-            @click="selectedCategory = 'PO3'"
-          >
-            공공기관
-          </button>
-
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'HP8',
-            }"
-            @click="selectedCategory = 'HP8'"
-          >
-            병원
-          </button>
-
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'PM9',
-            }"
-            @click="selectedCategory = 'PM9'"
-          >
-            약국
-          </button>
-
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'CT1',
-            }"
-            @click="selectedCategory = 'CT1'"
-          >
-            문화시설
-          </button>
-        </div>
-        <div class="col-12 col-lg-7">
-          <DetailMap
-            v-if="houseCard"
-            :houses="[houseCard]"
-            :selectedCategory="selectedCategory"
-          />
-        </div>
-        <!-- 우측 패널 영역 -->
-        <div class="col-12 col-lg-5">
-          <div class="info-panel-wrapper">
-            <InfoPanel
-              :danzi-info="houseData.danzi"
-              :apply-info="houseData.applies"
-              :notices="houseData.notices"
-              :bookmark-count="bookmarkCount"
-              @request-summary="handleShowSummaryClick"
-              @showSummary="showSummary = true"
-            />
-            <!-- PdfSummary 오버레이 -->
-            <PdfSummary
-              v-if="showSummary"
-              @close="showSummary = false"
-              :summaryData="summaryMarkdown"
-              :loading="loadingSummary"
-              :error="summaryError"
-              :title="houseData.danzi ? houseData.danzi.bzdtNm : ''"
-            />
-          </div>
-        </div>
+      <div class="custom-right">
+        <div class="section-title">🏠 공급 정보</div>
+        <InfoPanel
+          :danzi-info="houseData.danzi"
+          :apply-info="houseData.applies"
+          :notices="houseData.notices"
+          :bookmark-count="bookmarkCount"
+        />
       </div>
     </div>
 
-    <!-- 게시판 -->
+    <!-- 이미지 섹션 -->
+    <section class="container image-section-wrapper mb-4">
+      <div class="section-title">🏘️ 단지 이미지</div>
+      <ImageSection :images="images" />
+    </section>
+
+    <!-- 댓글 -->
     <Comments :danziId="houseData.danzi.danziId" />
   </template>
 </template>
@@ -224,7 +92,6 @@ import PdfSummary from '@/components/DetailPage/PdfSummary.vue';
 import { useAuthStore } from '@/stores/auth.js';
 import selfCheckAPI from '@/api/selfCheck.js';
 import bookmarkApi from '@/api/bookmarkApi.js';
-
 import { getDynamicSummary } from '@/api/detailPageApi';
 
 const route = useRoute();
@@ -386,6 +253,22 @@ const toggleLike = async () => {
 </script>
 
 <style scope>
+.section-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #222;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  user-select: none;
+}
+
+.image-section-wrapper {
+  position: relative;
+  border-radius: 12px;
+  padding: 12px;
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+}
+
 .like-btn {
   position: absolute;
   top: 1rem;
@@ -395,60 +278,54 @@ const toggleLike = async () => {
   transition: all 0.2s ease;
 }
 .liked {
-  background-color: #db2777;
+  background-color: #f67280;
   color: white;
   border: none;
 }
 .not-liked {
-  background-color: #fce7f3;
-  color: #db2777;
-  border: 1px solid #db2777;
+  /* background-color: #fce7f3; */
+  color: #f67280;
+  border: 1px solid #f67280;
 }
 .not-liked:hover {
-  background-color: #fbcfe8;
+  background-color: #f67280;
+  color: white;
+  font-weight: bolder;
 }
 
-@media (max-width: 768px) {
-  .map {
-    display: none;
-  }
-}
-
-/* Category Button for Map */
-.category-button-wrapper {
+.custom-layout {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px; /* Increased gap for both horizontal and vertical spacing */
-  margin-bottom: 16px; /* Space below the buttons and above the map */
+  align-items: center;
+  gap: 5px; /* 좌우 여백 */
+  margin-bottom: 2rem; /* 아래 여백 */
 }
 
-.category-button {
-  background-color: #f0f0f0; /* Soft light gray background */
-  color: #333; /* Dark gray text */
-  border: 1px solid #e0e0e0; /* Subtle border */
-  padding: 8px 14px; /* Consistent padding */
-  border-radius: 6px; /* Slightly rounded corners */
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out; /* Smooth transitions */
-  white-space: nowrap; /* Prevent text wrapping */
+.custom-left,
+.custom-right {
+  background: white; /* 필요 시 배경색 */
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 600px; /* 높이 맞춤 */
 }
 
-.category-button:hover {
-  background-color: #e5e5e5; /* Slightly darker on hover */
-  border-color: #d0d0d0;
+.custom-left {
+  flex: 7; /* 비율 7 */
+  margin-left: 6rem;
 }
 
-.category-button.selected {
-  background-color: #ffe0e6; /* Soft pink, derived from existing primary color */
-  color: #ff385c; /* Primary color for text */
-  border-color: #ffcdd2; /* Slightly darker pink border */
-  font-weight: 600;
+.custom-right {
+  flex: 5; /* 비율 5 */
+  margin-right: 6rem;
 }
 
-.category-button:active {
-  transform: translateY(1px); /* Slight press effect */
+@media (max-width: 992px) {
+  .custom-layout {
+    flex-direction: column;
+  }
+  .custom-left,
+  .custom-right {
+    min-height: auto;
+  }
 }
 
 .info-panel-wrapper {

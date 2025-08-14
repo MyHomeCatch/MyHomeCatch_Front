@@ -3,25 +3,6 @@
     <!-- 섹션 헤더 -->
     <div class="section-header">
       <h2>{{ title }}</h2>
-      <!-- 스크롤 버튼들 -->
-      <div v-if="cards.length > 0" class="scroll-controls">
-        <button
-          @click="scrollLeft"
-          :disabled="!canScrollLeft"
-          class="scroll-button scroll-left"
-          aria-label="왼쪽으로 스크롤"
-        >
-          ←
-        </button>
-        <button
-          @click="scrollRight"
-          :disabled="!canScrollRight"
-          class="scroll-button scroll-right"
-          aria-label="오른쪽으로 스크롤"
-        >
-          →
-        </button>
-      </div>
     </div>
 
     <!-- 로딩 상태 -->
@@ -47,6 +28,13 @@
 
     <!-- 카드 목록 -->
     <div v-else class="cards-container">
+      <div
+        class="scroll-button scroll-left"
+        @click="scrollLeft"
+        :class="{ disabled: !canScrollLeft }"
+      >
+        ←
+      </div>
       <div ref="scrollContainer" class="cards-scroll" @scroll="handleScroll">
         <div class="cards-list">
           <div
@@ -62,6 +50,13 @@
             />
           </div>
         </div>
+      </div>
+      <div
+        class="scroll-button scroll-right"
+        @click="scrollRight"
+        :class="{ disabled: !canScrollRight }"
+      >
+        →
       </div>
     </div>
   </div>
@@ -179,6 +174,10 @@ watch(
 <style scoped>
 .card-scroller-section {
   padding: 4px 0 4px 0;
+  background: white;
+  margin: 20px 0;
+  border-radius: 24px;
+  padding: 20px;
 }
 
 .section-header {
@@ -186,27 +185,23 @@ watch(
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  /* margin-left: 5%; */
 }
 
 .section-header h2 {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
-  color: #234123;
-}
-
-.scroll-controls {
-  display: flex;
-  gap: 8px;
+  color: #1a1a1a;
 }
 
 .scroll-button {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  border: 2px solid #b7c7b7;
+  border: 2px solid #e0e0e0;
   background: white;
-  color: #4d6b4d;
+  color: #666;
   font-size: 18px;
   font-weight: bold;
   cursor: pointer;
@@ -214,23 +209,25 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(166, 191, 160, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  z-index: 10;
 }
 
-.scroll-button:hover:not(:disabled) {
-  border-color: #a6bfa0;
-  color: #a6bfa0;
+.scroll-button:hover:not(.disabled) {
+  border-color: #667eea;
+  color: #667eea;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(166, 191, 160, 0.2);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
 }
 
-.scroll-button:disabled {
+.scroll-button.disabled {
   opacity: 0.3;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-.scroll-button:active:not(:disabled) {
+.scroll-button:active:not(.disabled) {
   transform: translateY(0);
 }
 
@@ -267,11 +264,11 @@ watch(
 .empty-state {
   text-align: center;
   padding: 50px 20px;
-  background: #fffdfa;
+  background: white;
   border-radius: 16px;
   margin: 20px 0;
-  border: 1px solid #eaf5e6;
-  box-shadow: 0 4px 6px -1px rgba(166, 191, 160, 0.1);
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .empty-icon {
@@ -284,19 +281,19 @@ watch(
 .empty-title {
   font-size: 18px;
   font-weight: 600;
-  color: #234123;
+  color: #1a1a1a;
   margin: 0 0 8px 0;
 }
 
 .empty-description {
   font-size: 14px;
-  color: #7fa87f;
+  color: #666;
   line-height: 1.4;
   margin: 0 0 20px 0;
 }
 
 .action-button {
-  background: linear-gradient(135deg, #a6bfa0 0%, #8baa7f 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -305,16 +302,16 @@ watch(
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(166, 191, 160, 0.3);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
 .action-button:hover {
-  background: linear-gradient(135deg, #8baa7f 0%, #7fa87f 100%);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(166, 191, 160, 0.4);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 .action-button:active {
@@ -323,6 +320,9 @@ watch(
 
 .cards-container {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .cards-scroll {
@@ -331,6 +331,7 @@ watch(
   scrollbar-width: none;
   -ms-overflow-style: none;
   scroll-behavior: smooth;
+  flex-grow: 1;
 }
 
 .cards-scroll::-webkit-scrollbar {
@@ -372,16 +373,10 @@ watch(
     align-items: flex-start;
   }
 
-  .scroll-controls {
-    align-self: center;
-  }
-
-  .section-header h2 {
+  .scroll-button {
+    width: 36px;
+    height: 36px;
     font-size: 16px;
-  }
-
-  .card-item {
-    max-width: 180px;
   }
 
   .empty-state {

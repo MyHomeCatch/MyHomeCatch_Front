@@ -6,9 +6,9 @@
           <i class="bi bi-funnel"></i>
           주택 검색 필터
         </h2>
-        <p class="filter-subtitle">
+        <!-- <p class="filter-subtitle">
           원하는 조건을 선택하여 맞춤형 주택을 찾아보세요
-        </p>
+        </p> -->
       </div>
       <button
         v-if="hasActiveFilters"
@@ -31,16 +31,55 @@
           </label>
           <span class="filter-hint">다중 선택 가능</span>
         </div>
-        <div class="checkbox-group">
-          <label
-            v-for="region in filterOptions.regions"
-            :key="region.code"
-            class="checkbox-item"
-            :class="{ checked: filters.region.includes(region.code) }"
-            @click="toggleFilter('region', region.code)"
+        <div class="dropdown-container">
+          <button
+            class="dropdown-button"
+            @click="toggleDropdown('region')"
+            type="button"
           >
-            <span class="checkbox-label">{{ region.name }}</span>
-          </label>
+            <span class="dropdown-text">{{
+              getSelectedText('region', '전체 지역')
+            }}</span>
+            <i
+              class="dropdown-icon bi bi-chevron-down"
+              :class="{ rotated: isDropdownOpen.region }"
+            ></i>
+          </button>
+          <div v-show="isDropdownOpen.region" class="dropdown-content">
+            <div class="dropdown-options">
+              <!-- 전체 선택 옵션 -->
+              <label
+                class="dropdown-option select-all-option"
+                :class="{ checked: filters.region.length === 0 }"
+                @click="selectAll('region')"
+              >
+                <input
+                  type="checkbox"
+                  class="checkbox-input"
+                  :checked="filters.region.length === 0"
+                  @change="selectAll('region')"
+                />
+                <span class="option-label">전체 지역</span>
+              </label>
+              <!-- 구분선 -->
+              <div class="dropdown-divider"></div>
+              <!-- 개별 지역 옵션들 -->
+              <label
+                v-for="region in filterOptions.regions"
+                :key="region.code"
+                class="dropdown-option"
+                :class="{ checked: filters.region.includes(region.code) }"
+              >
+                <input
+                  type="checkbox"
+                  class="checkbox-input"
+                  :checked="filters.region.includes(region.code)"
+                  @change="toggleFilter('region', region.code)"
+                />
+                <span class="option-label">{{ region.name }}</span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -53,16 +92,55 @@
           </label>
           <span class="filter-hint">다중 선택 가능</span>
         </div>
-        <div class="checkbox-group">
-          <label
-            v-for="type in filterOptions.noticeTypes"
-            :key="type.code"
-            class="checkbox-item"
-            :class="{ checked: filters.noticeType.includes(type.code) }"
-            @click="toggleFilter('noticeType', type.code)"
+        <div class="dropdown-container">
+          <button
+            class="dropdown-button"
+            @click="toggleDropdown('noticeType')"
+            type="button"
           >
-            <span class="checkbox-label">{{ type.name }}</span>
-          </label>
+            <span class="dropdown-text">{{
+              getSelectedText('noticeType', '전체 유형')
+            }}</span>
+            <i
+              class="dropdown-icon bi bi-chevron-down"
+              :class="{ rotated: isDropdownOpen.noticeType }"
+            ></i>
+          </button>
+          <div v-show="isDropdownOpen.noticeType" class="dropdown-content">
+            <div class="dropdown-options">
+              <!-- 전체 선택 옵션 -->
+              <label
+                class="dropdown-option select-all-option"
+                :class="{ checked: filters.noticeType.length === 0 }"
+                @click="selectAll('noticeType')"
+              >
+                <input
+                  type="checkbox"
+                  class="checkbox-input"
+                  :checked="filters.noticeType.length === 0"
+                  @change="selectAll('noticeType')"
+                />
+                <span class="option-label">전체 유형</span>
+              </label>
+              <!-- 구분선 -->
+              <div class="dropdown-divider"></div>
+              <!-- 개별 유형 옵션들 -->
+              <label
+                v-for="type in filterOptions.noticeTypes"
+                :key="type.code"
+                class="dropdown-option"
+                :class="{ checked: filters.noticeType.includes(type.code) }"
+              >
+                <input
+                  type="checkbox"
+                  class="checkbox-input"
+                  :checked="filters.noticeType.includes(type.code)"
+                  @change="toggleFilter('noticeType', type.code)"
+                />
+                <span class="option-label">{{ type.name }}</span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -75,21 +153,60 @@
           </label>
           <span class="filter-hint">다중 선택 가능</span>
         </div>
-        <div class="checkbox-group">
-          <label
-            v-for="status in filterOptions.noticeStatuses"
-            :key="status.code"
-            class="checkbox-item"
-            :class="{ checked: filters.noticeStatus.includes(status.code) }"
-            @click="toggleFilter('noticeStatus', status.code)"
+        <div class="dropdown-container">
+          <button
+            class="dropdown-button"
+            @click="toggleDropdown('noticeStatus')"
+            type="button"
           >
-            <span class="checkbox-label">{{ status.name }}</span>
-          </label>
+            <span class="dropdown-text">{{
+              getSelectedText('noticeStatus', '전체')
+            }}</span>
+            <i
+              class="dropdown-icon bi bi-chevron-down"
+              :class="{ rotated: isDropdownOpen.noticeStatus }"
+            ></i>
+          </button>
+          <div v-show="isDropdownOpen.noticeStatus" class="dropdown-content">
+            <div class="dropdown-options">
+              <!-- 전체 선택 옵션 -->
+              <label
+                class="dropdown-option select-all-option"
+                :class="{ checked: filters.noticeStatus.length === 0 }"
+                @click="selectAll('noticeStatus')"
+              >
+                <input
+                  type="checkbox"
+                  class="checkbox-input"
+                  :checked="filters.noticeStatus.length === 0"
+                  @change="selectAll('noticeStatus')"
+                />
+                <span class="option-label">전체</span>
+              </label>
+              <!-- 구분선 -->
+              <div class="dropdown-divider"></div>
+              <!-- 개별 상태 옵션들 -->
+              <label
+                v-for="status in filterOptions.noticeStatuses"
+                :key="status.code"
+                class="dropdown-option"
+                :class="{ checked: filters.noticeStatus.includes(status.code) }"
+              >
+                <input
+                  type="checkbox"
+                  class="checkbox-input"
+                  :checked="filters.noticeStatus.includes(status.code)"
+                  @change="toggleFilter('noticeStatus', status.code)"
+                />
+                <span class="option-label">{{ status.name }}</span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- 검색 버튼 -->
-      <div class="filter-item search-button-container">
+      <!-- <div class="filter-item search-button-container">
         <button
           @click="search"
           class="search-button"
@@ -101,7 +218,7 @@
             ({{ totalSelectedFilters }})
           </span>
         </button>
-      </div>
+      </div> -->
     </div>
 
     <!-- 활성 필터 태그 -->
@@ -111,7 +228,7 @@
           <i class="bi bi-tags"></i>
           적용된 필터
         </span>
-        <span class="filter-count-badge">{{ totalSelectedFilters }}개</span>
+        <!-- <span class="filter-count-badge">{{ totalSelectedFilters }}개</span> -->
       </div>
       <div class="filter-tags">
         <!-- 지역 태그들 -->
@@ -153,19 +270,19 @@
     </div>
 
     <!-- 선택된 항목 수 표시 -->
-    <div v-if="hasActiveFilters" class="filter-summary">
+    <!-- <div v-if="hasActiveFilters" class="filter-summary">
       <div class="summary-card">
         <i class="bi bi-funnel-fill"></i>
         <span class="summary-text">
           총 <strong>{{ totalSelectedFilters }}개</strong> 조건으로 검색됩니다
         </span>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 
 // Props
 const props = defineProps({
@@ -188,6 +305,13 @@ const emit = defineEmits([
   'search',
 ]);
 
+// Dropdown 상태 관리
+const isDropdownOpen = ref({
+  region: false,
+  noticeType: false,
+  noticeStatus: false,
+});
+
 // Computed
 const hasActiveFilters = computed(() => {
   return (
@@ -206,6 +330,67 @@ const totalSelectedFilters = computed(() => {
 });
 
 // Methods
+const toggleDropdown = (key) => {
+  // 다른 드롭다운들 닫기
+  Object.keys(isDropdownOpen.value).forEach((dropdownKey) => {
+    if (dropdownKey !== key) {
+      isDropdownOpen.value[dropdownKey] = false;
+    }
+  });
+
+  // 현재 드롭다운 토글
+  isDropdownOpen.value[key] = !isDropdownOpen.value[key];
+};
+
+const closeAllDropdowns = () => {
+  Object.keys(isDropdownOpen.value).forEach((key) => {
+    isDropdownOpen.value[key] = false;
+  });
+};
+
+const getSelectedText = (key, defaultText) => {
+  const selectedValues = props.filters[key] || [];
+  if (selectedValues.length === 0) {
+    return defaultText;
+  }
+
+  const options =
+    props.filterOptions[
+      key === 'region'
+        ? 'regions'
+        : key === 'noticeType'
+        ? 'noticeTypes'
+        : 'noticeStatuses'
+    ] || [];
+  const selectedNames = selectedValues.map((code) => {
+    const option = options.find((opt) => opt.code === code);
+    return option ? option.name : code;
+  });
+
+  if (selectedNames.length === 1) {
+    return selectedNames[0];
+  } else if (selectedNames.length <= 2) {
+    return selectedNames.join(', ');
+  } else {
+    return `${selectedNames[0]} 외 ${selectedNames.length - 1}개`;
+  }
+};
+
+const handleClickOutside = (event) => {
+  const dropdowns = document.querySelectorAll('.dropdown-container');
+  let clickedInside = false;
+
+  dropdowns.forEach((dropdown) => {
+    if (dropdown.contains(event.target)) {
+      clickedInside = true;
+    }
+  });
+
+  if (!clickedInside) {
+    closeAllDropdowns();
+  }
+};
+
 const toggleFilter = (key, value) => {
   const currentValues = [...(props.filters[key] || [])];
   const index = currentValues.indexOf(value);
@@ -219,6 +404,17 @@ const toggleFilter = (key, value) => {
   }
 
   emit('update-filter', { key, value: currentValues });
+
+  // 옵션 선택 후 드롭다운 닫기
+  isDropdownOpen.value[key] = false;
+};
+
+// 전체 선택 메소드
+const selectAll = (key) => {
+  emit('update-filter', { key, value: [] });
+
+  // 전체 선택 후 드롭다운 닫기
+  isDropdownOpen.value[key] = false;
 };
 
 // 필터 태그 삭제 전용 메소드 (toggleFilter와 동일하지만 명확성을 위해 분리)
@@ -249,6 +445,15 @@ const getFilterDisplayName = (optionType, code) => {
   const option = options.find((opt) => opt.code === code);
   return option ? option.name : code;
 };
+
+// Lifecycle hooks
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <style scoped>
@@ -283,7 +488,8 @@ const getFilterDisplayName = (optionType, code) => {
 .filter-section {
   background: rgba(255, 253, 250, 0.95);
   backdrop-filter: blur(10px);
-  border-radius: var(--radius-xl);
+  /* border-radius: var(--radius-xl); */
+  border-radius: 16px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   box-shadow: var(--shadow-md);
@@ -304,7 +510,8 @@ const getFilterDisplayName = (optionType, code) => {
     rgba(166, 191, 160, 0.05) 0%,
     rgba(255, 253, 250, 0.95) 100%
   );
-  border-radius: var(--radius-xl);
+  /* border-radius: var(--radius-xl); */
+  border-radius: 16px;
   z-index: -1;
 }
 
@@ -318,7 +525,7 @@ const getFilterDisplayName = (optionType, code) => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1.5rem;
+  /* margin-bottom: 1.5rem; */
   gap: 1rem;
 }
 
@@ -351,7 +558,7 @@ const getFilterDisplayName = (optionType, code) => {
 .clear-button {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
-  padding: 0.5rem 0.75rem;
+  /* padding: 0.5rem 0.75rem; */
   border-radius: var(--radius-md);
   color: var(--text-secondary);
   font-size: 0.8125rem;
@@ -360,7 +567,7 @@ const getFilterDisplayName = (optionType, code) => {
   transition: var(--transition);
   display: flex;
   align-items: center;
-  gap: 0.375rem;
+  /* gap: 0.375rem; */
   white-space: nowrap;
 }
 
@@ -387,7 +594,7 @@ const getFilterDisplayName = (optionType, code) => {
   display: flex;
   flex-direction: column;
   background: var(--bg-secondary);
-  border-radius: var(--radius-lg);
+  border-radius: 20px;
   padding: 1rem;
   border: 1px solid var(--border-color);
   transition: var(--transition);
@@ -428,40 +635,105 @@ const getFilterDisplayName = (optionType, code) => {
   border-radius: var(--radius-sm);
 }
 
-/* 체크박스 그룹 */
-.checkbox-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  max-height: 160px;
-  overflow-y: auto;
-  padding: 0.625rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  background: var(--bg-primary);
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-color) transparent;
+/* 드롭다운 컨테이너 */
+.dropdown-container {
+  position: relative;
+  width: 100%;
 }
 
-.checkbox-group::-webkit-scrollbar {
+.dropdown-button {
+  background: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 16px;
+  padding: 0.625rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.375rem;
+  width: 100%;
+  text-align: left;
+  /* box-shadow: var(--shadow-sm); */
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(166, 191, 160, 0.2);
+}
+
+.dropdown-button:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-hover);
+  border-width: 2px;
+  /* box-shadow: var(--shadow-md); */
+}
+
+.dropdown-button:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(166, 191, 160, 0.2);
+}
+
+.dropdown-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.dropdown-icon {
+  transition: transform 0.3s ease;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.dropdown-button.rotated .dropdown-icon {
+  transform: rotate(180deg);
+}
+
+.dropdown-content {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+  margin-top: 0.25rem;
+}
+
+.dropdown-content::-webkit-scrollbar {
   width: 4px;
 }
 
-.checkbox-group::-webkit-scrollbar-track {
+.dropdown-content::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.checkbox-group::-webkit-scrollbar-thumb {
+.dropdown-content::-webkit-scrollbar-thumb {
   background: var(--border-color);
   border-radius: 2px;
 }
 
-.checkbox-group::-webkit-scrollbar-thumb:hover {
+.dropdown-content::-webkit-scrollbar-thumb:hover {
   background: var(--border-hover);
 }
 
-/* 체크박스 아이템 */
-.checkbox-item {
+.dropdown-options {
+  padding: 0.625rem;
+}
+
+.dropdown-option {
   display: flex;
   align-items: center;
   gap: 0.625rem;
@@ -471,39 +743,76 @@ const getFilterDisplayName = (optionType, code) => {
   transition: var(--transition);
   user-select: none;
   border: 2px solid transparent;
-  background: #fffdfa;
+  background: #ffffff;
 }
 
-.checkbox-item:hover {
-  background: #eaf5e6;
+.dropdown-option:hover {
+  background: #f0f0f0;
   border-color: #b7c7b7;
 }
 
-.checkbox-item.checked {
-  background: #a6bfa0;
-  border-color: #7fa87f;
-  color: white;
+.dropdown-option.checked {
+  background: #e0e0e0;
+  /* border-color: #7fa87f; */
+  color: var(--text-primary);
   font-weight: 600;
-  box-shadow: 0 2px 4px rgba(166, 191, 160, 0.2);
+  /* box-shadow: 0 2px 4px rgba(166, 191, 160, 0.2); */
 }
 
-.checkbox-item.checked:hover {
-  background: #8baa7f;
+.dropdown-option.checked:hover {
+  background: #d0d0d0;
   border-color: #7fa87f;
 }
 
-.checkbox-item.checked .checkbox-label {
-  color: white;
+.dropdown-option.checked .option-label {
+  color: var(--text-primary);
   font-weight: 600;
 }
 
-.checkbox-label {
+/* 전체 선택 옵션 스타일 */
+.select-all-option {
+  background: var(--bg-tertiary) !important;
+  font-weight: 600;
+}
+
+.select-all-option:hover {
+  background: var(--border-hover) !important;
+}
+
+.select-all-option.checked {
+  background: var(--primary-color) !important;
+  color: white !important;
+}
+
+.select-all-option.checked:hover {
+  background: var(--primary-hover) !important;
+}
+
+.select-all-option.checked .option-label {
+  color: white !important;
+}
+
+/* 구분선 */
+.dropdown-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 0.5rem 0;
+  opacity: 0.5;
+}
+
+.option-label {
   font-size: 0.8125rem;
-  color: #234123;
+  color: var(--text-primary);
   cursor: pointer;
   flex: 1;
   transition: var(--transition);
 }
+
+.checkbox-input {
+  display: none; /* Hide default checkbox */
+}
+
+/* 사용하지 않는 custom-checkbox 스타일 제거됨 */
 
 /* 검색 버튼 */
 .search-button-container {
@@ -555,16 +864,17 @@ const getFilterDisplayName = (optionType, code) => {
 
 /* 활성 필터 섹션 */
 .active-filters {
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
+  margin-top: 1rem;
+  /* padding-top: 1rem; */
   border-top: 1px solid var(--border-color);
+  padding-left: 1rem;
 }
 
 .active-filter-header {
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .active-filter-label {
@@ -721,8 +1031,8 @@ const getFilterDisplayName = (optionType, code) => {
     font-size: 1.125rem;
   }
 
-  .checkbox-group {
-    max-height: 140px;
+  .dropdown-content {
+    max-height: 160px;
   }
 
   .filter-tags {
@@ -796,6 +1106,25 @@ const getFilterDisplayName = (optionType, code) => {
     --border-color: #404040;
     --border-hover: #505050;
   }
+  .dropdown-content {
+    background: #2d2d2d;
+  }
+
+  .dropdown-option {
+    background: #2d2d2d;
+  }
+
+  .dropdown-option:hover {
+    background: #404040;
+  }
+
+  .dropdown-option.checked {
+    background: #505050;
+  }
+
+  .dropdown-option.checked:hover {
+    background: #606060;
+  }
 }
 
 /* 접근성 개선 */
@@ -807,7 +1136,6 @@ const getFilterDisplayName = (optionType, code) => {
 }
 
 /* 포커스 스타일 */
-.checkbox-input:focus-visible ~ .custom-checkbox,
 .search-button:focus-visible,
 .clear-button:focus-visible,
 .filter-tag:focus-visible {

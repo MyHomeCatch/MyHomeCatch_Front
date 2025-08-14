@@ -81,8 +81,8 @@ defineProps({
   images: {
     type: Array,
     required: true,
-    default: () => []
-  }
+    default: () => [],
+  },
 });
 
 // 이미지 로드 실패 시 대체 이미지 표시
@@ -94,8 +94,11 @@ const onImageError = (event) => {
 <style scoped>
 .image-gallery-wrapper {
   width: 100%;
-  max-width: 1120px;
-  margin: 24px auto;
+  /* max-width: 800px; */
+  margin-top: 24px;
+  margin-bottom: 24px;
+  margin-left: 0;
+  margin-right: auto; /* 오른쪽 여백을 자동으로 줘서 왼쪽으로 붙음 */
 }
 
 .image-gallery-container {
@@ -131,7 +134,8 @@ const onImageError = (event) => {
   gap: 8px;
 }
 
-.thumbnail-item, .thumbnail-placeholder {
+.thumbnail-item,
+.thumbnail-placeholder {
   width: 100%;
   height: 100%;
   background-color: #f0f2f5; /* Placeholder background */

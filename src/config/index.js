@@ -4,17 +4,9 @@ export default {
   menus: [
     // 메인 메뉴 구성 정보
     {
-
-      title: '청약 공고',
+      title: '청약 캘린더',
+      url: '/calendar',
       icon: 'fa-solid fa-paste',
-      children: [
-        {
-          title: '캘린더',
-          url: '/calendar',
-
-          icon: 'fa-solid fa-paste',
-        },
-      ],
     },
     // {
     //   title: '마이페이지',
@@ -22,20 +14,14 @@ export default {
     //   icon: 'fa-solid fa-plane-departure',
     // },
     {
-      title: '통계',
+      title: '지도',
+      url: '/map',
       icon: 'fa-regular fa-images',
-      children: [
-        { title: 'StaticsPage', url: '/statics', icon: 'fa-regular fa-images' },
-        { title: 'ProloguePage', url: '/prolog', icon: 'fa-regular fa-images' },
-      ],
     },
     {
-      title: '자가진단',
+      title: 'FAQ',
+      url: '/prolog',
       icon: 'fa-solid fa-check',
-      children: [
-        { title: 'MyPage', url: '/mypage', icon: 'fa-solid fa-check' },
-
-      ],
     },
   ],
   accoutMenus: {

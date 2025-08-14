@@ -14,10 +14,8 @@ const toggleNavShow = () => {
 </script>
 
 <template>
-
   <nav class="navbar navbar-expand-sm custom-navbar container-fluid px-0 py-1">
     <div class="d-flex justify-content-between align-items-center w-100 px-3">
-
       <!-- 왼쪽 메뉴 -->
       <div class="d-flex align-items-center">
         <MenuGroup :menus="config.menus" />
@@ -45,28 +43,28 @@ const toggleNavShow = () => {
 
       </button> -->
 
-    <!-- 모바일 전용 메뉴 -->
-    <!--  <div v-if="state.isNavShow" :class="navClass" id="collapsibleNavbar">
+      <!-- 모바일 전용 메뉴 -->
+      <!--  <div v-if="state.isNavShow" :class="navClass" id="collapsibleNavbar">
       <MenuGroup :menus="config.menus" />
       <AccountMenuGroup />
     </div> -->
 
-    <!-- 모바일 전용 메뉴 -->
-    <!-- <div v-if="state.isNavShow" :class="navClass" id="collapsibleNavbar">
+      <!-- 모바일 전용 메뉴 -->
+      <!-- <div v-if="state.isNavShow" :class="navClass" id="collapsibleNavbar">
       <MenuGroup :menus="config.menus" />
       <AccountMenuGroup />
     </div> -->
-		</div>
+    </div>
   </nav>
 </template>
 
 <style scoped>
 .custom-navbar {
-  background-color: rgba(134, 167, 136, 0.8);
+  background-color: white;
   padding: 0;
   width: 100%;
   margin: 0;
-
+  font-family: 'Pretendard', sans-serif;
 }
 
 .navbar-brand img {

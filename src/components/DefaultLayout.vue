@@ -8,7 +8,7 @@ import Footer from './Footer.vue';
   <div class="app-wrapper">
     <Header />
     <div class="navbar-sticky">
-        <NavBar />
+      <NavBar />
     </div>
 
     <div class="container">
@@ -22,9 +22,16 @@ import Footer from './Footer.vue';
 
 <style scoped>
 .navbar-sticky {
-  position: sticky;
+  /* position: sticky; */
   top: 0;
   z-index: 1000;
+}
+
+.container {
+  max-width: 100% !important;
+  margin: 0 !important; /* 좌우·상하 마진 제거 */
+  padding: 0 !important; /* 필요 시 좌우 패딩도 제거 */
+  font-family: 'Pretendard', sans-serif;
 }
 
 .footer {

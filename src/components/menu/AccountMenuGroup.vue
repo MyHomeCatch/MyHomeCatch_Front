@@ -17,7 +17,7 @@ const { isLoggedIn, user } = storeToRefs(authStore);
     </template>
     <template v-else>
       <li class="nav-item d-flex align-items-center text-white me-2">
-        <router-link to="/mypage" class="nav-link text-white">
+        <router-link to="/mypage" class="nav-link">
           {{ user.nickname }}님
         </router-link>
       </li>
@@ -34,23 +34,23 @@ const { isLoggedIn, user } = storeToRefs(authStore);
 <style scoped>
 /* 기본 nav-link 텍스트 색상 */
 .nav-link {
-  color: white;
+  color: black;
   font-weight: bold;
 }
 
 /* 호버 시 색상 */
 .nav-link:hover {
-  color: #86a788;
+  color: #4caf50;
 }
 
 /* router-link도 동일한 스타일 적용 */
 .router-link-active,
 .router-link-exact-active {
-  color: white;
+  color: black;
 }
 
 .router-link-active:hover,
 .router-link-exact-active:hover {
-  color: #86a788;
+  color: #4caf50;
 }
 </style>
