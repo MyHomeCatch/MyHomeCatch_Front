@@ -1,5 +1,6 @@
 <template>
   <div class="self-check-container">
+    <LoadingSpinner v-if="isSubmitting"/>
     <SelfCheckStartModal :visible="showStartModal" @start="startSelfCheck" @cancel="router.back()" />
     <SelfCheckResultModal 
       :visible="showResultModal" 
@@ -47,6 +48,7 @@ import QuestionCard from '../../components/selfCheck/QuestionCard.vue';
 import NavigationButtons from '../../components/selfCheck/NavigationButtons.vue';
 import SelfCheckStartModal from '../../components/modals/SelfCheckStartModal.vue';
 import SelfCheckResultModal from '../../components/modals/SelfCheckResultModal.vue';
+import LoadingSpinner from '../../components/ui/LoadingSpinner.vue';
 
 import selfCheckApi from '../../api/selfCheck.js';
 import { useAuthStore } from '../../stores/auth';
@@ -171,7 +173,7 @@ const questions = [
       '비닐간이공작물 거주자',
       '신혼부부',
       '한부모 가족',
-      '무허가건축물 등에 입주한 세입자',
+      '무허가건축물에 입주한 세입자',
       '기관추천',
       '신생아',
       '생애최초',
