@@ -189,6 +189,7 @@ const loadAllComplexes = async () => {
   if (markers.value.length === 1) {
     // 마커가 하나뿐인 경우 해당 위치로 이동하고 적절한 줌 레벨 설정
     const marker = markers.value[0];
+    selectedMarker.value = marker;
     const newLatLng = new window.kakao.maps.LatLng(marker.lat, marker.lng);
     map.value.setCenter(newLatLng);
     map.value.setLevel(5); // 더 가까운 줌 레벨
@@ -380,6 +381,10 @@ const closeOverlay = () => {
   emit('marker-deselect');
 };
 
+const clearActiveHouseCenter = () => {
+  activeHouseCenter.value = null;
+};
+
 // 지도 줌 인
 const zoomIn = () => {
   if (map.value) {
@@ -452,6 +457,7 @@ defineExpose({
   getMapCenter,
   getMapLevel,
   findHouseMarker,
+  clearActiveHouseCenter,
 });
 </script>
 

@@ -630,6 +630,11 @@ const handleMarkerSelect = ({ marker, house, position }) => {
 const handleMarkerDeselect = () => {
   // 마커 선택 해제
   selectedMarker.value = null;
+
+  // KakaoMapViewer의 activeHouseCenter 직접 초기화
+  if (mapViewerRef.value && mapViewerRef.value.clearActiveHouseCenter) {
+    mapViewerRef.value.clearActiveHouseCenter();
+  }
   // 이전 지도 상태로 복원
   if (
     previousMapCenter.value &&
