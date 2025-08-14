@@ -5,18 +5,23 @@ import './auth.css';
 import { doList, sigugunMap } from '../../assets/addressData';
 import { useAuthStore } from '../../stores/auth';
 import AddressModal from '../../components/modals/AddressModal.vue';
+import AgreeModal from '../../components/modals/AgreeModal.vue'; // 추가
 
 const authStore = useAuthStore();
 const router = useRouter();
 const emailInput = ref(null);
 const nicknameInput = ref(null);
 
+// 이메일/닉네임 관련 상태
 const emailVerified = ref(false);
 const showSendVerification = ref(false);
-const showVerificationInput = ref(false); // 인증번호 입력란 노출 여부
+const showVerificationInput = ref(false);
 const verificationCode = ref('');
-const verificationSent = ref(false);
 const verificationError = ref('');
+
+// 약관 모달 상태
+const showAgreeModal = ref(false);
+const agreeConfirmed = ref(false);
 
 const canSubmit = computed(() => {
   return (
@@ -26,8 +31,7 @@ const canSubmit = computed(() => {
     !!authStore.password &&
     !!authStore.user.address &&
     authStore.emailChecked &&
-    authStore.nicknameChecked 
-    // && authStore.emailVerified  // 이메일 인증 완료 조건 추가
+    authStore.nicknameChecked
   );
 });
 
@@ -47,25 +51,34 @@ const openAddressModal = () => {
   authStore.openAddressModal();
 };
 
+// Sign Up 클릭 시 처리
+const onClickSignUp = () => {
+  if (!agreeConfirmed.value) {
+    showAgreeModal.value = true;
+    return;
+  }
+  handleSignUp();
+};
+
 const handleSignUp = async () => {
   // 유효성 검사
-  if (!authStore.user.name || authStore.user.name.trim() === '') {
+  if (!authStore.user.name?.trim()) {
     authStore.errorMessage = '이름을 입력해주세요.';
     return;
   }
-  if (!authStore.user.nickname || authStore.user.nickname.trim() === '') {
+  if (!authStore.user.nickname?.trim()) {
     authStore.errorMessage = '닉네임을 입력해주세요.';
     return;
   }
-  if (!authStore.user.email || authStore.user.email.trim() === '') {
+  if (!authStore.user.email?.trim()) {
     authStore.errorMessage = '이메일을 입력해주세요.';
     return;
   }
-  if (!authStore.user.address || authStore.user.address.trim() === '') {
+  if (!authStore.user.address?.trim()) {
     authStore.errorMessage = '주소를 입력해주세요.';
     return;
   }
-  if (!authStore.password || authStore.password.trim() === '') {
+  if (!authStore.password?.trim()) {
     authStore.errorMessage = '비밀번호를 입력해주세요.';
     return;
   }
@@ -73,14 +86,11 @@ const handleSignUp = async () => {
     authStore.errorMessage = '이메일 중복확인을 해주세요.';
     return;
   }
-  // if (!authStore.emailVerified) {
-  //   authStore.errorMessage = '이메일 인증을 완료해주세요.';
-  //   return;
-  // }
   if (!authStore.nicknameChecked) {
     authStore.errorMessage = '닉네임 중복확인을 해주세요.';
     return;
   }
+
   const result = await authStore.signup();
   if (result.success) {
     setTimeout(() => router.push('/login'), 1000);
@@ -110,7 +120,7 @@ const goToSignIn = () => {
 };
 
 onMounted(() => {
-  // 소셜 로그인 정보가 있으면 자동 세팅됨
+  // 소셜 로그인 정보 자동 세팅 가능
 });
 
 onBeforeRouteLeave(() => {
@@ -134,7 +144,7 @@ const checkEmail = async () => {
     emailInput.value.reportValidity();
     return;
   }
-  if (!authStore.user.email || authStore.user.email.trim() === '') {
+  if (!authStore.user.email?.trim()) {
     authStore.emailCheckMessage = '이메일을 입력해주세요.';
     return;
   }
@@ -144,23 +154,22 @@ const checkEmail = async () => {
   }
 };
 
-// 이메일인증
 const handleShowVerificationInput = () => {
   authStore.sendEmail(authStore.user.email);
   showVerificationInput.value = true;
 };
 
 const verifyCode = async () => {
-  // 실제 인증 기능은 추후 구현
-
   if (!/^\d+$/.test(verificationCode.value)) {
     return;
   }
+  authStore.checkEmailCode(authStore.user.email, verificationCode.value);
+};
 
-  authStore.checkEmailCode(
-    authStore.user.email,
-    verificationCode.value
-  );
+// 약관 모달에서 확인 시
+const onAgreeConfirmed = () => {
+  agreeConfirmed.value = true;
+  handleSignUp();
 };
 </script>
 
@@ -173,11 +182,13 @@ const verifyCode = async () => {
     <div class="auth-card">
       <div class="auth-card-bar"></div>
       <h2 class="auth-title">SIGN UP</h2>
-      <form @submit.prevent="handleSignUp">
+      <form @submit.prevent="onClickSignUp">
         <div class="auth-input-group">
           <label>Name</label>
           <input type="text" v-model="authStore.user.name" required />
         </div>
+
+        <!-- 닉네임 -->
         <div
           class="auth-input-group"
           style="display: flex; align-items: center; gap: 8px"
@@ -223,6 +234,8 @@ const verifyCode = async () => {
             재입력
           </button>
         </div>
+
+        <!-- 이메일 -->
         <div
           class="auth-input-group"
           style="display: flex; align-items: center; gap: 8px"
@@ -268,8 +281,14 @@ const verifyCode = async () => {
             재입력
           </button>
         </div>
+
+        <!-- 이메일 인증 -->
         <div
-          v-if="showSendVerification && !authStore.emailVerified && !showVerificationInput"
+          v-if="
+            showSendVerification &&
+            !authStore.emailVerified &&
+            !showVerificationInput
+          "
           style="margin-bottom: 8px"
         >
           <button
@@ -299,12 +318,17 @@ const verifyCode = async () => {
             인증 확인
           </button>
         </div>
-        <div v-if="authStore.emailVerified" style="margin-bottom: 8px; color: #8ab191; font-weight: bold;">
+        <div
+          v-if="authStore.emailVerified"
+          style="margin-bottom: 8px; color: #8ab191; font-weight: bold"
+        >
           이메일 인증 완료
         </div>
         <div v-if="verificationError" class="auth-error">
           {{ verificationError }}
         </div>
+
+        <!-- 주소 -->
         <div
           class="auth-input-group"
           style="display: flex; align-items: center; gap: 8px"
@@ -336,10 +360,14 @@ const verifyCode = async () => {
           @selectDo="handleSelectDo"
           @selectSigugun="handleSelectSigugun"
         />
+
+        <!-- 비밀번호 -->
         <div class="auth-input-group">
           <label>Password</label>
           <input type="password" v-model="authStore.password" required />
         </div>
+
+        <!-- 회원가입 버튼 -->
         <button
           type="submit"
           class="auth-submit"
@@ -347,6 +375,8 @@ const verifyCode = async () => {
         >
           Sign Up
         </button>
+
+        <!-- 메시지 -->
         <div v-if="authStore.errorMessage" class="auth-error">
           {{ authStore.errorMessage }}
         </div>
@@ -360,4 +390,11 @@ const verifyCode = async () => {
       </form>
     </div>
   </div>
+
+  <!-- 약관 동의 모달 -->
+  <AgreeModal
+    v-if="showAgreeModal"
+    @close="showAgreeModal = false"
+    @confirmed="onAgreeConfirmed"
+  />
 </template>

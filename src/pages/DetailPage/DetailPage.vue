@@ -13,7 +13,9 @@
 
   <template v-else-if="houseData && houseData.danzi">
     <main class="container py-4">
-      <div class="d-flex justify-content-between align-items-start position-relative mb-4">
+      <div
+        class="d-flex justify-content-between align-items-start position-relative mb-4"
+      >
         <div>
           <h1 class="h3 fw-bold text-dark">{{ houseData.danzi.bzdtNm }}</h1>
           <p class="text-muted mt-1">
@@ -26,7 +28,9 @@
           :class="{ liked: isLiked, 'not-liked': !isLiked }"
           @click="toggleLike"
         >
-          <span id="likeText">{{ isLiked ? '즐겨찾기 추가완료' : '즐겨찾기 추가' }}</span>
+          <span id="likeText">{{
+            isLiked ? '즐겨찾기 추가완료' : '즐겨찾기 추가'
+          }}</span>
         </button>
       </div>
     </main>
@@ -34,14 +38,19 @@
     <div v-if="selfCheckMatchResult" class="container">
       <div class="text-center" role="alert">
         {{ authStore.user.nickname }} 님은 현재 이 공고에
-        <span class="fw-bold"> {{ selfCheckMatchResult }} </span>한 것으로 확인됩니다.
+        <span class="fw-bold"> {{ selfCheckMatchResult }} </span>한 것으로
+        확인됩니다.
       </div>
     </div>
 
     <div class="custom-layout">
       <div class="custom-left">
         <div class="section-title">📍 단지 위치 및 인프라 정보</div>
-        <DetailMap v-if="houseCard" :houses="[houseCard]" :selectedCategory="selectedCategory" />
+        <DetailMap
+          v-if="houseCard"
+          :houses="[houseCard]"
+          :selectedCategory="selectedCategory"
+        />
       </div>
 
       <div class="custom-right">
@@ -51,27 +60,44 @@
           :apply-info="houseData.applies"
           :notices="houseData.notices"
           :bookmark-count="bookmarkCount"
+          @request-summary="handleShowSummaryClick"
+          @showSummary="showSummary = true"
         />
       </div>
     </div>
 
+    <PdfSummary
+      :summaryData="summaryMarkdown"
+      :loading="loadingSummary"
+      :error="summaryError"
+      :title="houseData.danzi ? houseData.danzi.bzdtNm : ''"
+    />
+
+    <!-- 이미지 섹션 -->
     <section class="container image-section-wrapper mb-4">
       <div class="section-title">🏘️ 단지 이미지</div>
       <ImageSection :images="images" />
     </section>
 
-    <Comments v-if="houseData.danzi.danziId" :danziId="houseData.danzi.danziId" />
+    <Comments
+      v-if="houseData.danzi.danziId"
+      :danziId="houseData.danzi.danziId"
+    />
   </template>
 
   <!-- ✅ 폴백: 빈 화면 방지 + 응답 구조 확인 -->
   <div v-else class="container py-5">
-    <div class="alert alert-warning">표시할 단지 정보가 없습니다. (houseData에 danzi가 없음)</div>
-    <pre class="bg-light p-3 rounded small" style="white-space:pre-wrap;">{{ pretty(houseData) }}</pre>
+    <div class="alert alert-warning">
+      표시할 단지 정보가 없습니다. (houseData에 danzi가 없음)
+    </div>
+    <pre class="bg-light p-3 rounded small" style="white-space: pre-wrap">{{
+      pretty(houseData)
+    }}</pre>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   getHouseCardById,
@@ -81,9 +107,11 @@ import {
   getDynamicSummary,
 } from '@/api/detailPageApi';
 import ImageSection from '@/components/DetailPage/ImageSection.vue';
-import InfoPanel from '../../components/DetailPage/InfoPanel.vue';
+import InfoPanel from '@/components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
 import DetailMap from '@/components/DetailPage/DetailMap.vue';
+import PdfSummary from '@/components/DetailPage/PdfSummary.vue';
+
 import { useAuthStore } from '@/stores/auth.js';
 import selfCheckAPI from '@/api/selfCheck.js';
 import bookmarkApi from '@/api/bookmarkApi.js';
@@ -117,25 +145,21 @@ function normalizeHouseDetail(raw) {
 
   console.log('🔍 normalizeHouseDetail - raw data:', raw);
 
-  const danzi =
-    raw.danzi ??
-    raw.danziDto ??
-    raw.house ??
-    raw.houseDto ??
-    null;
+  const danzi = raw.danzi ?? raw.danziDto ?? raw.house ?? raw.houseDto ?? null;
 
   const notices = raw.notices ?? raw.noticeList ?? raw.notice ?? [];
-  const attachments = raw.attachments ?? raw.danziAtt ?? raw.images ?? raw.att ?? [];
+  const attachments =
+    raw.attachments ?? raw.danziAtt ?? raw.images ?? raw.att ?? [];
   const applies = raw.applies ?? raw.applyInfo ?? raw.apply ?? [];
 
   const normalized = { ...raw, danzi, notices, attachments, applies };
-  
+
   console.log('🔍 normalizeHouseDetail - normalized data:', normalized);
   console.log('🔍 danzi:', danzi);
   console.log('🔍 notices:', notices);
   console.log('🔍 attachments:', attachments);
   console.log('🔍 applies:', applies);
-  
+
   return normalized;
 }
 
@@ -165,13 +189,13 @@ const handleShowSummaryClick = async () => {
   summaryMarkdown.value = '';
 
   const danziId = route.params.id;
-  
+
   // PDF URL을 찾는 로직 개선
   console.log('🔍 houseData.value:', houseData.value);
   console.log('🔍 notices:', houseData.value?.notices);
-  
+
   let pdfUrl = null;
-  
+
   // 다양한 경로에서 PDF URL 찾기
   if (houseData.value?.notices?.[0]?.noticeAttachments?.[0]?.ahflUrl) {
     pdfUrl = houseData.value.notices[0].noticeAttachments[0].ahflUrl;
@@ -182,16 +206,17 @@ const handleShowSummaryClick = async () => {
   } else if (houseData.value?.attachments?.[0]?.ahflUrl) {
     pdfUrl = houseData.value.attachments[0].ahflUrl;
   }
-  
+
   console.log('🔍 found pdfUrl:', pdfUrl);
 
   if (!pdfUrl) {
-    summaryError.value = '공고 PDF를 찾을 수 없습니다. 공고 정보를 확인해주세요.';
+    summaryError.value =
+      '공고 PDF를 찾을 수 없습니다. 공고 정보를 확인해주세요.';
     console.error('❌ PDF URL not found in data structure');
     loadingSummary.value = false;
     return;
   }
-  
+
   await loadSummaryMarkdownWithParams(danziId, pdfUrl);
 };
 
@@ -221,6 +246,23 @@ onMounted(async () => {
 
     houseCard.value = houseCardResponse.data;
     bookmarkCount.value = bookmarkResponse.data;
+
+    // 📌 공고 PDF 요약은 메인 로딩과 분리해서 비동기로 “발사만” 함
+    const pdfUrl =
+      houseData.value?.notices?.[0]?.noticeAttachments?.[0]?.ahflUrl || null;
+
+    if (pdfUrl) {
+      // await ❌ —> onMounted를 막지 않도록
+      loadingSummary.value = true;
+      loadSummaryMarkdownWithParams(danziId, pdfUrl)
+        .catch((e) => {
+          console.error('요약 로드 실패:', e);
+          summaryError.value = '요약 데이터를 불러올 수 없습니다.';
+        })
+        .finally(() => {
+          loadingSummary.value = false;
+        });
+    }
   } catch (err) {
     console.error('데이터 로드 실패:', err);
     error.value = '데이터를 불러오는 데 실패했습니다.';
@@ -239,7 +281,7 @@ const loadHouseDetail = async () => {
 
   try {
     console.log('🔍 Loading house detail for danziId:', danziId);
-    
+
     // 로그인 상태와 관계없이 기본 API 사용
     console.log('🔍 Using basic API for consistent data structure');
     const response = await getHouseDetailById(danziId);
@@ -253,10 +295,12 @@ const loadHouseDetail = async () => {
       // 로그인된 경우에만 self-check 결과를 별도로 가져오기
       if (authStore.isLoggedIn) {
         try {
-          console.log('🔍 User is logged in, fetching self-check result separately');
+          console.log(
+            '🔍 User is logged in, fetching self-check result separately'
+          );
           const selfCheckResult = await selfCheckAPI.getSelfCheckResult();
           console.log('🔍 Self-check result:', selfCheckResult);
-          
+
           // self-check 결과를 별도로 저장
           if (selfCheckResult) {
             selfCheckMatchResult.value = selfCheckResult;
@@ -266,7 +310,7 @@ const loadHouseDetail = async () => {
           // self-check 실패는 전체 데이터 로딩에 영향을 주지 않음
         }
       }
-      
+
       // 데이터 구조 확인
       console.log('🔍 Final houseData:', houseData.value);
       console.log('🔍 danziId in normalized data:', normalized?.danzi?.danziId);
@@ -320,18 +364,64 @@ const toggleLike = async () => {
   padding-bottom: 6px;
   user-select: none;
 }
-.image-section-wrapper { position: relative; border-radius: 12px; padding: 12px; }
-.like-btn { position: absolute; top: 1rem; right: 1rem; border-radius: 9999px; font-size: 0.875rem; transition: all 0.2s ease; }
-.liked { background-color: #f67280; color: white; border: none; }
-.not-liked { color: #f67280; border: 1px solid #f67280; }
-.not-liked:hover { background-color: #f67280; color: white; font-weight: bolder; }
-.custom-layout { display: flex; align-items: center; gap: 5px; margin-bottom: 2rem; }
-.custom-left, .custom-right { background: white; border-radius: 8px; padding: 10px; min-height: 600px; }
-.custom-left { flex: 7; margin-left: 6rem; }
-.custom-right { flex: 5; margin-right: 6rem; }
-@media (max-width: 992px) {
-  .custom-layout { flex-direction: column; }
-  .custom-left, .custom-right { min-height: auto; }
+.image-section-wrapper {
+  position: relative;
+  border-radius: 12px;
+  padding: 12px;
 }
-.info-panel-wrapper { position: relative; }
+.like-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+.liked {
+  background-color: #f67280;
+  color: white;
+  border: none;
+}
+.not-liked {
+  color: #f67280;
+  border: 1px solid #f67280;
+}
+.not-liked:hover {
+  background-color: #f67280;
+  color: white;
+  font-weight: bolder;
+}
+.custom-layout {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 2rem;
+}
+.custom-left,
+.custom-right {
+  background: white;
+  border-radius: 8px;
+  padding: 10px;
+  min-height: 600px;
+}
+.custom-left {
+  flex: 7;
+  margin-left: 6rem;
+}
+.custom-right {
+  flex: 5;
+  margin-right: 6rem;
+}
+@media (max-width: 992px) {
+  .custom-layout {
+    flex-direction: column;
+  }
+  .custom-left,
+  .custom-right {
+    min-height: auto;
+  }
+}
+.info-panel-wrapper {
+  position: relative;
+}
 </style>
