@@ -275,4 +275,23 @@ function toggleDropdown(idx) {
   margin-bottom: 56px;
   justify-content: center; /* 추가: 카드가 하나일 때 중앙 정렬 */
 }
+
+@media (max-width: 1280px) {
+  .question-card {
+    width: 440px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .question-card {
+    width: 94vw;
+    max-width: 520px;
+    margin-top: 8px;
+    padding: 16px 14px;
+  }
+  .questions-row {
+    gap: 0;
+    margin-bottom: 4px;
+  }
+}
 </style> 
