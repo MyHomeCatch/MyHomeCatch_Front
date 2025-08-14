@@ -63,17 +63,15 @@
           @request-summary="handleShowSummaryClick"
           @showSummary="showSummary = true"
         />
-        <!-- PdfSummary 오버레이 -->
-        <PdfSummary
-          v-if="showSummary"
-          @close="showSummary = false"
-          :summaryData="summaryMarkdown"
-          :loading="loadingSummary"
-          :error="summaryError"
-          :title="houseData.danzi ? houseData.danzi.bzdtNm : ''"
-        />
       </div>
     </div>
+
+    <PdfSummary
+      :summaryData="summaryMarkdown"
+      :loading="loadingSummary"
+      :error="summaryError"
+      :title="houseData.danzi ? houseData.danzi.bzdtNm : ''"
+    />
 
     <!-- 이미지 섹션 -->
     <section class="container image-section-wrapper mb-4">
@@ -87,7 +85,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   getHouseCardById,
@@ -140,7 +138,7 @@ const loadSummaryMarkdownWithParams = async (danziId, pdfUrl) => {
 
 const handleShowSummaryClick = async () => {
   // ★ 오버레이 먼저 열기
-  showSummary.value = true;
+  // showSummary.value = true;
   loadingSummary.value = true;
   summaryError.value = '';
   summaryMarkdown.value = '';
@@ -194,6 +192,23 @@ onMounted(async () => {
 
     houseCard.value = houseCardResponse.data;
     bookmarkCount.value = bookmarkResponse.data;
+
+    // 📌 공고 PDF 요약은 메인 로딩과 분리해서 비동기로 “발사만” 함
+    const pdfUrl =
+      houseData.value?.notices?.[0]?.noticeAttachments?.[0]?.ahflUrl || null;
+
+    if (pdfUrl) {
+      // await ❌ —> onMounted를 막지 않도록
+      loadingSummary.value = true;
+      loadSummaryMarkdownWithParams(danziId, pdfUrl)
+        .catch((e) => {
+          console.error('요약 로드 실패:', e);
+          summaryError.value = '요약 데이터를 불러올 수 없습니다.';
+        })
+        .finally(() => {
+          loadingSummary.value = false;
+        });
+    }
   } catch (err) {
     console.error('데이터 로드 실패:', err);
     error.value = '데이터를 불러오는 데 실패했습니다.';
