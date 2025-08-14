@@ -727,9 +727,9 @@ onMounted(() => {
   transform: translateY(-5px);
 }
 
-.feature-card.logged-in {
+/* .feature-card.logged-in {
   /* border-color: #4caf50; */
-}
+/* } */
 
 .feature-card.logged-in::before {
   background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);

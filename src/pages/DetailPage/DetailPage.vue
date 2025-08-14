@@ -60,6 +60,17 @@
           :apply-info="houseData.applies"
           :notices="houseData.notices"
           :bookmark-count="bookmarkCount"
+          @request-summary="handleShowSummaryClick"
+          @showSummary="showSummary = true"
+        />
+        <!-- PdfSummary 오버레이 -->
+        <PdfSummary
+          v-if="showSummary"
+          @close="showSummary = false"
+          :summaryData="summaryMarkdown"
+          :loading="loadingSummary"
+          :error="summaryError"
+          :title="houseData.danzi ? houseData.danzi.bzdtNm : ''"
         />
       </div>
     </div>
@@ -85,10 +96,11 @@ import {
   getHouseDetailByIdWithSelfCheck,
 } from '@/api/detailPageApi';
 import ImageSection from '@/components/DetailPage/ImageSection.vue';
-import InfoPanel from '../../components/DetailPage/InfoPanel.vue';
+import InfoPanel from '@/components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
 import DetailMap from '@/components/DetailPage/DetailMap.vue';
 import PdfSummary from '@/components/DetailPage/PdfSummary.vue';
+
 import { useAuthStore } from '@/stores/auth.js';
 import selfCheckAPI from '@/api/selfCheck.js';
 import bookmarkApi from '@/api/bookmarkApi.js';
