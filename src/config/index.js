@@ -4,8 +4,8 @@ export default {
   menus: [
     // 메인 메뉴 구성 정보
     {
-      title: 'PageA1',
-      url: '/pageA/one',
+      title: '청약 캘린더',
+      url: '/calendar',
       icon: 'fa-solid fa-paste',
     },
     // {
@@ -14,13 +14,13 @@ export default {
     //   icon: 'fa-solid fa-plane-departure',
     // },
     {
-      title: '통계',
-      url: '/statics',
+      title: '지도',
+      url: '/map',
       icon: 'fa-regular fa-images',
     },
     {
-      title: '자가진단',
-      url: '/self-Check',
+      title: 'FAQ',
+      url: '/prolog',
       icon: 'fa-solid fa-check',
     },
   ],

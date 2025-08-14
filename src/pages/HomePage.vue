@@ -1,557 +1,1204 @@
 <template>
-  <div class="house-container">
-    <!-- 필터 컴포넌트 -->
-    <HouseFilter
-      :filters="searchQuery"
-      :filter-options="filterOptions"
-      @update-filter="updateFilter"
-      @clear-filter="clearFilter"
-      @clear-all="clearAllFilters"
-      @search="searchHouses"
-    />
-
-    <!-- 검색 결과 정보 -->
-    <div class="result-info">
-      <div class="result-count">
-        총 <strong>{{ pageInfo.totalCount }}</strong
-        >개의 주택이 검색되었습니다.
-      </div>
-      <div class="page-info">
-        {{ pageInfo.startItem }}-{{ pageInfo.endItem }} /
-        {{ pageInfo.totalCount }}
-      </div>
-    </div>
-
-    <div style="display: flex">
-      <!-- 주택 정보 그리드 -->
-      <div
-        style="
-          min-width: 60%;
-          margin-right: 20px;
-          height: 100vh;
-          overflow-y: scroll;
-          scrollbar-width: none;
-        "
-      >
-        <!-- 주택 목록 -->
-        <div v-if="!loading && houses.length > 0" class="house-grid">
-          <HouseCard
-            v-for="house in houses"
-            :key="house.houseId"
-            :house="house"
-            @card-click="handleCardClick"
-            @toggle-favorite="handleToggleFavorite"
-          />
-        </div>
-
-        <!-- 로딩 표시 -->
-        <div v-if="loading" class="loading">
-          <div class="loading-spinner"></div>
-          <p>주택 정보를 불러오는 중...</p>
-        </div>
-
-        <!-- 결과 없음 -->
-        <div v-if="!loading && houses.length === 0" class="no-results">
-          <div class="no-results-icon">🏠</div>
-          <h3>검색 결과가 없습니다</h3>
-          <p>다른 조건으로 검색해보세요.</p>
-          <button @click="clearAllFilters" class="clear-button">
-            필터 초기화
+  <div class="homepage">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">
+          나만의 <span class="highlight">꿈의 집</span>을 찾아보세요
+        </h1>
+        <p class="hero-subtitle">
+          청약 정보부터 가점 계산까지, 모든 것을 한 곳에서
+        </p>
+        <div class="hero-actions">
+          <button class="btn-primary" @click="goToSelfCheck">
+            <span class="btn-icon">🏠</span>
+            자가진단 시작하기
+          </button>
+          <button class="btn-secondary" @click="goToScore">
+            <span class="btn-icon">📊</span>
+            가점 계산하기
           </button>
         </div>
       </div>
-
-      <!-- 지도 -->
-      <div style="min-width: 500px" class="map">
-        <div class="category-button-wrapper">
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'MT1',
-            }"
-            @click="selectedCategory = 'MT1'"
-          >
-            대형마트
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'CS2',
-            }"
-            @click="selectedCategory = 'CS2'"
-          >
-            편의점
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'PS3',
-            }"
-            @click="selectedCategory = 'PS3'"
-          >
-            어린이집
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'SC4',
-            }"
-            @click="selectedCategory = 'SC4'"
-          >
-            학교
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'AC5',
-            }"
-            @click="selectedCategory = 'AC5'"
-          >
-            학원
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'OL7',
-            }"
-            @click="selectedCategory = 'OL7'"
-          >
-            주유소
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'SW8',
-            }"
-            @click="selectedCategory = 'SW8'"
-          >
-            지하철역
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'BK9',
-            }"
-            @click="selectedCategory = 'BK9'"
-          >
-            은행
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'PO3',
-            }"
-            @click="selectedCategory = 'PO3'"
-          >
-            공공기관
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'HP8',
-            }"
-            @click="selectedCategory = 'HP8'"
-          >
-            병원
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'PM9',
-            }"
-            @click="selectedCategory = 'PM9'"
-          >
-            약국
-          </button>
-          <button
-            :class="{
-              'category-button': true,
-              selected: selectedCategory === 'CT1',
-            }"
-            @click="selectedCategory = 'CT1'"
-          >
-            문화시설
-          </button>
+      <!-- <div class="hero-visual">
+        <div class="floating-card card-1">
+          <div class="card-icon">🏢</div>
+          <div class="card-text">청약 정보</div>
         </div>
-        <div style="flex: 1; height: 800px">
-          <KakaoMapViewer
-            ref="mapViewerRef"
-            :houses="houses"
-            :selectedCategory="selectedCategory"
-          />
+        <div class="floating-card card-2">
+          <div class="card-icon">📅</div>
+          <div class="card-text">청약 일정</div>
+        </div>
+        <div class="floating-card card-3">
+          <div class="card-icon">🎯</div>
+          <div class="card-text">가점 분석</div>
+        </div>
+      </div> -->
+    </section>
+
+    <!-- Features Grid -->
+    <section class="features-section">
+      <div class="container">
+        <div class="features-title">청약 신청 전 확인해보세요!</div>
+        <div class="features-grid">
+          <!-- 지원 가능한 유형 -->
+          <div
+            class="feature-card"
+            :class="{ 'logged-in': auth.isLoggedIn }"
+            @click="goToSelfCheck"
+          >
+            <!-- 제목 영역 -->
+            <div class="feature-header">
+              <div class="feature-title-wrapper">
+                <h3 class="feature-title">🎯 자가진단</h3>
+                <p
+                  class="feature-description"
+                  v-if="auth.isLoggedIn && supportableList.length === 0"
+                >
+                  자가진단을 통해 지원 가능한 유형을 확인하세요!
+                </p>
+                <p class="feature-description" v-else-if="!auth.isLoggedIn">
+                  자가진단을 통해 지원 가능한 유형을 확인하세요!
+                </p>
+              </div>
+            </div>
+
+            <!-- 태그 영역 -->
+            <div
+              class="feature-content"
+              v-if="auth.isLoggedIn && supportableList.length > 0"
+            >
+              <div class="supportable-types">
+                <div
+                  v-for="type in supportableList"
+                  :key="type"
+                  :style="getEventStyle(type)"
+                  class="type-tag"
+                >
+                  {{ type }}
+                </div>
+              </div>
+            </div>
+
+            <!-- <div class="feature-status">
+              <span @click="goToSelfCheck" class="status-badge">
+                {{
+                  auth.isLoggedIn && supportableList.length > 0
+                    ? '다시 진단하기'
+                    : '진단하기'
+                }}
+              </span>
+            </div> -->
+          </div>
+
+          <!-- 나의 청약 가점 -->
+          <div
+            class="feature-card"
+            :class="{ 'logged-in': auth.isLoggedIn }"
+            @click="goToScore"
+          >
+            <div class="feature-header">
+              <!-- <div class="feature-icon">
+                <span class="icon">📊</span>
+              </div> -->
+              <div class="feature-title-wrapper">
+                <h3 class="feature-title">📊 가점 계산기</h3>
+                <p
+                  class="feature-description"
+                  v-if="auth.isLoggedIn && additionalPoint === null"
+                >
+                  가점진단을 통해 현재 수준을 파악하세요!
+                </p>
+                <p class="feature-description" v-else-if="!auth.isLoggedIn">
+                  가점진단을 통해 현재 수준을 파악하세요!
+                </p>
+              </div>
+            </div>
+            <div class="feature-content">
+              <div v-if="auth.isLoggedIn && additionalPoint !== null">
+                <div class="point-display">
+                  <div class="point-left">
+                    <div class="point-number">{{ additionalPoint }}점</div>
+                  </div>
+                  <div class="point-right">
+                    <div class="point-bar-container">
+                      <div
+                        class="point-bar"
+                        :style="{ width: additionalPoint + '%' }"
+                      ></div>
+                    </div>
+                    <!-- <div class="point-percentage">
+                      {{ Math.round((additionalPoint / 100) * 100) }}%
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="feature-status">
+                <span @click="goToScore" class="status-badge">
+                  {{
+                    auth.isLoggedIn && additionalPoint !== null
+                      ? '다시 진단하기'
+                      : '진단하기'
+                  }}
+                </span>
+              </div> -->
+            </div>
+          </div>
+
+          <!-- 민간분양 당첨 가능성 -->
+          <div class="feature-card" :class="{ 'logged-in': auth.isLoggedIn }">
+            <div class="feature-header">
+              <!-- <div class="feature-icon">
+                <span class="icon">🎲</span>
+              </div> -->
+              <div class="feature-title-wrapper">
+                <h3 class="feature-title">📅 오늘 신청가능한 청약</h3>
+                <p
+                  class="feature-description"
+                  v-if="auth.isLoggedIn && additionalPoint === null"
+                >
+                  오늘 신청 가능한 청약을 확인하세요!
+                </p>
+                <p class="feature-description" v-else-if="!auth.isLoggedIn">
+                  오늘 신청 가능한 청약을 확인하세요!
+                </p>
+              </div>
+            </div>
+            <div class="feature-content">
+              <!-- <div class="applyNotice">{{ todayEventCount }} 개</div> -->
+              <!-- <div v-if="auth.isLoggedIn && additionalPoint !== null">
+                <div class="winning-probability">
+                  <div class="probability-display">
+                    <div class="probability-left">
+                      <div
+                        class="probability-grade-large"
+                        :class="getPointGradeClass(additionalPoint)"
+                      >
+                        {{ getPointGrade(additionalPoint) }}
+                      </div>
+                    </div>
+                    <div class="probability-right">
+                      <div
+                        class="probability-message"
+                        :class="getPointGradeClass(additionalPoint)"
+                      >
+                        {{ getProbabilityMessage(additionalPoint) }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+              <!-- <div
+                v-if="!auth.isLoggedIn && additionalPoint === null"
+                class="feature-status"
+              >
+                <span @click="goToScore" class="status-badge">진단하기</span>
+              </div> -->
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- 페이지네이션 -->
-    <HousePagination :page-info="pageInfo" @page-change="changePage" />
+    <!-- 공고 scroll -->
+    <section v-if="auth.isLoggedIn" class="scroll-section">
+      <HorizontalCardScroller
+        :title="`${auth.user.nickname}님에게 추천하는 공고`"
+        :key-field="'danziId'"
+        :cards="favoriteList"
+        :favorite-list="favoriteList"
+        @card-click="handleCardClick"
+        @toggle-favorite="handleToggleFavorite"
+        @empty-action="handleRefresh"
+      />
+    </section>
+
+    <section class="scroll-section">
+      <HorizontalCardScroller
+        :title="'사람들이 많이 찾는 공고'"
+        :cards="geunggiHouses"
+        :loading="geunggiHousesLoading"
+        :key-field="'danziId'"
+        :favorite-list="favoriteList"
+        @card-click="handleCardClick"
+        @toggle-favorite="handleToggleFavorite"
+        @empty-action="handleRefresh"
+      />
+    </section>
+
+    <section v-if="!auth.isLoggedIn" class="scroll-section">
+      <HorizontalCardScroller
+        :title="'서울에 자취한다면 봐야할 공고'"
+        :cards="seoulHouses"
+        :loading="seoulHousesLoading"
+        :key-field="'danziId'"
+        :favorite-list="favoriteList"
+        @card-click="handleCardClick"
+        @toggle-favorite="handleToggleFavorite"
+        @empty-action="handleRefresh"
+      />
+    </section>
+
+    <!-- Action Cards -->
+    <!-- <section class="actions-section">
+      <div class="container">
+        <div class="actions-grid">
+          <div class="action-card primary" @click="goToSelfCheck">
+            <div class="action-content">
+              <div class="action-icon">🔍</div>
+              <h3 class="action-title">자가진단 시작하기</h3>
+              <p class="action-description">
+                간단한 질문으로 지원 가능한 청약 유형을 확인해보세요
+              </p>
+              <div class="action-arrow">→</div>
+            </div>
+            <div class="action-bg"></div>
+          </div>
+
+          <div class="action-card secondary" @click="goToScore">
+            <div class="action-content">
+              <div class="action-icon">🧮</div>
+              <h3 class="action-title">가점계산 하기</h3>
+              <p class="action-description">
+                정확한 가점 계산으로 청약 전략을 세워보세요
+              </p>
+              <div class="action-arrow">→</div>
+            </div>
+            <div class="action-bg"></div>
+          </div>
+
+          <div class="action-card accent" @click="goToCalendar">
+            <div class="action-content">
+              <div class="action-icon">📅</div>
+              <h3 class="action-title">청약 캘린더</h3>
+              <p class="action-description">
+                중요한 청약 일정을 놓치지 마세요!
+              </p>
+              <div class="action-arrow">→</div>
+            </div>
+            <div class="action-bg"></div>
+          </div>
+        </div>
+      </div>
+    </section> -->
+
+    <section></section>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, nextTick, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useAuthStore } from '../stores/auth';
+import user from '../api/user';
 import axios from 'axios';
-import HouseFilter from '../components/house/HouseFilter.vue';
-import HouseCard from '../components/house/HouseCard.vue';
-import HousePagination from '../components/house/HousePagination.vue';
-import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
+import HorizontalCardScroller from '../components/house/HorizontalCardScroller.vue';
+import { getBookmarks } from '../api/bookmardApi';
+import { calendarColorMap } from '@/assets/calendarColorMap.js';
 
-// Router
 const router = useRouter();
-const route = useRoute();
-const mapViewerRef = ref(null);
-const selectedCategory = ref(''); // 선택된 시설 카테고리
 
-const moveMapToHouse = (house) => {
-  mapViewerRef.value.updateMapWithHouse(house);
+// Auth
+const auth = useAuthStore();
+
+const supportableList = ref([]);
+const additionalPoint = ref(null);
+const favoriteList = ref([]); // 즐겨찾기 목록 추가
+
+const seoulHousesLoading = ref(false);
+const seoulHouses = ref([]);
+const geunggiHousesLoading = ref(false);
+const geunggiHouses = ref([]);
+
+// Navigation methods
+const goToSelfCheck = () => {
+  router.push('/self-check');
 };
 
-// State
-const loading = ref(false);
-const houses = ref([]);
-
-const pageInfo = reactive({
-  currentPage: 0,
-  endItem: 0,
-  first: true,
-  hasNext: false,
-  hasPrevious: false,
-  last: false,
-  size: 20,
-  startItem: 1,
-  totalCount: 0,
-  totalPages: 0,
-});
-
-// URL 쿼리에서 초기값 설정
-const searchQuery = reactive({
-  region: route.query.region || '',
-  noticeType: route.query.noticeType || '',
-  noticeStatus: route.query.noticeStatus || '',
-  page: parseInt(route.query.page) || 0,
-  size: parseInt(route.query.size) || 20,
-});
-
-const filterOptions = reactive({
-  regions: [
-    { code: '서울', name: '서울' },
-    { code: '부산', name: '부산' },
-    { code: '대구', name: '대구' },
-    { code: '인천', name: '인천' },
-    { code: '광주', name: '광주' },
-    { code: '대전', name: '대전' },
-    { code: '울산', name: '울산' },
-    { code: '세종', name: '세종' },
-    { code: '강원', name: '강원' },
-    { code: '전북', name: '전북' },
-    { code: '제주', name: '제주' },
-    { code: '경기', name: '경기' },
-    { code: '경남', name: '경남' },
-    { code: '경북', name: '경북' },
-    { code: '전남', name: '전남' },
-    { code: '충남', name: '충남' },
-    { code: '충북', name: '충북' },
-  ],
-  noticeTypes: [
-    { code: '가정어린이집', name: '가정어린이집' },
-    { code: '공공임대', name: '공공임대' },
-    { code: '국민임대', name: '국민임대' },
-    { code: '분양주택', name: '분양주택' },
-    { code: '영구임대', name: '영구임대' },
-    { code: '통합공공임대', name: '통합공공임대' },
-    { code: '행복주택', name: '행복주택' },
-  ],
-  noticeStatuses: [
-    { code: '공고중', name: '공고중' },
-    { code: '접수마감', name: '접수마감' },
-    { code: '정정공고중', name: '정정공고중' },
-    { code: '접수중', name: '접수중' },
-  ],
-});
-
-// URL 업데이트 함수
-const updateUrl = () => {
-  const query = {};
-
-  if (searchQuery.region) query.region = searchQuery.region;
-  if (searchQuery.noticeType) query.noticeType = searchQuery.noticeType;
-  if (searchQuery.noticeStatus) query.noticeStatus = searchQuery.noticeStatus;
-  if (searchQuery.page > 0) query.page = searchQuery.page;
-  if (searchQuery.size !== 20) query.size = searchQuery.size;
-
-  router.replace({ query });
+const goToScore = () => {
+  router.push('/mypage');
 };
 
-// API URL 생성
-const getQueryUrl = () => {
-  const params = new URLSearchParams();
-  params.append('page', searchQuery.page);
-  params.append('size', searchQuery.size);
-
-  if (searchQuery.region) params.append('cnpCdNm', searchQuery.region);
-  if (searchQuery.noticeType)
-    params.append('aisTpCdNm', searchQuery.noticeType);
-  if (searchQuery.noticeStatus)
-    params.append('panSs', searchQuery.noticeStatus);
-
-  return `/api/api/house?${params.toString()}`;
+const goToCalendar = () => {
+  router.push('/calendar');
 };
 
-// 주택 목록 로드
-const loadHouses = async () => {
-  loading.value = true;
-  try {
-    const { data } = await axios.get(getQueryUrl());
-
-    if (data.housingList) {
-      houses.value = data.housingList;
-      Object.assign(pageInfo, data.pageInfo);
-    } else {
-      houses.value = Array.isArray(data) ? data : [];
-      pageInfo.totalCount = houses.value.length;
-    }
-  } catch (error) {
-    console.error('주택 목록 로드 실패:', error);
-    houses.value = [];
-    pageInfo.totalCount = 0;
-  } finally {
-    loading.value = false;
-  }
-};
-
-// URL 쿼리에서 searchQuery 업데이트
-const updateSearchQueryFromUrl = () => {
-  searchQuery.region = route.query.region || '';
-  searchQuery.noticeType = route.query.noticeType || '';
-  searchQuery.noticeStatus = route.query.noticeStatus || '';
-  searchQuery.page = parseInt(route.query.page) || 0;
-  searchQuery.size = parseInt(route.query.size) || 20;
-};
-
-// 필터 이벤트 핸들러
-const updateFilter = ({ key, value }) => {
-  searchQuery[key] = value;
-  searchQuery.page = 0;
-  updateUrl();
-  loadHouses();
-};
-
-const clearFilter = (key) => {
-  searchQuery[key] = '';
-  searchQuery.page = 0;
-  updateUrl();
-  loadHouses();
-};
-
-const clearAllFilters = () => {
-  searchQuery.region = '';
-  searchQuery.noticeType = '';
-  searchQuery.noticeStatus = '';
-  searchQuery.page = 0;
-  updateUrl();
-  loadHouses();
-};
-
-const searchHouses = () => {
-  searchQuery.page = 0;
-  updateUrl();
-  loadHouses();
-};
-
-// 페이지네이션 이벤트 핸들러
-const changePage = (newPage) => {
-  searchQuery.page = newPage;
-  moveMapToHouse(null);
-  updateUrl();
-  loadHouses();
-  window.scrollTo({ top: 200, behavior: 'smooth' });
-};
-
-// 카드 이벤트 핸들러
-const handleCardClick = (house) => {
-  moveMapToHouse(house);
-};
-
-const handleToggleFavorite = ({ houseId, isFavorite }) => {
-  console.log('찜하기 토글:', houseId, isFavorite);
-};
-
-// URL 변경 감지 (뒤로가기/앞으로가기 대응)
+// 로그인 상태 변화 감지하여 즐겨찾기 목록 재로드
 watch(
-  () => route.query,
-  (newQuery, oldQuery) => {
-    // 쿼리가 실제로 변경된 경우에만 업데이트
-    if (JSON.stringify(newQuery) !== JSON.stringify(oldQuery)) {
-      updateSearchQueryFromUrl();
-      loadHouses();
+  () => auth.isLoggedIn,
+  async (newValue, oldValue) => {
+    if (newValue !== oldValue) {
+      await loadFavorites();
     }
-  }
+  },
+  { immediate: false }
 );
+
+const loadUserSupportableList = async () => {
+  const data = await user.getSupportableList();
+  supportableList.value = data.map((str) => str.split(' ')[0]);
+};
+
+const loadUser = async () => {
+  const data = await user.getUserInfo();
+  additionalPoint.value = data.additionalPoint;
+};
+
+const loadFavorites = async () => {
+  if (!auth.isLoggedIn) {
+    favoriteList.value = [];
+    return;
+  }
+
+  try {
+    const response = await getBookmarks(auth.token);
+    favoriteList.value = response.bookmarks || [];
+    console.log('즐겨찾기 목록 로드 완료:', favoriteList.value.length); // 디버깅용
+  } catch (error) {
+    console.error('즐겨찾기 목록 로드 실패:', error);
+    favoriteList.value = [];
+  }
+};
+
+// 즐겨찾기 토글 핸들러 개선
+const handleToggleFavorite = async (data) => {
+  if (data.action === 'add') {
+    // 이미 존재하는지 확인 후 추가
+    const exists = favoriteList.value.find(
+      (fav) => fav.danziId === data.danziId
+    );
+
+    if (!exists) {
+      const newFavorite = {
+        danziId: data.danziId,
+        userId: auth.user.id,
+        // 추가 필요한 필드들도 여기에 포함
+      };
+      // 새로운 배열 생성으로 반응성 트리거
+      favoriteList.value = [...favoriteList.value, newFavorite];
+    }
+  } else if (data.action === 'remove') {
+    // 배열에서 제거
+    const filteredList = favoriteList.value.filter(
+      (fav) => fav.danziId !== data.danziId
+    );
+    // 새로운 배열 할당으로 반응성 트리거
+    favoriteList.value = [...filteredList];
+  }
+
+  // Vue의 반응성 시스템을 강제로 트리거
+  await nextTick();
+};
+
+// 유형 별 색상 설정
+const getEventStyle = (label) => {
+  // 특정 label 치환
+  if (label === '공공분양') {
+    label = '분양주택';
+  }
+
+  const entry = Object.values(calendarColorMap).find(
+    (item) => item.label === label
+  );
+  const color = entry?.color || '#4caf50'; // 기본색
+  return {
+    color: `${color}`,
+    border: `1px solid ${color}`,
+  };
+};
+
+// 점수 등급 계산 함수
+const getPointGrade = (point) => {
+  if (point <= 10) return '낮음';
+  if (point <= 30) return '보통';
+  if (point <= 50) return '높음';
+  return '매우 높음';
+};
+
+// 점수 등급별 CSS 클래스 반환 함수
+const getPointGradeClass = (point) => {
+  if (point <= 10) return 'low';
+  if (point <= 30) return 'medium';
+  if (point <= 50) return 'high';
+  return 'very-high';
+};
+
+// 당첨 확률 메시지 계산 함수
+const getProbabilityMessage = (point) => {
+  if (point <= 10)
+    return '당첨 확률이 매우 낮습니다. 청약 전략을 다시 검토해보세요.';
+  if (point <= 30)
+    return '당첨 확률이 낮습니다. 청약 전략을 다시 검토해보세요.';
+  if (point <= 50)
+    return '당첨 확률이 높습니다. 청약 전략을 다시 검토해보세요.';
+  return '당첨 확률이 매우 높습니다. 청약 전략을 다시 검토해보세요.';
+};
+
+const getQueryUrl = () => {
+  return;
+};
+
+const loadSeoulHouses = async () => {
+  try {
+    seoulHousesLoading.value = true;
+    const params = new URLSearchParams();
+    params.append('page', '0');
+    params.append('size', 15);
+    params.append('cnpCdNm', '서울');
+
+    const { data } = await axios.get(`/api/api/house?${params.toString()}`);
+    seoulHouses.value = data.housingList || [];
+    console.log('서울 주택 목록 로드 완료:', seoulHouses.value.length);
+  } catch (error) {
+    console.error('서울 주택 목록 로드 실패:', error);
+    seoulHouses.value = [];
+  } finally {
+    seoulHousesLoading.value = false;
+  }
+};
+
+const loadGeunggiHouses = async () => {
+  try {
+    geunggiHousesLoading.value = true;
+    const params = new URLSearchParams();
+    params.append('page', '0');
+    params.append('size', 15);
+    params.append('cnpCdNm', '경기');
+
+    const { data } = await axios.get(`/api/api/house?${params.toString()}`);
+    geunggiHouses.value = data.housingList || [];
+    console.log('경기 주택 목록 로드 완료:', geunggiHouses.value.length);
+  } catch (error) {
+    console.error('경기 주택 목록 로드 실패:', error);
+    geunggiHouses.value = [];
+  } finally {
+    geunggiHousesLoading.value = false;
+  }
+};
+
+// 이벤트 핸들러 함수들
+const handleCardClick = (event) => {
+  console.log('Card clicked:', event);
+  // 카드 클릭 시 처리 로직
+};
+
+// const handleToggleFavorite = (event) => {
+//   console.log('Toggle favorite:', event);
+//   // 즐겨찾기 토글 처리 로직
+// };
+
+const handleRefresh = () => {
+  console.log('Refresh requested');
+  loadSeoulHouses();
+  loadGeunggiHouses();
+  loadFavorites();
+};
 
 // 컴포넌트 마운트 시 실행
 onMounted(() => {
-  loadHouses();
+  loadUserSupportableList();
+  loadUser();
+  loadFavorites();
+  loadSeoulHouses();
+  loadGeunggiHouses();
 });
 </script>
 
 <style scoped>
-.house-container {
-  max-width: 1440px;
+.homepage {
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 24px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 0 20px;
 }
 
-/* 검색 결과 정보 */
-.result-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding: 16px 0;
+.features-title {
+  font-size: 22px;
+  font-weight: bolder;
+  margin-bottom: 1rem;
 }
 
-.result-count {
-  font-size: 16px;
-  color: #222222;
-}
-
-.page-info {
-  font-size: 14px;
-  color: #717171;
-}
-
-/* 주택 그리드 */
-.house-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 24px;
-  padding: 0;
-}
-
-/* 로딩 및 결과 없음 */
-.loading,
-.no-results {
+/* Hero Section */
+.hero-section {
+  position: relative;
+  padding: 40px 0 60px; /* 전체 높이 절반 정도로 축소 */
   text-align: center;
-  padding: 60px 20px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2f0e5 100%);
 }
 
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f0f0f0;
-  border-top: 4px solid #ff385c;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 16px;
+.hero-content {
+  position: relative;
+  z-index: 2;
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+.hero-title {
+  font-size: 2.5rem; /* 폰트 크기 줄임 */
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 16px; /* 간격 줄임 */
+  line-height: 1.2;
 }
 
-.no-results-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+.highlight {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.no-results h3 {
-  font-size: 18px;
-  color: #222222;
-  margin: 0 0 8px 0;
+.hero-subtitle {
+  font-size: 1rem; /* 약간 줄임 */
+  color: #64748b;
+  margin-bottom: 24px; /* 간격 줄임 */
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.no-results p {
-  color: #717171;
-  margin: 0 0 20px 0;
+.hero-actions {
+  display: flex;
+  gap: 12px; /* 간격 축소 */
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-.clear-button {
-  background: #ff385c;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 14px;
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px; /* 아이콘과 텍스트 간격 줄임 */
+  padding: 12px 24px; /* 패딩 줄임 */
+  border-radius: 50px;
+  font-size: 0.9rem; /* 폰트 크기 줄임 */
   font-weight: 600;
+  text-decoration: none;
+  border: none;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  /* box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4); */
+}
+
+.btn-secondary {
+  background: white;
+  color: #4caf50;
+  border: 2px solid transparent;
+}
+
+.btn-secondary:hover {
+  /* background: #4caf50; */
+  color: white;
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+}
+
+.btn-icon {
+  font-size: 1rem; /* 아이콘 크기도 줄임 */
+}
+
+.btn-primary.large {
+  padding: 16px 32px;
+  font-size: 1rem;
+}
+
+/* Hero Visual */
+.hero-visual {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.floating-card {
+  position: absolute;
+  background: white;
+  border-radius: 20px;
+  padding: 12px; /* 카드 안쪽 패딩 줄임 */
+  box-shadow: 0 15px 45px rgba(226, 240, 229, 0.15);
+  animation: float 6s ease-in-out infinite;
+  border: 1px solid rgba(226, 240, 229, 0.1);
+  width: 100px; /* 카드 크기 줄임 */
+  text-align: center;
+}
+
+.floating-card:nth-child(1) {
+  top: 20%;
+  right: 15%;
+  animation-delay: 0s;
+}
+
+.floating-card:nth-child(2) {
+  top: 50%;
+  right: 25%;
+  animation-delay: 2s;
+}
+
+.floating-card:nth-child(3) {
+  top: 50%;
+  left: 25%;
+  animation-delay: 4s;
+}
+
+.card-icon {
+  font-size: 1.5rem; /* 아이콘 크기 줄임 */
+  margin-bottom: 6px; /* 간격 줄임 */
+}
+
+.card-text {
+  font-weight: 600;
+  color: #334155;
+  font-size: 0.9rem; /* 텍스트 크기 줄임 */
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px); /* 살짝 줄임 */
+  }
+}
+
+/* Features Section */
+.features-section {
+  /* padding: 30px 0 0 0; */
+  background: white;
+  margin: 4rem 0;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 60px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+}
+
+.feature-card {
+  background: #f7f7f9;
+  border-radius: 20px;
+  max-height: 150px;
+  padding: 32px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0px;
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover::before {
+  transform: scaleX(1);
+}
+
+.feature-card:hover {
+  /* border-color: #4caf50; */
+  transform: translateY(-5px);
+}
+
+.feature-card.logged-in {
+  /* border-color: #4caf50; */
+}
+
+.feature-card.logged-in::before {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+}
+
+.feature-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-card.logged-in .feature-icon {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+}
+
+.icon {
+  font-size: 1.75rem;
+}
+
+.feature-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.feature-description {
+  color: #64748b;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+}
+
+.feature-status {
+  position: absolute;
+  bottom: 14px;
+  right: 16px;
+  justify-content: flex-end;
+}
+
+.status-badge {
+  color: #4caf50;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
   transition: all 0.2s ease;
 }
 
-.clear-button:hover {
-  background: #e31c5f;
+.status-badge:hover {
+  /* background: rgba(59, 130, 246, 0.1); */
+  color: #388e3c;
+  text-decoration: underline;
 }
 
-/* 반응형 디자인 */
+.supportable-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px; /* 아래 간격 */
+  max-height: none; /* 높이 제한 해제 */
+  overflow: visible; /* 스크롤 제거 */
+}
+
+.type-tag {
+  background-color: white;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid #4caf50;
+  font-size: 0.8rem;
+  font-weight: 600;
+  /* box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3); */
+}
+
+.point-display {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* 간격 줄임 */
+  margin-bottom: 12px; /* 마진 줄임 */
+}
+
+.point-left {
+  text-align: left;
+}
+
+.point-number {
+  font-size: 1.8rem; /* 폰트 크기 줄임 */
+  font-weight: 600;
+  color: #4caf50;
+  margin-bottom: 6px;
+  background-color: #4caf50;
+  /* background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.point-label {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.75rem; /* 폰트 크기 줄임 */
+}
+
+.point-right {
+  flex-grow: 1;
+  text-align: left; /* 오른쪽 정렬에서 왼쪽 정렬로 변경 */
+}
+
+.point-bar-container {
+  width: 100%; /* 가로 너비 최대 */
+  height: 12px; /* 높이 작게 */
+  background-color: #e2e8f0;
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.point-bar {
+  height: 100%; /* 높이 100% */
+  width: 0%; /* 초기 너비 0% */
+
+  border-radius: 15px;
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  transition: width 0.3s ease-in-out; /* height → width로 변경 */
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.point-percentage {
+  font-size: 0.75rem; /* 폰트 크기 줄임 */
+  font-weight: 600;
+  color: #64748b;
+  text-align: right;
+}
+
+.winning-probability {
+  margin-bottom: 12px; /* 마진 줄임 */
+}
+
+.probability-display {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* 간격 줄임 */
+}
+
+.probability-left {
+  text-align: left;
+}
+
+.probability-right {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.probability-bar-container {
+  width: 20px; /* 폭 줄임 */
+  height: 60px; /* 높이 줄임 */
+  background-color: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 6px;
+  position: relative;
+}
+
+.probability-bar {
+  width: 100%;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-radius: 10px;
+  transition: height 0.3s ease-in-out;
+  position: absolute;
+  bottom: 0;
+  height: 0;
+}
+
+.probability-grade {
+  font-size: 0.75rem; /* 폰트 작게 */
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.probability-grade-large {
+  font-size: 1.4rem; /* 폰트 크기 줄임 */
+  font-weight: 800;
+  text-align: center;
+  padding: 10px; /* 패딩 줄임 */
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  min-width: 80px; /* 최소 너비 줄임 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.probability-grade-large.low {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.probability-grade-large.medium {
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.5);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.probability-grade-large.high {
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.probability-grade-large.very-high {
+  color: #8b5cf6;
+  border-color: rgba(139, 92, 246, 0.5);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.point-grade {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.point-grade.high {
+  color: #10b981;
+}
+
+.point-grade.very-high {
+  color: #8b5cf6;
+}
+
+.point-grade.medium {
+  color: #f59e0b;
+}
+
+.point-grade.low {
+  color: #ef4444;
+}
+
+.probability-message {
+  font-size: 0.75rem; /* 폰트 크기 줄임 */
+  color: #64748b;
+  margin-top: 4px; /* 간격 줄임 */
+}
+
+.probability-message.low {
+  color: #ef4444;
+}
+
+.probability-message.medium {
+  color: #f59e0b;
+}
+
+.probability-message.high {
+  color: #10b981;
+}
+
+.probability-message.very-high {
+  color: #8b5cf6;
+}
+
+/* Actions Section */
+.actions-section {
+  padding: 20px 0;
+}
+
+.scroll-section {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.action-card {
+  position: relative;
+  border-radius: 24px;
+  padding: 40px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.action-card:hover {
+  transform: translateY(-8px);
+}
+
+.action-card.primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+}
+
+.action-card.secondary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.action-card.accent {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+.action-content {
+  position: relative;
+  z-index: 2;
+}
+
+.action-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.action-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.action-description {
+  line-height: 1.6;
+  margin-bottom: 24px;
+  opacity: 0.9;
+}
+
+.action-arrow {
+  font-size: 1.5rem;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.action-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+  transform-origin: left;
+}
+
+.action-card:hover .action-bg {
+  transform: scaleX(1);
+}
+
+/* Stats Section */
+.stats-section {
+  padding: 60px 0;
+  background: white;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
+}
+
+.stat-card {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #3b82f6;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 80px 0;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: white;
+  text-align: center;
+}
+
+.cta-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.cta-description {
+  font-size: 1.125rem;
+  color: #cbd5e1;
+  max-width: 600px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+}
+
+.cta-actions {
+  display: flex;
+  justify-content: center;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .house-container {
-    padding: 16px;
+  .hero-title {
+    font-size: 2.5rem;
   }
 
-  .result-info {
+  .hero-actions {
     flex-direction: column;
-    gap: 8px;
-    align-items: flex-start;
+    align-items: center;
   }
 
-  .house-grid {
+  .features-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
   }
-}
 
-@media (max-width: 480px) {
-  .house-container {
-    padding: 12px;
+  .actions-grid {
+    grid-template-columns: 1fr;
   }
-}
 
-@media (max-width: 768px) {
-  .map {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .floating-card {
     display: none;
   }
 }
 
-/* Category Button for Map */
-.category-button-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px; /* Increased gap for both horizontal and vertical spacing */
-  margin-bottom: 16px; /* Space below the buttons and above the map */
-}
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 60px 0 80px;
+  }
 
-.category-button {
-  background-color: #f0f0f0; /* Soft light gray background */
-  color: #333; /* Dark gray text */
-  border: 1px solid #e0e0e0; /* Subtle border */
-  padding: 8px 14px; /* Consistent padding */
-  border-radius: 6px; /* Slightly rounded corners */
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out; /* Smooth transitions */
-  white-space: nowrap; /* Prevent text wrapping */
-}
+  .hero-title {
+    font-size: 2rem;
+  }
 
-.category-button:hover {
-  background-color: #e5e5e5; /* Slightly darker on hover */
-  border-color: #d0d0d0;
-}
+  .section-title {
+    font-size: 2rem;
+  }
 
-.category-button.selected {
-  background-color: #ffe0e6; /* Soft pink, derived from existing primary color */
-  color: #ff385c; /* Primary color for text */
-  border-color: #ffcdd2; /* Slightly darker pink border */
-  font-weight: 600;
-}
+  .feature-card {
+    padding: 30px 20px;
+  }
 
-.category-button:active {
-  transform: translateY(1px); /* Slight press effect */
+  .action-card {
+    padding: 30px 20px;
+  }
 }
 </style>

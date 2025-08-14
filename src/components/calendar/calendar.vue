@@ -144,7 +144,7 @@ const getEventStyle = (code) => {
 // 날짜 클릭 시 모달 오픈
 function openModal(events, dateObj) {
   selectedEvents.value = events;
-  selectedDate.value = dateObj.date.toISOString().split('T')[0];
+  selectedDate.value = formatDateKey(dateObj.date);
   showModal.value = true;
 }
 

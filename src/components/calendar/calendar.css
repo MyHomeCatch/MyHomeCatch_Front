@@ -1,10 +1,11 @@
 /* Calendar.vue */
 .calendar {
-    margin: 0rem;
+    margin: 0 1rem;
+    margin-top: 0.5rem;
     background: var(--calendar-bg-color, white);
     box-shadow: 0.25rem 0.25rem 2rem rgba(0, 0, 0, 0.05);
     overflow: hidden;
-    font-family: 'Helvetica Neue', sans-serif;
+    font-family: 'Pretendard', sans-serif;
 }
 
 table {
@@ -86,7 +87,7 @@ tbody td:last-child {
 .dot {
     width: 0.5em;
     height: 0.5em;
-    background-color: var(--dot-color, #86A788);
+    background-color: var(--dot-color, #4caf50);
     border-radius: 50%;
     margin-right: 0.5em;
     flex-shrink: 0;
@@ -139,7 +140,9 @@ tbody td:last-child {
     /* ⬅️ year 내부 요소들도 가운데로 */
     width: 100%;
     /* ⬅️ 부모 기준 가운데 정렬되게 */
-    background-color: #86A788;
+    /* background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); */
+    background-color: #388e3c;
+    /* border-radius: 2rem; */
     padding: 0.7rem;
     box-shadow: 0.25rem 0.25rem 0.8rem rgba(0, 0, 0, 0.086);
 }
@@ -161,7 +164,7 @@ tbody td:last-child {
     border: none;
     color: white;
     font-weight: 600;
-    background-color: #86A788;
+    background-color: transparent;
 }
 
 /* 드롭다운 열렸을 때 (포커스) */
@@ -191,14 +194,14 @@ tbody td:last-child {
 }
 
 .month.active {
-    color: #86A788;
-    border-color: #86A788;
+    color: #388e3c;
+    border-color: #388e3c;
 }
 
 /* CalendarFilterBar.vue */
 
 .filter-wrapper {
-    border: 1px solid #86A788;
+    border: 1px solid #388e3c;
     border-radius: 0.5em;
     padding: 1rem;
     margin: 1rem 0rem;
@@ -237,7 +240,7 @@ tbody td:last-child {
     padding: 0.3rem 0.75rem;
     border-radius: 0.5rem;
     background-color: white;
-    border: 1px solid #86A788;
+    border: 1px solid #388e3c;
     color: #455746;
     font-size: 0.9rem;
     font-weight: bold;
@@ -246,7 +249,7 @@ tbody td:last-child {
 }
 
 .filter-tab.active {
-    background-color: #86A788;
+    background-color: #388e3c;
     color: white;
 }
 
@@ -351,7 +354,7 @@ tbody td:last-child {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #86a788;
+    background-color: #4caf50;
     padding: 1.2rem 1.5rem;
     border-bottom: 1px solid #ddd;
     font-weight: bold;
@@ -423,8 +426,8 @@ tbody td:last-child {
 }
 
 .detail-btn {
-    background-color: #e9f5ea;
-    color: black;
+    background-color: #4caf50;
+    color: white;
     border: none;
     padding: 0.3rem 0.6rem;
     border-radius: 0.5rem;
