@@ -1,5 +1,6 @@
 <template>
   <div class="self-check-container">
+    <LoadingSpinner v-if="isSubmitting"/>
     <SelfCheckStartModal :visible="showStartModal" @start="startSelfCheck" @cancel="router.back()" />
     <SelfCheckResultModal 
       :visible="showResultModal" 
@@ -10,27 +11,26 @@
     <div :class="['book-bg', { 'blurred': showStartModal || showResultModal }]">
       <div class="questions-row">
         <QuestionCard
-          v-if="questions[currentIndex * 2]"
-          :question="questions[currentIndex * 2]"
-          :answer="answers[currentIndex * 2]"
-          @answer="onAnswer(currentIndex * 2, $event)"
-          :index="currentIndex * 2"
+          v-if="questions[baseIndex]"
+          :question="questions[baseIndex]"
+          :answer="answers[baseIndex]"
+          @answer="onAnswer(baseIndex, $event)"
+          :index="baseIndex"
         />
         <QuestionCard
-          v-if="questions[currentIndex * 2 + 1]"
-          :question="questions[currentIndex * 2 + 1]"
-          :answer="answers[currentIndex * 2 + 1]"
-          @answer="onAnswer(currentIndex * 2 + 1, $event)"
-          :index="currentIndex * 2 + 1"
+          v-if="!isSinglePerPage && questions[baseIndex + 1]"
+          :question="questions[baseIndex + 1]"
+          :answer="answers[baseIndex + 1]"
+          @answer="onAnswer(baseIndex + 1, $event)"
+          :index="baseIndex + 1"
         />
-        <div v-else class="question-card placeholder-card" style="visibility: hidden;"></div>
+        <div v-else-if="!isSinglePerPage" class="question-card placeholder-card" style="visibility: hidden;"></div>
       </div>
       <div class="nav-btns-row">
         <NavigationButtons
           :isFirst="currentIndex === 0"
           :isLast="currentIndex === lastIndex"
           :allAnswered="pageAllAnswered"
-          :isSubmitting="isSubmitting"
           @prev="goPrev"
           @next="goNext"
           @submit="submit"
@@ -47,6 +47,7 @@ import QuestionCard from '../../components/selfCheck/QuestionCard.vue';
 import NavigationButtons from '../../components/selfCheck/NavigationButtons.vue';
 import SelfCheckStartModal from '../../components/modals/SelfCheckStartModal.vue';
 import SelfCheckResultModal from '../../components/modals/SelfCheckResultModal.vue';
+import LoadingSpinner from '../../components/ui/LoadingSpinner.vue';
 
 import selfCheckApi from '../../api/selfCheck.js';
 import { useAuthStore } from '../../stores/auth';
@@ -171,7 +172,7 @@ const questions = [
       '비닐간이공작물 거주자',
       '신혼부부',
       '한부모 가족',
-      '무허가건축물 등에 입주한 세입자',
+      '무허가건축물에 입주한 세입자',
       '기관추천',
       '신생아',
       '생애최초',
@@ -193,7 +194,25 @@ const questions = [
 
 const answers = ref(Array(questions.length).fill(null));
 const currentIndex = ref(0);
-const lastIndex = Math.floor((questions.length - 1) / 2);
+
+// Responsive: 2문항 → 1문항 전환 기준
+const isSinglePerPage = ref(false);
+function updateResponsive() {
+  // 기준 해상도는 필요 시 조정 (예: 1024)
+  isSinglePerPage.value = window.innerWidth <= 1024;
+}
+
+onMounted(() => {
+  updateResponsive();
+  window.addEventListener('resize', updateResponsive);
+});
+onUnmounted(() => {
+  window.removeEventListener('resize', updateResponsive);
+});
+
+const questionsPerPage = computed(() => (isSinglePerPage.value ? 1 : 2));
+const baseIndex = computed(() => currentIndex.value * questionsPerPage.value);
+const lastIndex = computed(() => Math.floor((questions.length - 1) / questionsPerPage.value));
 const showStartModal = ref(true);
 const showResultModal = ref(false);
 const isSubmitting = ref(false);
@@ -278,11 +297,12 @@ onUnmounted(() => {
 });
 
 const pageAllAnswered = computed(() => {
-  const idx = currentIndex.value * 2;
-  return [0, 1].every(i => {
-    const q = questions[idx + i];
+  const start = baseIndex.value;
+  return Array.from({ length: questionsPerPage.value }, (_, i) => i).every(i => {
+    const q = questions[start + i];
     if (!q) return true;
-    return answers.value[idx + i] !== null && answers.value[idx + i] !== undefined && answers.value[idx + i] !== '';
+    const ans = answers.value[start + i];
+    return ans !== null && ans !== undefined && ans !== '';
   });
 });
 
@@ -293,7 +313,7 @@ function goPrev() {
   if (currentIndex.value > 0) currentIndex.value--;
 }
 function goNext() {
-  if (currentIndex.value < lastIndex) currentIndex.value++;
+  if (currentIndex.value < lastIndex.value) currentIndex.value++;
 }
 
 async function submit() {
@@ -341,7 +361,7 @@ async function submit() {
         results.push({ status: 'fulfilled', value: result });
         
         // 각 API 호출 후 잠시 대기 (데이터베이스 저장 확인용)
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 200));
       } catch (error) {
         console.error(`${houseTypes[i]} 진단 실패:`, error);
         results.push({ status: 'rejected', reason: error });
@@ -412,7 +432,7 @@ async function submit() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 1200px;
+  width: 100%;
   max-width: 1400px;
   min-height: 900px;
   overflow: visible;
@@ -437,10 +457,9 @@ async function submit() {
 }
 .questions-row {
   display: flex;
-  gap: 100px;
+  gap: clamp(48px, 10vw, 200px);
   margin-bottom: 56px;
   justify-content: center;
-  min-width: 1100px;
 }
 .placeholder-card {
   width: 500px;
@@ -480,7 +499,7 @@ async function submit() {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: 80px;
 }
 .modal-backdrop {
   position: fixed;
@@ -524,5 +543,49 @@ async function submit() {
   filter: blur(6px) grayscale(10%);
   pointer-events: none;
   user-select: none;
+}
+
+@media (max-width: 1280px) {
+  .book-bg {
+    border-radius: 48px;
+    padding: 24px 16px 24px 16px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .self-check-container {
+    padding-top: 12px;
+    padding-bottom: 40px;
+  }
+  .book-bg {
+    border-radius: 28px;
+    padding: 12px 10px 128px 10px; /* extra bottom padding to clear absolute buttons */
+    min-height: 720px;
+    background: #ffffff;
+  }
+  .book-bg::before,
+  .book-bg::after {
+    content: none;
+    display: none;
+  }
+  .questions-row {
+    width: 100%;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .nav-btns-row {
+    width: 100%;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .book-bg {
+    padding: 10px 8px 128px 8px;
+    min-height: 640px;
+  }
+  .questions-row {
+    margin-bottom: 6px;
+  }
 }
 </style> 

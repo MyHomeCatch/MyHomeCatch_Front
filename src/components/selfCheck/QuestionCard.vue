@@ -26,21 +26,23 @@
       </label>
     </div>
     <div v-else-if="question.type === 'checkbox'">
-      <label
-        v-for="(opt, i) in question.options"
-        :key="i"
-        class="option-block"
-        :class="{ selected: localAnswer && localAnswer.includes(opt) }"
-      >
-        <input
-          type="checkbox"
-          :value="opt"
-          v-model="localAnswer"
-          @change="emitAnswer"
-        />
-        <span class="checkmark" v-if="localAnswer && localAnswer.includes(opt)">✓</span>
-        <span class="option-block-text">{{ opt }}</span>
-      </label>
+      <div class="checkbox-grid">
+        <label
+          v-for="(opt, i) in question.options"
+          :key="i"
+          class="option-block"
+          :class="{ selected: localAnswer && localAnswer.includes(opt) }"
+        >
+          <input
+            type="checkbox"
+            :value="opt"
+            v-model="localAnswer"
+            @change="emitAnswer"
+          />
+          <span class="checkmark" v-if="localAnswer && localAnswer.includes(opt)">✓</span>
+          <span class="option-block-text">{{ opt }}</span>
+        </label>
+      </div>
     </div>
     <div v-else-if="question.type === 'number'">
       <div v-for="(opt, i) in question.options" :key="i" class="number-input-row">
@@ -253,10 +255,43 @@ function toggleDropdown(idx) {
   margin-left: 12px;
   color: #234123;
 }
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.checkbox-grid .option-block {
+  margin-bottom: 0;
+  padding: 0 16px 0 12px;
+  min-height: 36px;
+}
+.checkbox-grid .option-block-text {
+  font-size: 1rem;
+  line-height: 1.3;
+}
 .questions-row {
   display: flex;
   gap: 100px; /* 또는 기존 gap */
   margin-bottom: 56px;
   justify-content: center; /* 추가: 카드가 하나일 때 중앙 정렬 */
+}
+
+@media (max-width: 1280px) {
+  .question-card {
+    width: 440px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .question-card {
+    width: 94vw;
+    max-width: 520px;
+    margin-top: 8px;
+    padding: 16px 14px;
+  }
+  .questions-row {
+    gap: 0;
+    margin-bottom: 4px;
+  }
 }
 </style> 
