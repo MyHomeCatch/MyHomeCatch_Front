@@ -14,7 +14,7 @@
             <span class="btn-icon">🏠</span>
             자가진단 시작하기
           </button>
-          <button class="btn-secondary" @click="goToScore">
+          <button class="btn-secondary" @click="openScoreModal">
             <span class="btn-icon">📊</span>
             가점 계산하기
           </button>
@@ -50,7 +50,7 @@
             <!-- 제목 영역 -->
             <div class="feature-header">
               <div class="feature-title-wrapper">
-                <h3 class="feature-title">🎯 자가진단</h3>
+                <h3 class="feature-title">🎯 지원 가능한 유형</h3>
                 <p
                   class="feature-description"
                   v-if="auth.isLoggedIn && supportableList.length === 0"
@@ -95,42 +95,46 @@
           <div
             class="feature-card"
             :class="{ 'logged-in': auth.isLoggedIn }"
-            @click="goToScore"
+            @click="openScoreModal"
           >
             <div class="feature-header">
               <!-- <div class="feature-icon">
                 <span class="icon">📊</span>
               </div> -->
               <div class="feature-title-wrapper">
-                <h3 class="feature-title">📊 가점 계산기</h3>
+                <h3 class="feature-title">📊 나의 청약 가점</h3>
                 <p
                   class="feature-description"
-                  v-if="auth.isLoggedIn && additionalPoint === null"
+                  v-if="auth.isLoggedIn && userInfo.additionalPoint === 0"
                 >
-                  가점진단을 통해 현재 수준을 파악하세요!
+                  가점진단을 통해 나의 청약 가점을 파악하세요!
                 </p>
                 <p class="feature-description" v-else-if="!auth.isLoggedIn">
-                  가점진단을 통해 현재 수준을 파악하세요!
+                  가점진단을 통해 나의 청약 가점을 파악하세요!
                 </p>
               </div>
             </div>
             <div class="feature-content">
-              <div v-if="auth.isLoggedIn && additionalPoint !== null">
+              <div v-if="auth.isLoggedIn && userInfo.additionalPoint !== 0">
                 <div class="point-display">
-                  <div class="point-left">
-                    <div class="point-number">{{ additionalPoint }}점</div>
-                  </div>
-                  <div class="point-right">
+                  <span class="point-number">{{
+                    userInfo.additionalPoint
+                  }}</span>
+                  <span class="point-text">점</span>
+                  <!-- <div class="point-left">
+                    <div class="point-number">{{ additionalPoint }}</div>
+                  </div> -->
+                  <!-- <div class="point-right">
                     <div class="point-bar-container">
                       <div
                         class="point-bar"
                         :style="{ width: additionalPoint + '%' }"
                       ></div>
                     </div>
-                    <!-- <div class="point-percentage">
+                    <div class="point-percentage">
                       {{ Math.round((additionalPoint / 100) * 100) }}%
-                    </div> -->
-                  </div>
+                    </div>
+                  </div> -->
                 </div>
               </div>
               <!-- <div class="feature-status">
@@ -146,14 +150,18 @@
           </div>
 
           <!-- 민간분양 당첨 가능성 -->
-          <div class="feature-card" :class="{ 'logged-in': auth.isLoggedIn }">
+          <div
+            class="feature-card"
+            :class="{ 'logged-in': auth.isLoggedIn }"
+            @click="goToCalendar"
+          >
             <div class="feature-header">
               <!-- <div class="feature-icon">
                 <span class="icon">🎲</span>
               </div> -->
               <div class="feature-title-wrapper">
-                <h3 class="feature-title">📅 오늘 신청가능한 청약</h3>
-                <p
+                <h3 class="feature-title">📅 오늘 신청 가능한 청약</h3>
+                <!-- <p
                   class="feature-description"
                   v-if="auth.isLoggedIn && additionalPoint === null"
                 >
@@ -161,11 +169,15 @@
                 </p>
                 <p class="feature-description" v-else-if="!auth.isLoggedIn">
                   오늘 신청 가능한 청약을 확인하세요!
-                </p>
+                </p> -->
               </div>
             </div>
             <div class="feature-content">
-              <!-- <div class="applyNotice">{{ todayEventCount }} 개</div> -->
+              <div class="count-box">
+                <span class="count-number">{{ todayApplyCount }}</span>
+                <span class="count-text">건</span>
+              </div>
+              <!-- <button class="view-all-btn">전체보기 →</button> -->
               <!-- <div v-if="auth.isLoggedIn && additionalPoint !== null">
                 <div class="winning-probability">
                   <div class="probability-display">
@@ -240,6 +252,7 @@
     </section>
 
     <section></section>
+    <SubscriptionScoreModal v-if="showScoreModal" @close="closeScoreModal" />
   </div>
 </template>
 
@@ -252,6 +265,13 @@ import axios from 'axios';
 import HorizontalCardScroller from '../components/house/HorizontalCardScroller.vue';
 import { getBookmarks } from '../api/bookmardApi';
 import { calendarColorMap } from '@/assets/calendarColorMap.js';
+import calendarApi from '@/api/calendarApi.js';
+import SubscriptionScoreModal from '@/components/mypage/SubscriptionScoreModal.vue';
+import { useMyPageStore } from '@/stores/mypage';
+import { storeToRefs } from 'pinia';
+
+const mypage = useMyPageStore();
+const { userInfo } = storeToRefs(mypage);
 
 const router = useRouter();
 
@@ -259,7 +279,7 @@ const router = useRouter();
 const auth = useAuthStore();
 
 const supportableList = ref([]);
-const additionalPoint = ref(null);
+// const additionalPoint = ref(null);
 const favoriteList = ref([]); // 즐겨찾기 목록 추가
 
 const seoulHousesLoading = ref(false);
@@ -269,9 +289,25 @@ const geunggiHouses = ref([]);
 const supportableHousesLoading = ref(false);
 const supportableHouses = ref([]);
 
+const todayApplyCount = ref(0);
+
 // Navigation methods
 const goToSelfCheck = () => {
   router.push('/self-check');
+};
+
+const showScoreModal = ref(false);
+const openScoreModal = () => {
+  if (!auth.isLoggedIn) {
+    alert('로그인이 필요합니다. 로그인 후 다시 시도해주세요.');
+    router.push('/login'); // 로그인 페이지로 이동
+    return;
+  }
+  showScoreModal.value = true;
+};
+
+const closeScoreModal = () => {
+  showScoreModal.value = false;
 };
 
 const goToScore = () => {
@@ -323,6 +359,24 @@ const loadFavorites = async () => {
   }
 };
 
+const loadTodayApply = async () => {
+  const today = new Date();
+
+  const year = today.getFullYear(); // 2025
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // 07 (월은 0부터 시작)
+  const day = String(today.getDate()).padStart(2, '0'); // 01
+
+  const currentDate = `${year}.${month}.${day}`;
+
+  try {
+    const todayCount = await calendarApi.getApplyToday(currentDate);
+    // console.log(todayCount);
+    todayApplyCount.value = todayCount;
+  } catch (error) {
+    console.error('신청 가능 청약 로드 실패: ', error);
+  }
+};
+
 // 즐겨찾기 토글 핸들러 개선
 const handleToggleFavorite = async (data) => {
   if (data.action === 'add') {
@@ -366,7 +420,7 @@ const getEventStyle = (label) => {
   const color = entry?.color || '#4caf50'; // 기본색
   return {
     color: `${color}`,
-    border: `1px solid ${color}`,
+    // border: `1px solid ${color}`,
   };
 };
 
@@ -461,6 +515,7 @@ onMounted(() => {
   if (auth.isLoggedIn) {
     loadUserSupportableList();
     loadUser();
+    mypage.getUserInfo();
   }
   
   // 즐겨찾기는 로그인 상태와 관계없이 호출 (내부에서 로그인 상태 확인)
@@ -469,6 +524,7 @@ onMounted(() => {
   // 공고 목록은 로그인 상태와 관계없이 호출 (공개 정보)
   loadSeoulHouses();
   loadGeunggiHouses();
+  loadTodayApply();
 });
 </script>
 
@@ -707,7 +763,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .feature-icon {
@@ -766,20 +822,20 @@ onMounted(() => {
 
 .supportable-types {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px; /* 아래 간격 */
-  max-height: none; /* 높이 제한 해제 */
-  overflow: visible; /* 스크롤 제거 */
+  align-items: center; /* baseline 대신 center로 변경 */
+  justify-content: center;
+  border-radius: 12px;
+  /* padding: 12px 24px; */
+  min-width: 100px;
 }
 
 .type-tag {
-  background-color: white;
+  /* background-color: white; */
   color: white;
   padding: 4px 10px;
-  border-radius: 5px;
-  border: 1px solid #4caf50;
-  font-size: 0.8rem;
+  /* border-radius: 5px;
+  border: 1px solid #4caf50; */
+  font-size: 1rem;
   font-weight: 600;
   /* box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3); */
 }
@@ -787,24 +843,42 @@ onMounted(() => {
 .point-display {
   display: flex;
   align-items: center;
-  gap: 12px; /* 간격 줄임 */
   margin-bottom: 12px; /* 마진 줄임 */
+  justify-content: center;
+  border-radius: 12px;
+  /* padding: 12px 24px; */
+  min-width: 100px;
 }
 
-.point-left {
+/* .point-left {
   text-align: left;
 }
 
 .point-number {
-  font-size: 1.8rem; /* 폰트 크기 줄임 */
+  font-size: 1.8rem;
   font-weight: 600;
   color: #4caf50;
   margin-bottom: 6px;
   background-color: #4caf50;
-  /* background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); */
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+} */
+
+.point-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2196f3; /* 숫자 강조 색상 */
+  margin-right: 4px;
+}
+
+.point-text {
+  font-size: 1rem;
+  color: #555555; /* 부드러운 회색 */
+  font-weight: 600;
+  align-self: flex-end;
+  padding-bottom: 0.3rem;
 }
 
 .point-label {
@@ -851,6 +925,54 @@ onMounted(() => {
   margin-bottom: 12px; /* 마진 줄임 */
 }
 
+feature-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  /* margin-top: 16px; */
+}
+
+/* 숫자 박스 */
+.count-box {
+  display: flex;
+  align-items: center; /* baseline 대신 center로 변경 */
+  justify-content: center;
+  border-radius: 12px;
+  /* padding: 12px 24px; */
+  min-width: 100px;
+}
+
+.count-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4caf50; /* 숫자 강조 색상 */
+  margin-right: 4px;
+}
+
+.count-text {
+  font-size: 1rem;
+  color: #555555; /* 부드러운 회색 */
+  font-weight: 600;
+  align-self: flex-end;
+  padding-bottom: 0.3rem;
+}
+
+/* 버튼 */
+.view-all-btn {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-all-btn:hover {
+  background: #115293;
+  transform: translateY(-2px);
+}
 .probability-display {
   display: flex;
   align-items: center;

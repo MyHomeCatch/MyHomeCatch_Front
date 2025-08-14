@@ -144,8 +144,15 @@ const getEventStyle = (code) => {
 // 날짜 클릭 시 모달 오픈
 function openModal(events, dateObj) {
   selectedEvents.value = events;
-  selectedDate.value = formatDateKey(dateObj.date);
+  selectedDate.value = formatDateTitle(dateObj.date);
   showModal.value = true;
+}
+
+function formatDateTitle(date) {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}년 ${mm}월 ${dd}일`;
 }
 
 // 필터가 비어있으면 무조건 true (전체 허용)
