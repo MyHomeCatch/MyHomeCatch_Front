@@ -88,20 +88,65 @@ import ImageSection from '@/components/DetailPage/ImageSection.vue';
 import InfoPanel from '../../components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
 import DetailMap from '@/components/DetailPage/DetailMap.vue';
+import PdfSummary from '@/components/DetailPage/PdfSummary.vue';
 import { useAuthStore } from '@/stores/auth.js';
 import selfCheckAPI from '@/api/selfCheck.js';
 import bookmarkApi from '@/api/bookmarkApi.js';
-import MapCategory from '@/components/DetailPage/MapCategory.vue';
+import { getDynamicSummary } from '@/api/detailPageApi';
+
 const route = useRoute();
 const houseData = ref(null);
 const loading = ref(true);
 const error = ref(null);
+const summaryError = ref('');
 const houseCard = ref(null);
 const selectedCategory = ref('');
 const authStore = useAuthStore();
 const isLiked = ref(false);
 const selfCheckMatchResult = ref(null);
 const bookmarkCount = ref(0);
+
+// 공고 요약
+const summaryMarkdown = ref('');
+const showSummary = ref(false);
+const loadingSummary = ref(false);
+
+// 공고 요약 로드
+const loadSummaryMarkdownWithParams = async (danziId, pdfUrl) => {
+  try {
+    loadingSummary.value = true;
+    summaryError.value = '';
+    const res = await getDynamicSummary(danziId, pdfUrl);
+    summaryMarkdown.value = res.data || '';
+  } catch (err) {
+    console.error('📄 요약 불러오기 실패:', err);
+    summaryError.value = '요약 데이터를 불러올 수 없습니다.';
+  } finally {
+    loadingSummary.value = false;
+  }
+};
+
+const handleShowSummaryClick = async () => {
+  // ★ 오버레이 먼저 열기
+  showSummary.value = true;
+  loadingSummary.value = true;
+  summaryError.value = '';
+  summaryMarkdown.value = '';
+
+  const danziId = route.params.id;
+  const pdfUrl =
+    houseData.value?.notices?.[0]?.noticeAttachments?.[0]?.ahflUrl || null;
+
+  // pdfUrl이 아직 없을 수도 있으니, 없어도 오버레이는 열린 상태로 유지
+  if (!pdfUrl) {
+    // 데이터가 늦게 들어오는 구조면, watch로 houseData를 감지하여 재시도하는 것도 가능
+    summaryError.value = '공고 PDF를 찾는 중입니다... 잠시만요.';
+    loadingSummary.value = false;
+    return;
+  }
+
+  await loadSummaryMarkdownWithParams(danziId, pdfUrl);
+};
 
 // API 응답에서 이미지 URL만 추출하여 새로운 배열을 만듭니다.
 const images = computed(() => {
@@ -281,5 +326,9 @@ const toggleLike = async () => {
   .custom-right {
     min-height: auto;
   }
+}
+
+.info-panel-wrapper {
+  position: relative;
 }
 </style>
