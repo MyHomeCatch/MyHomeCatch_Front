@@ -431,9 +431,19 @@ const getMapLevel = () => {
   return null;
 };
 
+// MapPage에서 MapPageHouseCard 클릭시 해당 마커 반환
+const findHouseMarker = (houseId) => {
+  // 해당 주택ID의 마커 찾기
+  const targetMarker = markers.value.find((marker) => marker.id === houseId);
+  console.log(targetMarker);
+
+  if (targetMarker) {
+    return targetMarker;
+  }
+};
+
 // 부모 컴포넌트에서 호출할 수 있도록 노출
 defineExpose({
-  // handleMarkerClick,
   updateMapWithHouse,
   zoomIn,
   zoomOut,
@@ -441,6 +451,7 @@ defineExpose({
   moveToPosition,
   getMapCenter,
   getMapLevel,
+  findHouseMarker,
 });
 </script>
 
