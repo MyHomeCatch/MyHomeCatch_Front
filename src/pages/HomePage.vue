@@ -205,7 +205,7 @@
       <HorizontalCardScroller
         :title="`${auth.user.nickname}님에게 추천하는 공고`"
         :key-field="'danziId'"
-        :cards="favoriteList"
+        :cards="supportableHouses"
         :favorite-list="favoriteList"
         @card-click="handleCardClick"
         @toggle-favorite="handleToggleFavorite"
@@ -239,49 +239,6 @@
       />
     </section>
 
-    <!-- Action Cards -->
-    <!-- <section class="actions-section">
-      <div class="container">
-        <div class="actions-grid">
-          <div class="action-card primary" @click="goToSelfCheck">
-            <div class="action-content">
-              <div class="action-icon">🔍</div>
-              <h3 class="action-title">자가진단 시작하기</h3>
-              <p class="action-description">
-                간단한 질문으로 지원 가능한 청약 유형을 확인해보세요
-              </p>
-              <div class="action-arrow">→</div>
-            </div>
-            <div class="action-bg"></div>
-          </div>
-
-          <div class="action-card secondary" @click="goToScore">
-            <div class="action-content">
-              <div class="action-icon">🧮</div>
-              <h3 class="action-title">가점계산 하기</h3>
-              <p class="action-description">
-                정확한 가점 계산으로 청약 전략을 세워보세요
-              </p>
-              <div class="action-arrow">→</div>
-            </div>
-            <div class="action-bg"></div>
-          </div>
-
-          <div class="action-card accent" @click="goToCalendar">
-            <div class="action-content">
-              <div class="action-icon">📅</div>
-              <h3 class="action-title">청약 캘린더</h3>
-              <p class="action-description">
-                중요한 청약 일정을 놓치지 마세요!
-              </p>
-              <div class="action-arrow">→</div>
-            </div>
-            <div class="action-bg"></div>
-          </div>
-        </div>
-      </div>
-    </section> -->
-
     <section></section>
   </div>
 </template>
@@ -309,6 +266,8 @@ const seoulHousesLoading = ref(false);
 const seoulHouses = ref([]);
 const geunggiHousesLoading = ref(false);
 const geunggiHouses = ref([]);
+const supportableHousesLoading = ref(false);
+const supportableHouses = ref([]);
 
 // Navigation methods
 const goToSelfCheck = () => {
@@ -337,6 +296,10 @@ watch(
 const loadUserSupportableList = async () => {
   const data = await user.getSupportableList();
   supportableList.value = data.map((str) => str.split(' ')[0]);
+
+  if (supportableList.value.length == 0) return;
+
+  loadSupportableHouses();
 };
 
 const loadUser = async () => {
@@ -407,35 +370,33 @@ const getEventStyle = (label) => {
   };
 };
 
-// 점수 등급 계산 함수
-const getPointGrade = (point) => {
-  if (point <= 10) return '낮음';
-  if (point <= 30) return '보통';
-  if (point <= 50) return '높음';
-  return '매우 높음';
-};
+const loadSupportableHouses = async () => {
+  if (supportableList.value.length == 0) return;
 
-// 점수 등급별 CSS 클래스 반환 함수
-const getPointGradeClass = (point) => {
-  if (point <= 10) return 'low';
-  if (point <= 30) return 'medium';
-  if (point <= 50) return 'high';
-  return 'very-high';
-};
+  console.log('  ⚠️  : ', supportableList.value);
 
-// 당첨 확률 메시지 계산 함수
-const getProbabilityMessage = (point) => {
-  if (point <= 10)
-    return '당첨 확률이 매우 낮습니다. 청약 전략을 다시 검토해보세요.';
-  if (point <= 30)
-    return '당첨 확률이 낮습니다. 청약 전략을 다시 검토해보세요.';
-  if (point <= 50)
-    return '당첨 확률이 높습니다. 청약 전략을 다시 검토해보세요.';
-  return '당첨 확률이 매우 높습니다. 청약 전략을 다시 검토해보세요.';
-};
+  try {
+    supportableHousesLoading.value = true;
+    const params = new URLSearchParams();
+    params.append('page', '0');
+    params.append('size', 30);
+    params.append('panSs', '공고중');
+    params.append('panSs', '접수중');
+    supportableList.value.forEach((type) => {
+      params.append('aisTpCdNm', type);
+    });
 
-const getQueryUrl = () => {
-  return;
+    console.log('  ⚠️ params : ', params.toString());
+
+    const { data } = await axios.get(`/api/api/house?${params.toString()}`);
+    supportableHouses.value = data.housingList || [];
+    console.log('지원 가능 목록 로드 완료:', supportableHouses.value.length);
+  } catch (error) {
+    console.error('지원 가능 목록 로드 실패:', error);
+    supportableHouses.value = [];
+  } finally {
+    supportableHousesLoading.value = false;
+  }
 };
 
 const loadSeoulHouses = async () => {
