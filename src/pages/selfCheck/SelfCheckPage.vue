@@ -341,7 +341,7 @@ async function submit() {
         results.push({ status: 'fulfilled', value: result });
         
         // 각 API 호출 후 잠시 대기 (데이터베이스 저장 확인용)
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 200));
       } catch (error) {
         console.error(`${houseTypes[i]} 진단 실패:`, error);
         results.push({ status: 'rejected', reason: error });
@@ -480,7 +480,7 @@ async function submit() {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: 80px;
 }
 .modal-backdrop {
   position: fixed;
