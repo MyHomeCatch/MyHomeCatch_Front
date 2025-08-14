@@ -224,7 +224,6 @@ async function startSelfCheck(event) {
     }
   } catch (error) {
     console.error('자가진단 필터 처리 중 오류 발생:', error);
-
     event.target.checked = false;
   }
 }
