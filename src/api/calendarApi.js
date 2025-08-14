@@ -11,4 +11,12 @@ export default {
     // console.log('/calendar: ' + JSON.stringify(data));
     return data;
   },
+
+  async getApplyToday(date) {
+    const { data } = await axios.get(`${BASE_URL}/calendar/today`, {
+      params: { date },
+    });
+    // console.log('/calendar: ' + JSON.stringify(data));
+    return data;
+  },
 };
