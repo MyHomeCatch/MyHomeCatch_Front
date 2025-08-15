@@ -60,9 +60,18 @@
           :apply-info="houseData.applies"
           :notices="houseData.notices"
           :bookmark-count="bookmarkCount"
+          @request-summary="handleShowSummaryClick"
+          @showSummary="showSummary = true"
         />
       </div>
     </div>
+
+    <PdfSummary
+      :summaryData="summaryMarkdown"
+      :loading="loadingSummary"
+      :error="summaryError"
+      :title="houseData.danzi ? houseData.danzi.bzdtNm : ''"
+    />
 
     <!-- 이미지 섹션 -->
     <section class="container image-section-wrapper mb-4">
@@ -76,7 +85,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   getHouseCardById,
@@ -85,10 +94,11 @@ import {
   getHouseDetailByIdWithSelfCheck,
 } from '@/api/detailPageApi';
 import ImageSection from '@/components/DetailPage/ImageSection.vue';
-import InfoPanel from '../../components/DetailPage/InfoPanel.vue';
+import InfoPanel from '@/components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
 import DetailMap from '@/components/DetailPage/DetailMap.vue';
 import PdfSummary from '@/components/DetailPage/PdfSummary.vue';
+
 import { useAuthStore } from '@/stores/auth.js';
 import selfCheckAPI from '@/api/selfCheck.js';
 import bookmarkApi from '@/api/bookmarkApi.js';
@@ -128,7 +138,7 @@ const loadSummaryMarkdownWithParams = async (danziId, pdfUrl) => {
 
 const handleShowSummaryClick = async () => {
   // ★ 오버레이 먼저 열기
-  showSummary.value = true;
+  // showSummary.value = true;
   loadingSummary.value = true;
   summaryError.value = '';
   summaryMarkdown.value = '';
@@ -182,6 +192,23 @@ onMounted(async () => {
 
     houseCard.value = houseCardResponse.data;
     bookmarkCount.value = bookmarkResponse.data;
+
+    // 📌 공고 PDF 요약은 메인 로딩과 분리해서 비동기로 “발사만” 함
+    const pdfUrl =
+      houseData.value?.notices?.[0]?.noticeAttachments?.[0]?.ahflUrl || null;
+
+    if (pdfUrl) {
+      // await ❌ —> onMounted를 막지 않도록
+      loadingSummary.value = true;
+      loadSummaryMarkdownWithParams(danziId, pdfUrl)
+        .catch((e) => {
+          console.error('요약 로드 실패:', e);
+          summaryError.value = '요약 데이터를 불러올 수 없습니다.';
+        })
+        .finally(() => {
+          loadingSummary.value = false;
+        });
+    }
   } catch (err) {
     console.error('데이터 로드 실패:', err);
     error.value = '데이터를 불러오는 데 실패했습니다.';
@@ -212,9 +239,15 @@ const loadHouseDetail = async () => {
     }
 
     if (response && response.data) {
-      houseData.value = response.data;
-      if (response.data.selfCheckMatchResult) {
-        selfCheckMatchResult.value = response.data.selfCheckMatchResult;
+      // 로그인했을때 response.data: Map(House, selfCheckMatchResult)
+      if (authStore.isLoggedIn) {
+        houseData.value = response.data.house;
+        if (response.data.selfCheckMatchResult) {
+          selfCheckMatchResult.value = response.data.selfCheckMatchResult;
+        }
+        // 로그아웃 했을때 response.data: House
+      } else {
+        houseData.value = response.data;
       }
     }
   } catch (error) {
