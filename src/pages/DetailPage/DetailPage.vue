@@ -239,9 +239,15 @@ const loadHouseDetail = async () => {
     }
 
     if (response && response.data) {
-      houseData.value = response.data;
-      if (response.data.selfCheckMatchResult) {
-        selfCheckMatchResult.value = response.data.selfCheckMatchResult;
+      // 로그인했을때 response.data: Map(House, selfCheckMatchResult)
+      if (authStore.isLoggedIn) {
+        houseData.value = response.data.house;
+        if (response.data.selfCheckMatchResult) {
+          selfCheckMatchResult.value = response.data.selfCheckMatchResult;
+        }
+        // 로그아웃 했을때 response.data: House
+      } else {
+        houseData.value = response.data;
       }
     }
   } catch (error) {
