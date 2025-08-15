@@ -87,12 +87,12 @@
           >
             공고 PDF 다운로드
           </button>
-          <button
+          <!-- <button
             @click="handleShowSummary"
             class="action-button-outline summary-button"
           >
             공고 요약
-          </button>
+          </button> -->
         </div>
       </div>
     </div>
@@ -137,17 +137,6 @@ const pdfAttachmentUrl = computed(() => {
 });
 
 const emit = defineEmits(['request-summary']);
-
-const hasPdf = computed(() => !!pdfAttachmentUrl.value);
-
-const handleShowSummary = () => {
-  if (!hasPdf.value) {
-    alert('공고 PDF를 찾을 수 없습니다.');
-    return;
-  }
-  console.log('[InfoPanel] emit request-summary'); // 디버그
-  emit('request-summary');
-};
 
 const applyStatusText = computed(
   () => primaryNotice.value.panSs || '정보 없음'
