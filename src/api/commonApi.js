@@ -17,7 +17,17 @@ function getTokenExpiration(token) {
 const refreshAccessToken = async (api) => {
   try {
     console.log('토큰 갱신 시도 중');
-    const response = await api.post('/auth/refresh');
+    
+    // 리프레시 토큰 요청은 인터셉터 없이 별도 axios 인스턴스 사용
+    const refreshApi = axios.create({
+      baseURL: api.defaults.baseURL,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    });
+    
+    const response = await refreshApi.post('/auth/refresh');
     const newToken = response.data.token;
 
     localStorage.setItem('token', newToken);
@@ -38,6 +48,23 @@ const refreshAccessToken = async (api) => {
   } catch (error) {
     console.error('토큰 갱신 실패:', error);
     localStorage.removeItem('token');
+    
+    // 타이머 정리
+    if (refreshTimer) {
+      clearTimeout(refreshTimer);
+      refreshTimer = null;
+    }
+    
+    // Auth store 상태도 클리어
+    try {
+      const { useAuthStore } = await import('../stores/auth');
+      const authStore = useAuthStore();
+      authStore.token = null;
+      authStore.isLoggedIn = false;
+    } catch (storeError) {
+      console.warn('Auth store 클리어 실패:', storeError);
+    }
+    
     window.location.href = '/login';
     throw error;
   }
@@ -81,7 +108,10 @@ export const setupInterceptors = (api) => {
     async (error) => {
       const originalRequest = error.config;
 
-      if (error.response?.status === 401 && !originalRequest._retry) {
+      // 리프레시 토큰 요청 자체가 실패한 경우는 재시도하지 않음
+      if (error.response?.status === 401 && 
+          !originalRequest._retry && 
+          !originalRequest.url?.includes('/auth/refresh')) {
         originalRequest._retry = true;
 
         try {
@@ -116,9 +146,11 @@ export const setupInterceptors = (api) => {
         token = localStorage.getItem('token');
       }
       
+      // 토큰이 있을 때만 Authorization 헤더 추가
       if (token) {
         config.headers['Authorization'] = `Bearer ${token}`;
       }
+      
       return config;
     },
     (error) => {

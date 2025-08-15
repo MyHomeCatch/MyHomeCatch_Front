@@ -81,7 +81,7 @@ tbody td:last-child {
     align-items: center;
     color: black;
     margin-bottom: 0.3em;
-    max-width: 150px;
+    max-width: 100;
 }
 
 .dot {
@@ -108,11 +108,12 @@ tbody td:last-child {
     display: inline-block;
     margin: 0.5em auto;
     padding: 0.2rem 0.6rem;
-    background-color: #e9f5ea;
+    /* background-color: #e9f5ea; */
     border-radius: 0.8rem;
+    border: 1px solid #388e3c;
     font-size: 0.75rem;
     font-weight: 600;
-    color: #404040;
+    color: #388e3c;
     cursor: pointer;
     white-space: nowrap;
     text-align: center;
@@ -141,7 +142,7 @@ tbody td:last-child {
     width: 100%;
     /* ⬅️ 부모 기준 가운데 정렬되게 */
     /* background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); */
-    background-color: #388e3c;
+    background-color: #285d2a;
     /* border-radius: 2rem; */
     padding: 0.7rem;
     box-shadow: 0.25rem 0.25rem 0.8rem rgba(0, 0, 0, 0.086);
@@ -194,14 +195,14 @@ tbody td:last-child {
 }
 
 .month.active {
-    color: #388e3c;
-    border-color: #388e3c;
+    color: #285d2a;
+    border-color: #285d2a;
 }
 
 /* CalendarFilterBar.vue */
 
 .filter-wrapper {
-    border: 1px solid #388e3c;
+    border: 1px solid #3a863d;
     border-radius: 0.5em;
     padding: 1rem;
     margin: 1rem 0rem;
@@ -240,8 +241,8 @@ tbody td:last-child {
     padding: 0.3rem 0.75rem;
     border-radius: 0.5rem;
     background-color: white;
-    border: 1px solid #388e3c;
-    color: #455746;
+    border: 1px solid #3a863d;
+    color: #3a863d;
     font-size: 0.9rem;
     font-weight: bold;
     cursor: pointer;
@@ -249,7 +250,7 @@ tbody td:last-child {
 }
 
 .filter-tab.active {
-    background-color: #388e3c;
+    background-color: #3a863d;
     color: white;
 }
 
@@ -354,7 +355,7 @@ tbody td:last-child {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #4caf50;
+    background-color: #3a863d;
     padding: 1.2rem 1.5rem;
     border-bottom: 1px solid #ddd;
     font-weight: bold;
@@ -426,16 +427,22 @@ tbody td:last-child {
 }
 
 .detail-btn {
-    background-color: #4caf50;
-    color: white;
+    background-color: white;
+    color: #3a863d;
     border: none;
     padding: 0.3rem 0.6rem;
     border-radius: 0.5rem;
+    border: 1px solid #3a863d;
     font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
     margin-left: 0.5rem;
+}
+
+.detail-btn:hover {
+    background-color: #3a863d;
+    color: white;
 }
 
 .period {

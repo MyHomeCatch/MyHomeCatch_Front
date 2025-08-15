@@ -33,7 +33,6 @@ const props = defineProps({
   right: 0;
   bottom: 32px;
   width: 100%;
-  min-width: 800px;
   max-width: 1400px;
   height: 64px;
   margin: 0 auto;
@@ -86,5 +85,25 @@ const props = defineProps({
 }
 .nav-btn-gap {
   flex: 1;
+}
+
+@media (max-width: 1024px) {
+  .nav-buttons {
+    bottom: 24px;
+    height: 56px;
+  }
+  .left-btn {
+    left: 16px;
+    bottom: 24px;
+  }
+  .right-btn {
+    right: 16px;
+    bottom: 24px;
+  }
+  .nav-btn {
+    min-width: 104px;
+    padding: 12px 0;
+    font-size: 1rem;
+  }
 }
 </style> 

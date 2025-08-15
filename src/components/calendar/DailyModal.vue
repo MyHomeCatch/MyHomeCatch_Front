@@ -75,28 +75,27 @@ function formatEventPeriod(startStr, endStr) {
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
       d.getDate()
     ).padStart(2, '0')}`;
+
   const formatTime = (d) =>
     `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(
       2,
       '0'
     )}`;
 
-  const hasTime =
-    start.getHours() !== 0 ||
-    start.getMinutes() !== 0 ||
-    end.getHours() !== 0 ||
-    end.getMinutes() !== 0;
+  const startHasTime = startStr.includes(':');
+  const endHasTime = endStr.includes(':');
+  const hasTime = startHasTime || endHasTime;
 
   if (isSameDate) {
-    if (!hasTime) {
-      return formatDate(start);
-    } else {
-      return `${formatDate(start)} ${formatTime(start)} ~ ${formatTime(end)}`;
-    }
+    return hasTime
+      ? `${formatDate(start)} ${formatTime(start)} ~ ${formatTime(end)}`
+      : formatDate(start);
   } else {
-    return `${formatDate(start)} ${formatTime(start)} ~ ${formatDate(
-      end
-    )} ${formatTime(end)}`;
+    return hasTime
+      ? `${formatDate(start)} ${formatTime(start)} ~ ${formatDate(
+          end
+        )} ${formatTime(end)}`
+      : `${formatDate(start)} ~ ${formatDate(end)}`;
   }
 }
 </script>
