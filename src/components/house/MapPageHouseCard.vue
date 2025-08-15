@@ -1,7 +1,7 @@
 <template>
   <div class="map-page-house-card" @click="onCardClick" :id="house.houseId">
     <!-- 아파트 이미지 -->
-    <div class="image-container">
+    <!-- <div class="image-container">
       <img
         v-if="!house.overviewImageUrl"
         src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=250&fit=crop"
@@ -21,7 +21,7 @@
         class="house-image"
       />
       <div class="image-overlay" :class="{ 'show-always': localIsFavorited }">
-        <!-- 지도 이동 버튼 -->
+
         <div
           v-if="showMapButton"
           class="map-icon"
@@ -36,21 +36,32 @@
           @click.stop="toggleFavorite"
           :disabled="favoriteLoading"
         >
-          <!-- <span  class="loading-spinner">⏳</span> -->
           <i v-if="favoriteLoading" class="bi bi-bookmark-fill"></i>
           <i v-else-if="!localIsFavorited" class="bi bi-bookmark"></i>
           <i v-else class="bi bi-bookmark-fill"></i>
         </div>
       </div>
-      <!-- 주택 타입 배지 -->
-      <!-- <div class="housing-type-badge">{{ house.noticeType || '주택' }}</div> -->
-    </div>
+
+    </div> -->
 
     <!-- 아파트 정보 -->
     <div class="house-info">
       <div class="location-info">
-        <h3 class="house-name">{{ house.houseName }}</h3>
         <div class="house-details">
+          <h3 class="house-name">{{ house.houseName }}</h3>
+          <div
+            class="bookmark-icon"
+            :class="{ favorited: localIsFavorited }"
+            @click.stop="toggleFavorite"
+            :disabled="favoriteLoading"
+          >
+            <i v-if="favoriteLoading" class="bi bi-bookmark-fill"></i>
+            <i v-else-if="!localIsFavorited" class="bi bi-bookmark"></i>
+            <i v-else class="bi bi-bookmark-fill"></i>
+          </div>
+        </div>
+
+        <!-- <div class="house-details">
           <span class="region">{{ house.region }}</span>
           <span
             class="value notice-status"
@@ -58,12 +69,15 @@
           >
             {{ house.noticeStatus }}
           </span>
+        </div> -->
+        <div class="house-details">
+          <span class="value notice-type">{{ house.noticeType }}</span>
+          <div class="area-info">
+            <span class="value">{{ house.exclusiveArea }}</span>
+            <span class="area-unit">m<sup>2</sup></span>
+          </div>
         </div>
-        <span class="value notice-type">{{ house.noticeType }}</span>
-        <div class="area-info">
-          <span class="value">{{ house.exclusiveArea }}</span>
-          <span class="area-unit">m<sup>2</sup></span>
-        </div>
+
         <div class="ai-summary">
           <span class="value">{{ aiSummary }}</span>
         </div>
@@ -220,18 +234,17 @@ const getStatusClass = (status) => {
 
 <style scoped>
 .map-page-house-card {
-  border-radius: 16px;
+  border-radius: 8px;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  background: #ffffff;
   border: 1px solid #e8e8e8;
 }
 
-.map-page-house-card:hover {
+/* .map-page-house-card:hover {
   transform: translateY(-4px);
   border-color: #d0d0d0;
-}
+} */
 
 .image-container {
   position: relative;
@@ -280,13 +293,13 @@ const getStatusClass = (status) => {
 }
 
 /* 지도 버튼이 없을 때 북마크 버튼 위치 조정 */
-.image-overlay:not(:has(.map-icon)) {
+/* .image-overlay:not(:has(.map-icon)) {
   justify-content: flex-end;
-}
+} */
 
-.image-overlay:not(:has(.map-icon)) .bookmark-icon {
+/* .image-overlay:not(:has(.map-icon)) .bookmark-icon {
   margin-left: auto;
-}
+} */
 
 /* 지도 버튼은 호버 시에만 표시 */
 .map-icon {
@@ -330,28 +343,28 @@ const getStatusClass = (status) => {
   transition: all 0.2s ease;
   cursor: pointer;
   user-select: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
 }
 
-.bookmark-icon:hover {
+/* .bookmark-icon:hover {
   background: white;
   color: #e74c3c;
   transform: scale(1.1);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
+} */
 
 .bookmark-icon.favorited {
   color: #e74c3c;
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* background: rgba(255, 255, 255, 0.95); */
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
 }
 
-.bookmark-icon.favorited:hover {
+/* .bookmark-icon.favorited:hover {
   color: #c0392b;
   background: white;
   transform: scale(1.1);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
+} */
 
 .bookmark-icon:disabled {
   cursor: not-allowed;
@@ -386,22 +399,21 @@ const getStatusClass = (status) => {
 
 .house-info {
   padding: 12px 16px;
-  background: #ffffff;
+  /* background: #ffffff; */
 }
 
 .location-info {
-  margin-bottom: 12px;
+  margin: 6px;
 }
 
 .house-name {
   font-size: 15px;
   font-weight: 700;
-  color: #1a1a1a;
-  margin: 0 0 8px 0;
+  margin: 7px 0 8px 0;
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
-  height: 40px;
+  height: 30px;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -411,7 +423,6 @@ const getStatusClass = (status) => {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin-bottom: 4px;
 }
 
 .region,
@@ -429,14 +440,14 @@ const getStatusClass = (status) => {
 
 .value {
   font-size: 14px;
-  color: #34495e;
+  opacity: 0.7;
   font-weight: 500;
 }
 
 .notice-type {
   display: block;
   margin-bottom: 4px;
-  color: #5d6d7e;
+  opacity: 0.7;
   font-weight: 600;
 }
 
@@ -449,7 +460,7 @@ const getStatusClass = (status) => {
 .area-unit {
   font-size: 12px;
   font-weight: 500;
-  color: #5d6d7e;
+  opacity: 0.7;
   margin-left: 2px;
 }
 

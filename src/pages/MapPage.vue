@@ -631,21 +631,21 @@ const handleMarkerDeselect = () => {
   // 마커 선택 해제
   selectedMarker.value = null;
 
-  // KakaoMapViewer의 activeHouseCenter 직접 초기화
-  if (mapViewerRef.value && mapViewerRef.value.clearActiveHouseCenter) {
-    mapViewerRef.value.clearActiveHouseCenter();
+  // KakaoMapViewer의 activeHouseCenter, selectedMarker, publicFacilityMarkers 직접 초기화
+  if (mapViewerRef.value) {
+    mapViewerRef.value.clearMarker();
   }
   // 이전 지도 상태로 복원
-  if (
-    previousMapCenter.value &&
-    previousZoomLevel.value &&
-    mapViewerRef.value
-  ) {
-    mapViewerRef.value.moveToPosition(
-      previousMapCenter.value,
-      previousZoomLevel.value
-    );
-  }
+  // if (
+  //   previousMapCenter.value &&
+  //   previousZoomLevel.value &&
+  //   mapViewerRef.value
+  // ) {
+  //   mapViewerRef.value.moveToPosition(
+  //     previousMapCenter.value,
+  //     previousZoomLevel.value
+  //   );
+  // }
 };
 
 // 로그인 상태 변화 감지
@@ -908,33 +908,15 @@ defineExpose({
 
 /* 선택된 하우스카드 래퍼 스타일 */
 .house-card-wrapper.selected {
-  transform: scale(1.02);
-  background: linear-gradient(
-    135deg,
-    rgba(50, 205, 50, 0.6),
-    rgba(144, 238, 144, 0.4)
-  );
-  box-shadow: 0 8px 25px rgba(34, 139, 34, 0.4),
-    0 4px 15px rgba(50, 205, 50, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2); /* 내부 하이라이트 */
-  padding: 8px;
-}
-
-/* 선택된 하우스카드 내부 카드 스타일 조정 */
-.house-card-wrapper.selected .map-page-house-card {
-  border: 2px solid transparent;
-  background: white;
-  border-radius: 16px;
+  background: #4caf50;
+  color: white;
+  border-color: #4caf50;
 }
 
 /* 선택된 상태에서 호버 효과 */
 .house-card-wrapper.selected:hover {
   transform: scale(1.03);
-  box-shadow: 0 12px 35px rgba(0, 123, 255, 0.4);
-}
-
-/* 선택 애니메이션 */
-.house-card-wrapper.selected {
-  animation: cardSelect 0.3s ease-out;
+  box-shadow: 0 12px 35px rgba(211, 218, 226, 0.4);
 }
 
 .more-houses {

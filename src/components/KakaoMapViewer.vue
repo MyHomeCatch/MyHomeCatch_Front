@@ -381,8 +381,10 @@ const closeOverlay = () => {
   emit('marker-deselect');
 };
 
-const clearActiveHouseCenter = () => {
+const clearMarker = () => {
   activeHouseCenter.value = null;
+  selectedMarker.value = null;
+  publicFacilityMarkers.value = [];
 };
 
 // 지도 줌 인
@@ -457,7 +459,7 @@ defineExpose({
   getMapCenter,
   getMapLevel,
   findHouseMarker,
-  clearActiveHouseCenter,
+  clearMarker,
 });
 </script>
 
