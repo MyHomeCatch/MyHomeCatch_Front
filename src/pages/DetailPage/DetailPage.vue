@@ -76,11 +76,23 @@
     <!-- 이미지 섹션 -->
     <section class="container image-section-wrapper mb-4">
       <div class="section-title">🏘️ 단지 이미지</div>
-      <ImageSection :images="images" />
+      <HorizontalImgScroller
+        :cards="imageCards"
+        :key-field="'overviewImageUrl'"
+        :title="''"
+        @card-click="openImageModal"
+      />
     </section>
 
     <!-- 댓글 -->
     <Comments :danziId="houseData.danzi.danziId" />
+
+    <!-- 이미지 모달 -->
+    <ImageModal
+      :show="isImageModalVisible"
+      :image-url="selectedImageUrl"
+      @close="closeImageModal"
+    />
   </template>
 </template>
 
@@ -93,8 +105,8 @@ import {
   getBookmarksByHouseId,
   getHouseDetailByIdWithSelfCheck,
 } from '@/api/detailPageApi';
-import ImageSection from '@/components/DetailPage/ImageSection.vue';
-import InfoPanel from '@/components/DetailPage/InfoPanel.vue';
+import HorizontalImgScroller from '@/components/DetailPage/HorizontalImgScroller.vue';
+import InfoPanel from '../../components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
 import DetailMap from '@/components/DetailPage/DetailMap.vue';
 import PdfSummary from '@/components/DetailPage/PdfSummary.vue';
@@ -103,6 +115,7 @@ import { useAuthStore } from '@/stores/auth.js';
 import selfCheckAPI from '@/api/selfCheck.js';
 import bookmarkApi from '@/api/bookmarkApi.js';
 import { getDynamicSummary } from '@/api/detailPageApi';
+import ImageModal from '@/components/modals/ImageModal.vue';
 
 const route = useRoute();
 const houseData = ref(null);
@@ -115,6 +128,20 @@ const authStore = useAuthStore();
 const isLiked = ref(false);
 const selfCheckMatchResult = ref(null);
 const bookmarkCount = ref(0);
+
+// 이미지 모달 상태
+const isImageModalVisible = ref(false);
+const selectedImageUrl = ref('');
+
+const openImageModal = (image) => {
+  selectedImageUrl.value = image.overviewImageUrl;
+  isImageModalVisible.value = true;
+};
+
+const closeImageModal = () => {
+  isImageModalVisible.value = false;
+  selectedImageUrl.value = '';
+};
 
 // 공고 요약
 const summaryMarkdown = ref('');
@@ -159,9 +186,12 @@ const handleShowSummaryClick = async () => {
 };
 
 // API 응답에서 이미지 URL만 추출하여 새로운 배열을 만듭니다.
-const images = computed(() => {
+const imageCards = computed(() => {
   if (houseData.value && houseData.value.attachments) {
-    return houseData.value.attachments.map((att) => att.downloadUrl);
+    return houseData.value.attachments.map((att) => ({
+      overviewImageUrl: att.downloadUrl,
+      danziId: houseData.value.danzi.danziId, // for key
+    }));
   }
   return [];
 });
