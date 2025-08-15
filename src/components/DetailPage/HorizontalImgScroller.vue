@@ -88,7 +88,7 @@ const props = defineProps({
       title: '표시할 항목이 없습니다',
       description: '조건을 변경하거나 나중에 다시 확인해보세요.',
       showButton: true,
-      buttonText: '다시 찾아보기',
+      buttonText: '제공된 이미지가 없어요.',
     }),
   },
 });
