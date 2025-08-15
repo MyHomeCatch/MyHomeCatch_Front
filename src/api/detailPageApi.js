@@ -2,7 +2,7 @@ import axios from 'axios';
 import { setupInterceptors } from './commonApi';
 
 const detailApi = axios.create({
-  baseURL: 'http://localhost:8080/api', // API 기본 경로
+  baseURL: 'http://localhost:8080/api/', // API 기본 경로
   headers: {
     'Content-Type': 'application/json',
   },
@@ -17,7 +17,7 @@ setupInterceptors(detailApi);
  * @param {string | number} danziId - 단지의 고유 ID
  * @returns {Promise<object>} - 주택 상세 정보
  */
-export const getHouseDetailById = (danziId, selfCheckResult = null) => {
+export const getHouseDetailById = (danziId) => {
   if (!danziId) {
     return Promise.reject(new Error('danziId가 제공되지 않았습니다.'));
   }
@@ -57,6 +57,28 @@ export const getHouseDetailByIdWithSelfCheck = async (
     return detailApi.post(`/house/${danziId}`, requestBody);
   } catch (error) {
     console.error('주택 상세 정보 가져오기 실패:', error);
+    throw error;
+  }
+};
+
+export const getHouseDetailJson = async (
+  userId,
+  selfCheckResult,
+  danziId
+) => {
+  if (!danziId) {
+    return Promise.reject(new Error('danziId가 제공되지 않았습니다.'));
+  }
+  try {
+    const requestBody = {
+      userId: userId, // 사용자 ID
+      selfCheckResult: selfCheckResult,
+    };
+    console.log('API 요청 본문:', requestBody);
+    // API 요청
+    return detailApi.post(`/house/json/${danziId}`, requestBody);
+  } catch (error) {
+    console.error('주택 상세 json 정보 가져오기 실패:', error);
     throw error;
   }
 };

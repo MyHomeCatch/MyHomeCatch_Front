@@ -40,8 +40,17 @@
             v-for="house in filteredHouses.slice(0, 8)"
             :key="house.houseId || house.id"
             class="house-card-wrapper"
+            :class="{
+              selected:
+                selectedMarker &&
+                selectedMarker.house &&
+                (selectedMarker.house.houseId ===
+                  (house.houseId || house.id || house.danziId) ||
+                  selectedMarker.house.danziId ===
+                    (house.houseId || house.id || house.danziId)),
+            }"
           >
-            <HouseCard
+            <MapPageHouseCard
               :house="{
                 ...house,
                 houseId: house.houseId || house.id,
@@ -57,7 +66,7 @@
                   house.overviewImageUrl || house.imageUrl || '',
               }"
               :favorite-list="favoriteList"
-              @card-click="handleHouseCardClick"
+              @card-click="handleHouseCardClick(house)"
               @toggle-favorite="handleToggleFavorite"
             />
           </div>
@@ -198,6 +207,7 @@ import axios from 'axios';
 import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
 import ChatBot from '../AI/ChatBot.vue';
 import HouseCard from '../components/house/HouseCard.vue';
+import MapPageHouseCard from '../components/house/MapPageHouseCard.vue';
 import { useAuthStore } from '../stores/auth';
 import { getBookmarks } from '../api/bookmardApi';
 
@@ -542,8 +552,19 @@ const selectRegion = (regionName) => {
     searchQuery.region = [];
   }
 
+  // 지역이 바뀔 때 이전 지도 상태 초기화
+  previousMapCenter.value = null;
+  previousZoomLevel.value = null;
+  selectedMarker.value = null;
+
   // API 호출
   loadHouses();
+
+  if (mapViewerRef.value) {
+    // 새로운 지역 선택시 지도 중심 및 확대level 저장
+    previousMapCenter.value = mapViewerRef.value.getMapCenter();
+    previousZoomLevel.value = mapViewerRef.value.getMapLevel();
+  }
 };
 
 // 즐겨찾기 관련 메소드
@@ -562,10 +583,27 @@ const loadFavorites = async () => {
   }
 };
 
-// HouseCard 클릭 핸들러
+// MapPageHouseCard 클릭 핸들러
 const handleHouseCardClick = (house) => {
-  console.log('주택 카드 클릭:', house);
-  // 필요시 상세 페이지로 이동 또는 지도에서 해당 위치로 이동
+  if (mapViewerRef.value) {
+    // MapPageHouseCard 해당 마커 찾기 - 마커 기준으로 판단
+    const targetMarker = mapViewerRef.value.findHouseMarker(
+      house.danziId || house.houseId
+    );
+    if (targetMarker) {
+      // 이미 선택된 카드 클릭시 선택 해제 후 지도 롤백 - 마커 기준으로 판단
+      console.log(selectedMarker.value, targetMarker);
+      if (selectedMarker.value && selectedMarker.value.id === targetMarker.id) {
+        handleMarkerDeselect();
+      } else {
+        handleMarkerSelect({
+          marker: targetMarker,
+          house: targetMarker.house,
+          position: new kakao.maps.LatLng(targetMarker.lat, targetMarker.lng),
+        });
+      }
+    }
+  }
 };
 
 // 즐겨찾기 토글 핸들러
@@ -585,24 +623,29 @@ const handleMarkerSelect = ({ marker, house, position }) => {
   selectedMarker.value = marker;
   // 지도 마커위치로 이동, Level : 5
   if (mapViewerRef.value) {
-    mapViewerRef.value.moveToPosition(position, 5);
+    mapViewerRef.value.updateMapWithHouse(house);
   }
 };
 
 const handleMarkerDeselect = () => {
   // 마커 선택 해제
   selectedMarker.value = null;
-  // 이전 지도 상태로 복원
-  if (
-    previousMapCenter.value &&
-    previousZoomLevel.value &&
-    mapViewerRef.value
-  ) {
-    mapViewerRef.value.moveToPosition(
-      previousMapCenter.value,
-      previousZoomLevel.value
-    );
+
+  // KakaoMapViewer의 activeHouseCenter, selectedMarker, publicFacilityMarkers 직접 초기화
+  if (mapViewerRef.value) {
+    mapViewerRef.value.clearMarker();
   }
+  // 이전 지도 상태로 복원
+  // if (
+  //   previousMapCenter.value &&
+  //   previousZoomLevel.value &&
+  //   mapViewerRef.value
+  // ) {
+  //   mapViewerRef.value.moveToPosition(
+  //     previousMapCenter.value,
+  //     previousZoomLevel.value
+  //   );
+  // }
 };
 
 // 로그인 상태 변화 감지
@@ -823,9 +866,14 @@ defineExpose({
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-height: 350px;
+  /* 컨테이너 높이를 늘려서 더 많은 카드가 보이도록 */
+  min-height: 50vh; /* 화면 높이의 50% */
+  max-height: 60vh; /* 화면 높이의 60% */
   overflow-y: auto;
+  padding-top: 8px;
+  padding-bottom: 8px;
   padding-right: 8px;
+  padding-left: 8px;
 }
 
 .house-cards-container::-webkit-scrollbar {
@@ -856,6 +904,19 @@ defineExpose({
 .house-card-wrapper:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* 선택된 하우스카드 래퍼 스타일 */
+.house-card-wrapper.selected {
+  background: #4caf50;
+  color: white;
+  border-color: #4caf50;
+}
+
+/* 선택된 상태에서 호버 효과 */
+.house-card-wrapper.selected:hover {
+  transform: scale(1.03);
+  box-shadow: 0 12px 35px rgba(211, 218, 226, 0.4);
 }
 
 .more-houses {
