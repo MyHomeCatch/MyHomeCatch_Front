@@ -10,7 +10,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
+import { defineProps, defineEmits, watch } from 'vue';
 
 const props = defineProps({
   show: {
@@ -28,6 +28,20 @@ const emit = defineEmits(['close']);
 const close = () => {
   emit('close');
 };
+
+const handleKeydown = (event) => {
+  if (event.key === 'Escape') {
+    close();
+  }
+};
+
+watch(() => props.show, (newVal) => {
+  if (newVal) {
+    document.addEventListener('keydown', handleKeydown);
+  } else {
+    document.removeEventListener('keydown', handleKeydown);
+  }
+}, { immediate: true });
 </script>
 
 <style scoped>
