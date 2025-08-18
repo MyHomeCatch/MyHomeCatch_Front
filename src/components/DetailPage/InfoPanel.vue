@@ -88,12 +88,6 @@
           >
             공고 PDF 다운로드
           </button>
-          <button
-            @click="handleShowSummary"
-            class="action-button-outline summary-button"
-          >
-            공고 요약
-          </button>
         </div>
       </div>
     </div>

@@ -399,38 +399,44 @@ const toggleLike = async () => {
   font-weight: bolder;
 }
 
+
+.container {
+  max-width: 1200px;
+}
+
+
+
 .custom-layout {
   display: flex;
-  align-items: center;
-  gap: 5px; /* 좌우 여백 */
-  margin-bottom: 2rem; /* 아래 여백 */
+  gap: 20px;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
 }
 
 .custom-left,
 .custom-right {
-  background: white; /* 필요 시 배경색 */
-  border-radius: 8px;
-  padding: 10px;
-  min-height: 600px; /* 높이 맞춤 */
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-top: 1rem;
 }
 
 .custom-left {
-  flex: 7; /* 비율 7 */
-  margin-left: 6rem;
+  flex: 3;
 }
 
 .custom-right {
-  flex: 5; /* 비율 5 */
-  margin-right: 6rem;
+  flex: 2;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1040px) {
   .custom-layout {
     flex-direction: column;
   }
   .custom-left,
   .custom-right {
-    min-height: auto;
+    margin: 0;
   }
 }
 
