@@ -712,6 +712,7 @@ onMounted(() => {
 
 .feature-card {
   background: #f7f7f9;
+  cursor: pointer;
   border-radius: 20px;
   max-height: 150px;
   padding: 32px;
