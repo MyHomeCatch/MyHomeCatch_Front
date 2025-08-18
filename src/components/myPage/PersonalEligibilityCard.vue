@@ -10,7 +10,7 @@
     <div class="card-body">
       <h4 @click="isDetailsVisible = !isDetailsVisible" class="details-header">
         상세 결과
-        <span class="toggle-icon">{{ isDetailsVisible ? '▼' : '▶' }}</span>
+        <span class="toggle-icon">{{ isDetailsVisible ? '숨기기' : '보기'}}</span>
       </h4>
 
       <ul v-if="isDetailsVisible" class="detailed-status-list">
