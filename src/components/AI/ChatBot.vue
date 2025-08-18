@@ -3,7 +3,7 @@
     <!-- 챗봇 버튼 -->
 
     <button class="chatbot-button" @click="isOpen = !isOpen">
-      <img src="../assets/images/chatbot.png" alt="챗봇 로고 이미지" />
+      <img src="@/assets/images/chatbot.png" alt="챗봇 로고 이미지" />
     </button>
 
     <!-- 챗봇 모달 -->

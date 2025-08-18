@@ -1,68 +1,56 @@
-// api/bookmarkService.js
 import axios from 'axios';
+import { setupInterceptors } from './commonApi';
 
-const BOOKMARK_API_URL = '/api/api/bookmark';
+const api = axios.create({
+  baseURL: 'http://localhost:8080/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true, // 쿠키를 포함하여 요청
+});
 
-// 즐겨찾기 목록 조회
-export const getBookmarks = async (token) => {
-  try {
-    const response = await axios.get(BOOKMARK_API_URL, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('즐겨찾기 목록 조회 실패:', error);
-    throw error;
-  }
-};
+// 인터셉터 설정
+setupInterceptors(api);
 
-// 즐겨찾기 추가
-export const addBookmark = async (bookmarkData, token) => {
-  try {
-    const response = await axios.post(BOOKMARK_API_URL, bookmarkData, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('즐겨찾기 추가 실패:', error);
-    throw error;
-  }
-};
-
-// 즐겨찾기 삭제
-export const removeBookmark = async (bookmarkData, token) => {
-  try {
-    const response = await axios.delete(BOOKMARK_API_URL, {
-      data: bookmarkData,
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('즐겨찾기 삭제 실패:', error);
-    throw error;
-  }
-};
-
-// 즐겨찾기 토글 (추가/삭제 자동 판별)
-export const toggleBookmark = async (
-  danziId,
-  userId,
-  token,
-  currentFavorites
-) => {
-  const bookmarkData = { userId, danziId };
-  const isCurrentlyFavorited = currentFavorites.some(
-    (fav) => fav.danziId === danziId
-  );
-
-  try {
-    if (isCurrentlyFavorited) {
-      return await removeBookmark(bookmarkData, token);
-    } else {
-      return await addBookmark(bookmarkData, token);
+export default {
+/**
+   * 북마크를 추가합니다.
+   * @param {object} bookmarkData - { userId, danziId }
+   */
+  async createBookmark(bookmarkData) {
+    if (!bookmarkData.userId || !bookmarkData.danziId) {
+      return Promise.reject(
+        new Error('userId 또는 danziId가 제공되지 않았습니다.')
+      );
     }
-  } catch (error) {
-    console.error('즐겨찾기 토글 실패:', error);
-    throw error;
-  }
+    // [수정] const로 requestBody 변수를 선언합니다.
+    const requestBody = {
+      userId: bookmarkData.userId,
+      danziId: bookmarkData.danziId,
+    };
+    console.log('북마크 추가 요청 본문:', requestBody);
+    const { data } = await api.post('/bookmark', requestBody);
+    return data;
+  },
+
+  /**
+   * 북마크를 삭제합니다.
+   * @param {object} bookmarkData - { userId, danziId }
+   */
+  async deleteBookmark(bookmarkData) {
+    if (!bookmarkData.userId || !bookmarkData.danziId) {
+      return Promise.reject(
+        new Error('userId 또는 danziId가 제공되지 않았습니다.')
+      );
+    }
+    // [수정] const로 requestBody 변수를 선언합니다.
+    const requestBody = {
+      userId: bookmarkData.userId,
+      danziId: bookmarkData.danziId,
+    };
+    console.log('북마크 삭제 요청 본문:', requestBody);
+    // axios.delete 요청 시 body는 { data: ... } 객체로 감싸서 보내야 합니다.
+    const { data } = await api.delete('/bookmark', { data: requestBody });
+    return data;
+  },
 };

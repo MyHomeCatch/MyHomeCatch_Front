@@ -201,15 +201,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick, watch, reactive } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { ref, onMounted, computed, watch, reactive } from 'vue';
 import axios from 'axios';
 import KakaoMapViewer from '@/components/KakaoMapViewer.vue';
-import ChatBot from '../AI/ChatBot.vue';
-import HouseCard from '../components/house/HouseCard.vue';
+import ChatBot from '../components/AI/ChatBot.vue';
 import MapPageHouseCard from '../components/house/MapPageHouseCard.vue';
 import { useAuthStore } from '../stores/auth';
-import { getBookmarks } from '../api/bookmarkApi';
+import { getBookmarks } from '../api/bookmardApi';
 
 // Auth
 const auth = useAuthStore();

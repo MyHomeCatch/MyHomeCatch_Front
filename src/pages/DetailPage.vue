@@ -118,7 +118,7 @@ import {
   getHouseDetailJson,
 } from '@/api/detailPageApi';
 import HorizontalImgScroller from '@/components/DetailPage/HorizontalImgScroller.vue';
-import InfoPanel from '../../components/DetailPage/InfoPanel.vue';
+import InfoPanel from '@/components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
 import DetailMap from '@/components/DetailPage/DetailMap.vue';
 import PdfSummary from '@/components/DetailPage/PdfSummary.vue';
@@ -291,7 +291,8 @@ const loadHouseDetail = async () => {
         );
         response = jsonRes;
 
-        eligibility.value = jsonRes.data?.personal_card.eligibilityResultDTO || null;
+        eligibility.value =
+          jsonRes.data?.personal_card.eligibilityResultDTO || null;
         console.log('json API 응답:', jsonRes.data);
       } catch (error) {
         if (error.response?.status === 404) {
@@ -319,10 +320,7 @@ const loadHouseDetail = async () => {
 
     if (normalized.selfCheckMatchResult) {
       selfCheckMatchResult.value = normalized.selfCheckMatchResult;
-      console.log(
-        '자격 심사 결과:',
-        normalized.selfCheckMatchResult
-      );
+      console.log('자격 심사 결과:', normalized.selfCheckMatchResult);
     }
   } catch (e) {
     console.error('주택 상세 정보 로드 실패:', e);

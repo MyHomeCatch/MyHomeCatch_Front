@@ -18,7 +18,7 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
-import { getBookmarks } from '../../api/bookmarkApi';
+import { getBookmarks } from '../../api/bookmardApi';
 import { useAuthStore } from '../../stores/auth';
 import HorizonzontalCardScroller from '../house/HorizontalCardScroller.vue';
 import axios from 'axios';
