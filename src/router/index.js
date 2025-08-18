@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import HomePage from '../pages/HomePage.vue';
 import authRoutes from './auth';
 import detailRoutes from './DetailPage';
-import SelfCheckPage from '../pages/selfCheck/SelfCheckPage.vue';
+import SelfCheckPage from '../pages/SelfCheckPage.vue';
 import CalendarRoutes from './calendar';
 import { useAuthStore } from '../stores/auth';
 import ProfileEdit from '../components/myPage/ProfileEdit.vue';
