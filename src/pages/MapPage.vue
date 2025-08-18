@@ -37,7 +37,7 @@
         </div>
         <div class="house-cards-container">
           <div
-            v-for="house in filteredHouses.slice(0, 8)"
+            v-for="house in filteredHouses.slice(0, 100)"
             :key="house.houseId || house.id"
             class="house-card-wrapper"
             :class="{
@@ -71,8 +71,8 @@
             />
           </div>
         </div>
-        <div v-if="filteredHouses.length > 8" class="more-houses">
-          <span>+ {{ filteredHouses.length - 8 }}개 더 보기</span>
+        <div v-if="filteredHouses.length > 100" class="more-houses">
+          <span>+ {{ filteredHouses.length - 100 }}개 더 보기</span>
         </div>
       </div>
     </div>
@@ -684,7 +684,7 @@ defineExpose({
 
 /* 왼쪽 지역별 필터링 패널 */
 .region-filter-panel {
-  width: 350px;
+  width: 450px;
   height: 100vh;
   background: white;
   border-right: 1px solid #e0e0e0;

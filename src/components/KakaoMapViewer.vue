@@ -128,7 +128,7 @@ const displayPlaces = (placesData) => {
       activeHouseCenter.value.lng
     )
   );
-  map.value.setLevel(5);
+  map.value.setLevel(4);
 };
 
 // houses prop이 변경될 때 지도 업데이트
@@ -192,7 +192,7 @@ const loadAllComplexes = async () => {
     selectedMarker.value = marker;
     const newLatLng = new window.kakao.maps.LatLng(marker.lat, marker.lng);
     map.value.setCenter(newLatLng);
-    map.value.setLevel(5); // 더 가까운 줌 레벨
+    map.value.setLevel(4); // 더 가까운 줌 레벨
     activeHouseCenter.value = { lat: marker.lat, lng: marker.lng }; // 선택된 단지위치정보 저장
   } else {
     // 여러 마커가 있는 경우 모든 마커를 포함하는 영역으로 조정
@@ -333,7 +333,7 @@ const updateMapWithHouse = (house) => {
       );
 
       map.value.setCenter(newLatLng);
-      map.value.setLevel(5);
+      map.value.setLevel(4);
       selectedMarker.value = existingMarker;
 
       // 카테고리가 이미 선택됐다면 새로운 단지위치로 이동 후 주변시설 검색

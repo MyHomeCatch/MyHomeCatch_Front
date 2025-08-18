@@ -1,7 +1,7 @@
 // api/bookmarkService.js
 import axios from 'axios';
 
-const BOOKMARK_API_URL = '/api/api/bookmark';
+const BOOKMARK_API_URL = 'http://localhost:8080/api/bookmark';
 
 // 즐겨찾기 목록 조회
 export const getBookmarks = async (token) => {

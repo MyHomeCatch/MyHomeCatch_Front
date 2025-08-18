@@ -122,7 +122,7 @@ import InfoPanel from '@/components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
 import DetailMap from '@/components/DetailPage/DetailMap.vue';
 import PdfSummary from '@/components/DetailPage/PdfSummary.vue';
-
+import { getBookmarks } from '@/api/bookmardApi';
 import { useAuthStore } from '@/stores/auth.js';
 import selfCheckAPI from '@/api/selfCheck.js';
 import bookmarkApi from '@/api/bookmarkApi.js';
@@ -143,6 +143,7 @@ const selfCheckMatchResult = ref(null);
 const bookmarkCount = ref(0);
 const personalCard = ref(null);
 const eligibility = ref(null);
+const favoriteList = ref([]);
 
 // 이미지 모달 상태
 const isImageModalVisible = ref(false);
@@ -211,6 +212,30 @@ const imageCards = computed(() => {
   return [];
 });
 
+const checkIfLiked = async () => {
+  if (!authStore.isLoggedIn) {
+    isLiked.value = false;
+    return;
+  }
+
+  try {
+    const res = await getBookmarks(authStore.token);
+    // 응답 형태 방어적으로 정규화 (axios 응답/직접 배열 모두 허용)
+    console.debug('getBookmarks response:', res);
+
+    favoriteList.value = res.bookmarks || [];
+    console.log('즐겨찾기 목록 로드 완료:', favoriteList.value.length); // 디버깅용
+
+    const danziId = Number(route.params.id);
+    const arr = Array.isArray(favoriteList.value) ? favoriteList.value : [];
+    isLiked.value = arr.some((fav) => Number(fav?.danziId) === danziId);
+  } catch (error) {
+    console.error('즐겨찾기 정보 로드 실패:', error);
+    isLiked.value = false;
+     favoriteList.value = [];
+  }
+};
+
 onMounted(async () => {
   const danziId = route.params.id;
   if (!danziId) {
@@ -223,6 +248,7 @@ onMounted(async () => {
     loading.value = true;
 
     await loadHouseDetail();
+    await checkIfLiked();
 
     const houseCardPromise = getHouseCardById(danziId);
     const bookmarkPromise = getBookmarksByHouseId(danziId).catch((error) => {
@@ -335,7 +361,6 @@ const toggleLike = async () => {
       alert('로그인이 필요합니다.');
       return;
     }
-
     const bookmarkData = {
       userId: authStore.user.id,
       danziId: danziId,
@@ -397,38 +422,43 @@ const toggleLike = async () => {
   font-weight: bolder;
 }
 
+
+.container {
+  max-width: 1200px;
+}
+
+
 .custom-layout {
   display: flex;
-  align-items: center;
-  gap: 5px; /* 좌우 여백 */
-  margin-bottom: 2rem; /* 아래 여백 */
+  gap: 20px;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
 }
 
 .custom-left,
 .custom-right {
-  background: white; /* 필요 시 배경색 */
-  border-radius: 8px;
-  padding: 10px;
-  min-height: 600px; /* 높이 맞춤 */
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-top: 1rem;
 }
 
 .custom-left {
-  flex: 7; /* 비율 7 */
-  margin-left: 6rem;
+  flex: 3;
 }
 
 .custom-right {
-  flex: 5; /* 비율 5 */
-  margin-right: 6rem;
+  flex: 2;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1040px) {
   .custom-layout {
     flex-direction: column;
   }
   .custom-left,
   .custom-right {
-    min-height: auto;
+    margin: 0;
   }
 }
 
