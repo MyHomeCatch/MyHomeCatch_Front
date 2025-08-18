@@ -12,6 +12,7 @@
 <script setup>
 import { defineProps, defineEmits, watch } from 'vue';
 
+
 const props = defineProps({
   show: {
     type: Boolean,
@@ -42,6 +43,7 @@ watch(() => props.show, (newVal) => {
     document.removeEventListener('keydown', handleKeydown);
   }
 }, { immediate: true });
+
 </script>
 
 <style scoped>
