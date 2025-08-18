@@ -122,7 +122,7 @@ import InfoPanel from '../../components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
 import DetailMap from '@/components/DetailPage/DetailMap.vue';
 import PdfSummary from '@/components/DetailPage/PdfSummary.vue';
-
+import { getBookmarks } from '@/api/bookmardApi';
 import { useAuthStore } from '@/stores/auth.js';
 import selfCheckAPI from '@/api/selfCheck.js';
 import bookmarkApi from '@/api/bookmarkApi.js';
@@ -143,6 +143,7 @@ const selfCheckMatchResult = ref(null);
 const bookmarkCount = ref(0);
 const personalCard = ref(null);
 const eligibility = ref(null);
+const favoriteList = ref([]);
 
 // 이미지 모달 상태
 const isImageModalVisible = ref(false);
@@ -211,6 +212,30 @@ const imageCards = computed(() => {
   return [];
 });
 
+const checkIfLiked = async () => {
+  if (!authStore.isLoggedIn) {
+    isLiked.value = false;
+    return;
+  }
+
+  try {
+    const res = await getBookmarks(authStore.token);
+    // 응답 형태 방어적으로 정규화 (axios 응답/직접 배열 모두 허용)
+    console.debug('getBookmarks response:', res);
+
+    favoriteList.value = res.bookmarks || [];
+    console.log('즐겨찾기 목록 로드 완료:', favoriteList.value.length); // 디버깅용
+
+    const danziId = Number(route.params.id);
+    const arr = Array.isArray(favoriteList.value) ? favoriteList.value : [];
+    isLiked.value = arr.some((fav) => Number(fav?.danziId) === danziId);
+  } catch (error) {
+    console.error('즐겨찾기 정보 로드 실패:', error);
+    isLiked.value = false;
+     favoriteList.value = [];
+  }
+};
+
 onMounted(async () => {
   const danziId = route.params.id;
   if (!danziId) {
@@ -223,6 +248,7 @@ onMounted(async () => {
     loading.value = true;
 
     await loadHouseDetail();
+    await checkIfLiked();
 
     const houseCardPromise = getHouseCardById(danziId);
     const bookmarkPromise = getBookmarksByHouseId(danziId).catch((error) => {
@@ -337,7 +363,6 @@ const toggleLike = async () => {
       alert('로그인이 필요합니다.');
       return;
     }
-
     const bookmarkData = {
       userId: authStore.user.id,
       danziId: danziId,
@@ -403,7 +428,6 @@ const toggleLike = async () => {
 .container {
   max-width: 1200px;
 }
-
 
 
 .custom-layout {

@@ -18,11 +18,6 @@ export default {
       url: '/map',
       icon: 'fa-regular fa-images',
     },
-    {
-      title: 'FAQ',
-      url: '/prolog',
-      icon: 'fa-solid fa-check',
-    },
   ],
   accoutMenus: {
     // 인증 관련 메뉴 정보
