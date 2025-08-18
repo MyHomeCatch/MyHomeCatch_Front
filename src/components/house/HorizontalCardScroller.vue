@@ -404,18 +404,25 @@ watch(
 }
 
 @media (max-width: 480px) {
+  .cards-container {
+    gap: 0; /* 모바일에서 좌우 버튼과의 간격 제거 */
+  }
+
+  .scroll-button {
+    display: none; /* 모바일에서 스크롤 버튼 숨김 */
+  }
+
+  .cards-scroll {
+    margin: 0; /* 모바일에서 좌우 여백 제거 */
+  }
+
   .cards-list {
     gap: 12px;
+    padding: 4px 0; /* 좌우 패딩 제거 */
   }
 
   .card-item {
     max-width: 160px;
-  }
-
-  .scroll-button {
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
   }
 
   .empty-state {
