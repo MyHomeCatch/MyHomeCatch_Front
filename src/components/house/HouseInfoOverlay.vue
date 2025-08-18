@@ -36,7 +36,7 @@
 
         <h3 class="house-name">{{ house.houseName }}</h3>
         <div class="house-actions">
-          <button class="action-btn primary" @click="handleDetailView">
+          <button class="action-btn" @click="handleDetailView">
             자세히 보기
           </button>
         </div>
@@ -71,16 +71,6 @@ const handleDetailView = () => {
   } else {
     console.error('House ID is missing');
   }
-};
-
-const handleFavorite = () => {
-  console.log('관심 등록 클릭');
-  // 관심 등록 로직
-};
-
-const formatPrice = (price) => {
-  if (!price) return '-';
-  return `${price.toLocaleString()}만원`;
 };
 </script>
 
@@ -172,6 +162,8 @@ const formatPrice = (price) => {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  background: #4caf50;
+  color: #f9fff9ff;
   border: none;
   display: flex;
   align-items: center;
@@ -179,30 +171,9 @@ const formatPrice = (price) => {
   gap: 6px;
 }
 
-.action-btn.primary {
-  background: linear-gradient(135deg, #a6bfa0 0%, #8baa7f 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(166, 191, 160, 0.3);
-}
-
-.action-btn.primary:hover {
-  background: linear-gradient(135deg, #8baa7f 0%, #7fa87f 100%);
+.action-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(166, 191, 160, 0.4);
-}
-
-.action-btn.secondary {
-  background: white;
-  color: #4d6b4d;
-  border: 2px solid #b7c7b7;
-}
-
-.action-btn.secondary:hover {
-  background: #eaf5e6;
-  border-color: #a6bfa0;
-  color: #234123;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(166, 191, 160, 0.2);
 }
 
 .heart-icon {
