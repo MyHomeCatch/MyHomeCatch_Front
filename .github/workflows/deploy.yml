@@ -2,7 +2,7 @@ name: Fullstack CI/CD Deploy to EC2
 
 on:
   push:
-    branches: ['main']  # 배포 브랜치
+    branches: ['main'] # 배포 브랜치
 
 jobs:
   build-and-deploy:
@@ -39,7 +39,7 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew clean build -x test
-          
+
       # 6. 배포 패키지 생성 (압축)
       - name: Create deployment package
         run: |
@@ -53,10 +53,9 @@ jobs:
           cp nginx/conf.d/default.conf deploy/nginx/conf.d/
           cp -R frontend/dist/. deploy/frontend/dist/
           mv backend/build/libs/*.war deploy/backend/build/libs/ROOT.war
-          
+
           # deploy 디렉터리 전체를 압축
           tar -zcvf deploy.tar.gz -C deploy .
-
 
       # 7. EC2에 파일 전송
       - name: Copy deployment to EC2
@@ -64,9 +63,9 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }} 
-          source: "deploy.tar.gz"
-          target: "/home/${{ secrets.EC2_USERNAME }}"
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: 'deploy.tar.gz'
+          target: '/home/${{ secrets.EC2_USERNAME }}'
           rm: true
 
       # 8. EC2에서 Docker Compose로 배포
@@ -78,7 +77,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.EC2_USERNAME }}
-            
+
             # 배포 루트 디렉터리 설정
             APP_DIR="/home/${{ secrets.EC2_USERNAME }}/myhomecatch"
 
