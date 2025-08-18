@@ -137,4 +137,10 @@ watch(
   height: 100%;
   color: #6b7280;
 }
+
+@media (max-width: 1040px) {
+  .map-container {
+    height: 50vh;
+  }
+}
 </style>
