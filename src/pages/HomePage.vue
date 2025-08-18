@@ -263,7 +263,7 @@ import { useAuthStore } from '../stores/auth';
 import user from '../api/user';
 import axios from 'axios';
 import HorizontalCardScroller from '../components/house/HorizontalCardScroller.vue';
-import { getBookmarks } from '../api/bookmardApi';
+import { getBookmarks } from '../api/bookmarkApi';
 import { calendarColorMap } from '@/assets/calendarColorMap.js';
 import calendarApi from '@/api/calendarApi.js';
 import SubscriptionScoreModal from '@/components/mypage/SubscriptionScoreModal.vue';

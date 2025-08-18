@@ -18,7 +18,7 @@
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
-import { getBookmarks } from '../../api/bookmardApi';
+import { getBookmarks } from '../../api/bookmarkApi';
 import { useAuthStore } from '../../stores/auth';
 import HorizonzontalCardScroller from '../house/HorizontalCardScroller.vue';
 import axios from 'axios';
@@ -88,7 +88,6 @@ const loadBookmarks = async () => {
     danziList.value = [];
   } finally {
     loading.value = false;
-    console.log('  ⚠️  : ', danziList.value);
   }
 };
 

@@ -2,15 +2,6 @@
 import config from '@/config';
 import MenuGroup from './menu/MenuGroup.vue';
 import AccountMenuGroup from './menu/AccountMenuGroup.vue';
-import { reactive, computed } from 'vue';
-
-const state = reactive({ isNavShow: false });
-const navClass = computed(() =>
-  state.isNavShow ? 'collapse navbar-collapse show' : 'collapse navbar-collapse'
-);
-const toggleNavShow = () => {
-  state.isNavShow = !state.isNavShow;
-};
 </script>
 
 <template>
@@ -30,30 +21,6 @@ const toggleNavShow = () => {
       <div class="d-flex align-items-center">
         <AccountMenuGroup />
       </div>
-
-      <!-- 모바일 토글 -->
-      <!-- <button
-        class="navbar-toggler position-absolute end-0 me-3"
-        type="button"
-        @click="toggleNavShow"
-        data-bs-toggle="collapse"
-        data-bs-target="#collapsibleNavbar"
-      >
-        <span class="navbar-toggler-icon"></span>
-
-      </button> -->
-
-      <!-- 모바일 전용 메뉴 -->
-      <!--  <div v-if="state.isNavShow" :class="navClass" id="collapsibleNavbar">
-      <MenuGroup :menus="config.menus" />
-      <AccountMenuGroup />
-    </div> -->
-
-      <!-- 모바일 전용 메뉴 -->
-      <!-- <div v-if="state.isNavShow" :class="navClass" id="collapsibleNavbar">
-      <MenuGroup :menus="config.menus" />
-      <AccountMenuGroup />
-    </div> -->
     </div>
   </nav>
 </template>

@@ -209,7 +209,7 @@ import ChatBot from '../AI/ChatBot.vue';
 import HouseCard from '../components/house/HouseCard.vue';
 import MapPageHouseCard from '../components/house/MapPageHouseCard.vue';
 import { useAuthStore } from '../stores/auth';
-import { getBookmarks } from '../api/bookmardApi';
+import { getBookmarks } from '../api/bookmarkApi';
 
 // Auth
 const auth = useAuthStore();

@@ -74,7 +74,7 @@ import axios from 'axios';
 import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
-import { addBookmark, removeBookmark } from '../../api/bookmardApi';
+import { addBookmark, removeBookmark } from '../../api/bookmarkApi';
 
 // Props
 const props = defineProps({
