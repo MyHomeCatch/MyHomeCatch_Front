@@ -26,6 +26,14 @@
       <!-- 정보 항목 리스트 -->
       <div class="info-list">
         <div class="info-item">
+          <div>공고유형</div>
+          <div>{{ getMapUppAisName(primaryNotice) || '-' }}</div>
+        </div>
+        <div class="info-item alternate-bg">
+          <div>공급정보</div>
+          <div>{{ getMapTypeCodeName(primaryNotice) || '-' }}</div>
+        </div>
+        <div class="info-item">
           <div>주택유형</div>
           <div>{{ primaryNotice.aisTpCdNm }}</div>
         </div>
@@ -34,10 +42,6 @@
           <div>{{ danziInfo.minMaxRsdnDdoAr }} ㎡</div>
         </div>
         <div class="info-item">
-          <div>접수방법</div>
-          <div>{{ primaryApply.rmk || '-' }}</div>
-        </div>
-        <div class="info-item alternate-bg">
           <div>접수기간</div>
           <div>
             {{
@@ -48,25 +52,22 @@
             }}
           </div>
         </div>
-        <div class="info-item">
-          <div>당첨발표일</div>
-          <div>{{ formatSingleDate(primaryApply.pzwrAncDt) }}</div>
-        </div>
         <div class="info-item alternate-bg">
-          <div>당첨자 서류제출</div>
+          <div>서류 접수기간</div>
           <div>
             {{
               formatDateRange(
-                primaryApply.pzwrPprSbmStDt,
-                primaryApply.pzwrPprSbmEdDt
+                primaryApply.pprAcpStDt,
+                primaryApply.pprSbmOpeAncDt
               )
             }}
           </div>
         </div>
         <div class="info-item">
-          <div>입주예정</div>
-          <div>{{ formatYearMonth(danziInfo.mvinXpcYm) }}</div>
+          <div>당첨발표일</div>
+          <div>{{ formatSingleDate(primaryApply.pzwrAncDt) }}</div>
         </div>
+
         <div class="info-item alternate-bg">
           <div>난방</div>
           <div>{{ danziInfo.htnFmlaDeCoNm || '지역난방' }}</div>
@@ -145,7 +146,6 @@ const handleShowSummary = () => {
     alert('공고 PDF를 찾을 수 없습니다.');
     return;
   }
-  console.log('[InfoPanel] emit request-summary'); // 디버그
   emit('request-summary');
 };
 
@@ -177,37 +177,89 @@ const applyStatusStyle = computed(() => {
   }
 });
 
-const formatSingleDate = (timestamp) => {
+function formatSingleDate(timestamp) {
   if (!timestamp) return '-';
   const date = new Date(timestamp);
   return date.toLocaleDateString('ko-KR');
-};
+}
 
-const formatDateRange = (start, end) => {
+function formatDateRange(start, end) {
   if (!start) return '-';
   const startDate = formatSingleDate(start);
   const endDate = end ? formatSingleDate(end) : '';
   return endDate && startDate !== endDate
     ? `${startDate} ~ ${endDate}`
     : startDate;
-};
+}
 
-const formatYearMonth = (timestamp) => {
+function formatYearMonth(timestamp) {
   if (!timestamp) return '-';
   const date = new Date(timestamp);
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
     2,
     '0'
   )}`;
-};
+}
 
-const openLink = (url) => {
+function openLink(url) {
   if (url) {
     window.open(url, '_blank');
   } else {
     alert('제공된 링크가 없습니다.');
   }
-};
+}
+
+const UPP_AIS_TP_CD_MAP = Object.freeze({
+  '01': '토지',
+  '05': '분양주택',
+  '06': '임대주택',
+  13: '주거복지',
+  22: '상가',
+  39: '신혼희망타운',
+});
+
+const SPL_INF_TP_MAP = Object.freeze({
+  '010': '토지',
+  '050': '분양주택',
+  '051': '분양주택-분양전환',
+  '060': '공공임대(5년·10년·분납임대)',
+  '061': '50년공공임대',
+  '062': '국민임대/장기전세/신축다세대/영구임대',
+  '063': '행복주택',
+  '064': '가정어린이집',
+  130: '청년신혼부부매입임대리츠',
+  131: '청년매입임대',
+  1315: '청년매입임대(수시)',
+  132: '신혼부부매입임대',
+  1325: '신혼부부매입임대(수시)',
+  133: '집주인리모델링',
+  134: '기숙사형매입임대',
+  135: '다가구매입임대',
+  136: '매입임대-장기미임대',
+  137: '청년전세임대',
+  138: '신혼부부전세임대',
+  139: '기존주택전세임대',
+  140: '다자녀전세임대',
+  141: '다자녀매입임대',
+  143: '전세형매입임대',
+  144: '공공전세주택',
+  390: '신혼희망타운',
+});
+
+function getMapUppAisName(p) {
+  if (!p) return null;
+  const upp = p.uppAisTpCd != null ? String(p.uppAisTpCd).trim() : null;
+  const typeName = upp ? UPP_AIS_TP_CD_MAP[upp] ?? null : null;
+
+  return typeName;
+}
+
+function getMapTypeCodeName(p) {
+  if (!p) return null;
+  const spl = p.splInfTpCd != null ? String(p.splInfTpCd).trim() : null;
+  const typeName = spl ? SPL_INF_TP_MAP[spl] ?? null : null;
+  return typeName;
+}
 </script>
 
 <style scoped>
@@ -306,10 +358,7 @@ const openLink = (url) => {
 .button-row {
   display: flex;
   gap: 10px; /* 버튼 간 간격 */
-}
-.button-row {
-  display: flex;
-  gap: 10px;
+  height: 50px;
 }
 
 .button-row .pdf-button {

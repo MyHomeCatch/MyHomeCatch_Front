@@ -11,15 +11,18 @@
     </div>
   </div>
 
-  <template v-else-if="houseData && houseData.danzi">
+  <template v-else-if="houseData">
     <main class="container py-4">
       <div
         class="d-flex justify-content-between align-items-start position-relative mb-4"
       >
         <div>
-          <h1 class="h3 fw-bold text-dark">{{ houseData.danzi.bzdtNm }}</h1>
+          <h1 class="h3 fw-bold text-dark">
+            {{ houseData.danzi?.bzdtNm || houseData.bzdtNm }}
+          </h1>
           <p class="text-muted mt-1">
-            {{ houseData.danzi.lctAraAdr }} {{ houseData.danzi.lctAraDtlAdr }}
+            {{ houseData.danzi?.lctAraAdr || houseData.lctAraAdr }}
+            {{ houseData.danzi?.lctAraDtlAdr || houseData.lctAraDtlAdr }}
           </p>
         </div>
         <button
@@ -35,12 +38,20 @@
       </div>
     </main>
     <div v-if="selfCheckMatchResult" class="container">
-      <div class="text-center" role="alert">
-        {{ authStore.user.nickname }} 님은 현재 이 공고에
-        <span class="fw-bold"> {{ selfCheckMatchResult }} </span>한 것으로
-        확인됩니다.
+      <div class="alert alert-success text-center mb-4" role="alert">
+        <h5 class="alert-heading mb-0">
+          {{ authStore.user.nickname }}님은 현재 이 공고에
+          <strong
+            class="d-inline-block px-2 py-1 rounded-pill bg-white text-success"
+          >
+            {{ selfCheckMatchResult }}
+          </strong>
+          한 것으로 확인됩니다.
+        </h5>
       </div>
     </div>
+
+    <PersonalEligibilityCard v-if="eligibility" :eligibility="eligibility" />
 
     <!-- dailymap과 infopanel 가로 배치 -->
     <div class="custom-layout">
@@ -60,39 +71,64 @@
           :apply-info="houseData.applies"
           :notices="houseData.notices"
           :bookmark-count="bookmarkCount"
+          @request-summary="handleShowSummaryClick"
+          @showSummary="showSummary = true"
         />
       </div>
     </div>
 
+    <PdfSummary
+      :summaryData="summaryMarkdown"
+      :loading="loadingSummary"
+      :error="summaryError"
+      :title="houseData.danzi ? houseData.danzi.bzdtNm : ''"
+    />
+
     <!-- 이미지 섹션 -->
     <section class="container image-section-wrapper mb-4">
       <div class="section-title">🏘️ 단지 이미지</div>
-      <ImageSection :images="images" />
+      <HorizontalImgScroller
+        :cards="imageCards"
+        :key-field="'overviewImageUrl'"
+        :title="''"
+        @card-click="openImageModal"
+      />
     </section>
 
     <!-- 댓글 -->
     <Comments :danziId="houseData.danzi.danziId" />
+
+    <!-- 이미지 모달 -->
+    <ImageModal
+      :show="isImageModalVisible"
+      :image-url="selectedImageUrl"
+      @close="closeImageModal"
+    />
   </template>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   getHouseCardById,
   getHouseDetailById,
   getBookmarksByHouseId,
   getHouseDetailByIdWithSelfCheck,
+  getHouseDetailJson,
 } from '@/api/detailPageApi';
-import ImageSection from '@/components/DetailPage/ImageSection.vue';
+import HorizontalImgScroller from '@/components/DetailPage/HorizontalImgScroller.vue';
 import InfoPanel from '../../components/DetailPage/InfoPanel.vue';
 import Comments from '@/components/DetailPage/Comments.vue';
 import DetailMap from '@/components/DetailPage/DetailMap.vue';
 import PdfSummary from '@/components/DetailPage/PdfSummary.vue';
+
 import { useAuthStore } from '@/stores/auth.js';
 import selfCheckAPI from '@/api/selfCheck.js';
 import bookmarkApi from '@/api/bookmarkApi.js';
 import { getDynamicSummary } from '@/api/detailPageApi';
+import ImageModal from '@/components/modals/ImageModal.vue';
+import PersonalEligibilityCard from '@/components/myPage/PersonalEligibilityCard.vue';
 
 const route = useRoute();
 const houseData = ref(null);
@@ -105,6 +141,22 @@ const authStore = useAuthStore();
 const isLiked = ref(false);
 const selfCheckMatchResult = ref(null);
 const bookmarkCount = ref(0);
+const personalCard = ref(null);
+const eligibility = ref(null);
+
+// 이미지 모달 상태
+const isImageModalVisible = ref(false);
+const selectedImageUrl = ref('');
+
+const openImageModal = (image) => {
+  selectedImageUrl.value = image.overviewImageUrl;
+  isImageModalVisible.value = true;
+};
+
+const closeImageModal = () => {
+  isImageModalVisible.value = false;
+  selectedImageUrl.value = '';
+};
 
 // 공고 요약
 const summaryMarkdown = ref('');
@@ -128,7 +180,7 @@ const loadSummaryMarkdownWithParams = async (danziId, pdfUrl) => {
 
 const handleShowSummaryClick = async () => {
   // ★ 오버레이 먼저 열기
-  showSummary.value = true;
+  // showSummary.value = true;
   loadingSummary.value = true;
   summaryError.value = '';
   summaryMarkdown.value = '';
@@ -149,9 +201,12 @@ const handleShowSummaryClick = async () => {
 };
 
 // API 응답에서 이미지 URL만 추출하여 새로운 배열을 만듭니다.
-const images = computed(() => {
+const imageCards = computed(() => {
   if (houseData.value && houseData.value.attachments) {
-    return houseData.value.attachments.map((att) => att.downloadUrl);
+    return houseData.value.attachments.map((att) => ({
+      overviewImageUrl: att.downloadUrl,
+      danziId: houseData.value.danzi.danziId, // for key
+    }));
   }
   return [];
 });
@@ -182,6 +237,23 @@ onMounted(async () => {
 
     houseCard.value = houseCardResponse.data;
     bookmarkCount.value = bookmarkResponse.data;
+
+    // 📌 공고 PDF 요약은 메인 로딩과 분리해서 비동기로 “발사만” 함
+    const pdfUrl =
+      houseData.value?.notices?.[0]?.noticeAttachments?.[0]?.ahflUrl || null;
+
+    if (pdfUrl) {
+      // await ❌ —> onMounted를 막지 않도록
+      loadingSummary.value = true;
+      loadSummaryMarkdownWithParams(danziId, pdfUrl)
+        .catch((e) => {
+          console.error('요약 로드 실패:', e);
+          summaryError.value = '요약 데이터를 불러올 수 없습니다.';
+        })
+        .finally(() => {
+          loadingSummary.value = false;
+        });
+    }
   } catch (err) {
     console.error('데이터 로드 실패:', err);
     error.value = '데이터를 불러오는 데 실패했습니다.';
@@ -190,6 +262,16 @@ onMounted(async () => {
   }
 });
 
+function normalizeDetailResponse(payload) {
+  // { house, personal_card } 형태면 꺼내고,
+  // 아니면 그냥 payload 자체를 house로 간주
+  if (payload?.house) {
+    personalCard.value = payload.personal_card ?? null;
+    return payload.house;
+  }
+  return payload;
+}
+
 const loadHouseDetail = async () => {
   const danziId = route.params.id;
   if (!danziId) {
@@ -197,30 +279,54 @@ const loadHouseDetail = async () => {
     loading.value = false;
     return;
   }
-
+  let response = null;
   try {
-    let response;
     if (authStore.isLoggedIn) {
       const selfCheckResult = await selfCheckAPI.getSelfCheckResult();
-      response = await getHouseDetailByIdWithSelfCheck(
-        authStore.user.id,
-        selfCheckResult,
-        danziId
-      );
+      try {
+        const jsonRes = await getHouseDetailJson(
+          authStore.user.id,
+          selfCheckResult,
+          danziId
+        );
+        response = jsonRes;
+
+        eligibility.value = jsonRes.data?.personal_card.eligibilityResultDTO || null;
+        console.log('json API 응답:', jsonRes.data);
+      } catch (error) {
+        if (error.response?.status === 404) {
+          console.warn(
+            'JSON API에서 주택 정보를 찾을 수 없습니다. 일반 API로 시도합니다.'
+          );
+          response = await getHouseDetailByIdWithSelfCheck(
+            authStore.user.id,
+            selfCheckResult,
+            danziId
+          );
+          eligibility.value = null;
+        } else {
+          throw error; // 다른 오류는 다시 던집니다.
+        }
+      }
     } else {
       response = await getHouseDetailById(danziId);
+      eligibility.value = null; // 자격 정보가 없을 경우
     }
 
-    if (response && response.data) {
-      houseData.value = response.data;
-      if (response.data.selfCheckMatchResult) {
-        selfCheckMatchResult.value = response.data.selfCheckMatchResult;
-      }
+    const normalized = normalizeDetailResponse(response.data);
+    houseData.value = normalized;
+    error.value = null; // 오류가 없으면 초기화
+
+    if (normalized.selfCheckMatchResult) {
+      selfCheckMatchResult.value = normalized.selfCheckMatchResult;
+      console.log(
+        '자격 심사 결과:',
+        normalized.selfCheckMatchResult
+      );
     }
-  } catch (error) {
-    console.error('House detail-데이터 로드 실패:', error);
-    // 여기서 에러를 다시 던져 Promise.all이 catch하도록 할 수 있습니다.
-    throw error;
+  } catch (e) {
+    console.error('주택 상세 정보 로드 실패:', e);
+    error.value = '주택 상세 정보를 불러오는 데 실패했습니다.';
   }
 };
 

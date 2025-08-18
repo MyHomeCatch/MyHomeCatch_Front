@@ -189,6 +189,7 @@ const loadAllComplexes = async () => {
   if (markers.value.length === 1) {
     // 마커가 하나뿐인 경우 해당 위치로 이동하고 적절한 줌 레벨 설정
     const marker = markers.value[0];
+    selectedMarker.value = marker;
     const newLatLng = new window.kakao.maps.LatLng(marker.lat, marker.lng);
     map.value.setCenter(newLatLng);
     map.value.setLevel(5); // 더 가까운 줌 레벨
@@ -380,6 +381,12 @@ const closeOverlay = () => {
   emit('marker-deselect');
 };
 
+const clearMarker = () => {
+  activeHouseCenter.value = null;
+  selectedMarker.value = null;
+  publicFacilityMarkers.value = [];
+};
+
 // 지도 줌 인
 const zoomIn = () => {
   if (map.value) {
@@ -431,9 +438,19 @@ const getMapLevel = () => {
   return null;
 };
 
+// MapPage에서 MapPageHouseCard 클릭시 해당 마커 반환
+const findHouseMarker = (houseId) => {
+  // 해당 주택ID의 마커 찾기
+  const targetMarker = markers.value.find((marker) => marker.id === houseId);
+  console.log(targetMarker);
+
+  if (targetMarker) {
+    return targetMarker;
+  }
+};
+
 // 부모 컴포넌트에서 호출할 수 있도록 노출
 defineExpose({
-  // handleMarkerClick,
   updateMapWithHouse,
   zoomIn,
   zoomOut,
@@ -441,6 +458,8 @@ defineExpose({
   moveToPosition,
   getMapCenter,
   getMapLevel,
+  findHouseMarker,
+  clearMarker,
 });
 </script>
 

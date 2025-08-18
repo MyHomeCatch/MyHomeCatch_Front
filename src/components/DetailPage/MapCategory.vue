@@ -1,27 +1,32 @@
 <template>
   <div class="category-button-wrapper">
-    <button
+    <div
+      class="category-button"
       v-for="(category, index) in categories"
       :key="index"
       :class="{
-        'category-button': true,
-        selected: selectedCategory === category.code,
+        active: selectedSocialFacility === category.code,
       }"
-      @click="$emit('update:selectedCategory', category.code)"
+      @click="
+        toggleSocialFacilityFilter(category.code),
+          $emit('update:selectedCategory', selectedSocialFacility)
+      "
     >
       {{ category.label }}
-    </button>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
+import { ref, defineProps, defineEmits } from 'vue';
 
 const props = defineProps({
   selectedCategory: String,
 });
 
 const emits = defineEmits(['update:selectedCategory']);
+
+const selectedSocialFacility = ref(null); // 주변 공공시설 카테고리 필터 - 토글이벤트용
 
 const categories = [
   { code: 'MT1', label: '대형마트' },
@@ -37,6 +42,17 @@ const categories = [
   { code: 'PM9', label: '약국' },
   { code: 'CT1', label: '문화시설' },
 ];
+
+// 주변 공공시설 필터 토글
+const toggleSocialFacilityFilter = (filterType) => {
+  // 이미 선택된 필터면 해제
+  if (filterType === selectedSocialFacility.value) {
+    filterType = null;
+    selectedSocialFacility.value = null;
+  }
+  // 새로운 필터 선택
+  selectedSocialFacility.value = filterType;
+};
 </script>
 
 <style scoped>
@@ -72,14 +88,22 @@ const categories = [
   border-color: #bbb;
 }
 
-.category-button.selected {
+/* .category-button.selected {
+  background-color: #86a788;
+  color: white;
+  border-color: #86a788;
+  font-weight: 600;
+} */
+
+.category-button.active {
+  transform: translateY(1px);
   background-color: #86a788;
   color: white;
   border-color: #86a788;
   font-weight: 600;
 }
 
-.category-button:active {
-  transform: translateY(1px);
+.category-button:hover:not(.active) {
+  background: #f5f5f5;
 }
 </style>
