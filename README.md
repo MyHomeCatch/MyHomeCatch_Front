@@ -1,5 +1,26 @@
-# Vue 3 + Vite
+## **📦 Project Setup (Vue 3 + Vite + JavaScript)**
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+### **🚀 프로젝트 시작하기**
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+**1. 레포지토리 클론**
+
+```
+git clone https://github.com/MyHomeCatch/MyHomeCatch_Front.git
+cd MyHomeCatch_Front
+```
+
+**2. 패키지 설치**
+
+```
+npm install
+```
+
+---
+
+**3. 개발 서버 실행**
+
+```
+npm run dev
+```
+
+브라우저에서 [`http://localhost:5173`](http://localhost:5173/)로 접속하여 프론트 개발 서버를 확인할 수 있습니다.
