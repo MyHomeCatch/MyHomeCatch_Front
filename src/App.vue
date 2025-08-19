@@ -3,7 +3,7 @@ import { watch } from 'vue';
 import { useAuthStore } from './stores/auth';
 import { RouterView } from 'vue-router';
 import DefaultLayout from './components/DefaultLayout.vue';
-import ChatBot from './AI/ChatBot.vue';
+import ChatBot from './components/AI/ChatBot.vue';
 
 const authStore = useAuthStore();
 

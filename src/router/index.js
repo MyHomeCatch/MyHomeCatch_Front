@@ -1,63 +1,54 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomePage from '../pages/HomePage.vue';
-import pageARoutes from './pageA';
-import pageBRoutes from './pageB';
-import pageCRoutes from './pageC';
-import authRoutes from './auth';
-import detailRoutes from './DetailPage';
-import SelfCheckPage from '../pages/selfCheck/SelfCheckPage.vue';
-import CalendarRoutes from './calendar';
+import authRoutes from './AuthRoutes.js';
+import detailRoutes from './DetailPageRoutes';
+import CalendarRoutes from './CalendarRoutes';
 import { useAuthStore } from '../stores/auth';
-import ProfileEdit from '../components/myPage/ProfileEdit.vue';
-import ProfileForm from '../components/myPage/ProfileForm.vue';
-import PasswordEdit from '../components/myPage/PasswordEdit.vue';
-import ByeBye from '../components/myPage/ByeBye.vue';
-import ByeComplete from '../components/myPage/ByeComplete.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', name: 'home', component: HomePage },
-    ...pageARoutes,
-    ...pageBRoutes,
-    ...pageCRoutes,
     ...authRoutes,
     ...CalendarRoutes,
     ...detailRoutes,
     {
       path: '/self-check',
       name: 'SelfCheck',
-      component: SelfCheckPage,
+      component: () => import('../pages/SelfCheckPage.vue'),
     },
     {
       path: '/map',
       name: 'Map',
       component: () => import('../pages/MapPage.vue'),
     },
-    // { path: '/mypage', name: 'MyPage', component: MyPage },
     {
       path: '/profile/edit',
       name: 'ProfileEdit',
-      component: ProfileEdit,
+      component: () => import('../components/myPage/ProfileEdit.vue'),
       children: [
         {
           path: '',
           name: 'ProfileForm',
-          component: ProfileForm,
+          component: () => import('../components/myPage/ProfileForm.vue'),
         },
         {
           path: 'passwordEdit',
           name: 'PasswordEdit',
-          component: PasswordEdit,
+          component: () => import('../components/myPage/PasswordEdit.vue'),
         },
         {
           path: 'byeBye',
           name: 'ByeBye',
-          component: ByeBye,
+          component: () => import('../components/myPage/ByeBye.vue'),
         },
       ],
     },
-    { path: '/byeComplete', name: 'ByeComplete', component: ByeComplete },
+    {
+      path: '/byeComplete',
+      name: 'ByeComplete',
+      component: () => import('../components/myPage/ByeComplete.vue'),
+    },
   ],
 });
 

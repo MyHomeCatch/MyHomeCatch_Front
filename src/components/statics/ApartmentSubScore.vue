@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 
@@ -129,4 +129,4 @@ div {
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
 }
-</style>
+</style> -->

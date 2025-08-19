@@ -543,7 +543,7 @@ defineExpose({
 <style scoped>
 .top-loading {
   position: absolute;
-  top: 16px;
+  top: 50%;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
@@ -570,13 +570,13 @@ defineExpose({
 
 .loading-dots {
   display: inline-flex;
-  gap: 3px;
+  gap: 10px;
 }
 
 .dot {
-  width: 6px;
-  height: 6px;
-  background: #a6bfa0;
+  width: 12px;
+  aspect-ratio: 1;
+  background: #4caf50;
   border-radius: 50%;
   opacity: 0.3;
   animation: dotPulse 1.4s infinite;

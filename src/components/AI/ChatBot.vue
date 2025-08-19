@@ -3,7 +3,7 @@
     <!-- 챗봇 버튼 -->
 
     <button class="chatbot-button" @click="isOpen = !isOpen">
-      <img src="../assets/images/chatbot.png" alt="챗봇 로고 이미지" />
+      <img src="@/assets/images/chatbot.png" alt="챗봇 로고 이미지" />
     </button>
 
     <!-- 챗봇 모달 -->
@@ -286,7 +286,7 @@ onMounted(() => {
   right: 24px;
   width: 60px;
   height: 60px;
-  background-color: rgba(134, 167, 136, 0.8);
+  background: #4caf50;
   color: white;
   border: none;
   border-radius: 50%;
@@ -294,11 +294,11 @@ onMounted(() => {
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .chatbot-button:hover {
-  background-color: rgba(95, 126, 97, 0.8);
+  opacity: 0.7;
 }
 
 .chatbot-modal {

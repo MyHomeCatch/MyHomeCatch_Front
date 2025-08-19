@@ -1,13 +1,11 @@
 <script setup>
-import Header from './Header.vue';
 import NavBar from './NavBar.vue';
 import Footer from './Footer.vue';
 </script>
 
 <template>
   <div class="app-wrapper">
-    <Header />
-    <div class="navbar-sticky">
+    <div class="navbar">
       <NavBar />
     </div>
 
@@ -21,8 +19,7 @@ import Footer from './Footer.vue';
 </template>
 
 <style scoped>
-.navbar-sticky {
-  /* position: sticky; */
+.navbar {
   top: 0;
   z-index: 1000;
 }

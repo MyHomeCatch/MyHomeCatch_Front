@@ -8,11 +8,6 @@ export default {
       url: '/calendar',
       icon: 'fa-solid fa-paste',
     },
-    // {
-    //   title: '마이페이지',
-    //   url: '/mypage',
-    //   icon: 'fa-solid fa-plane-departure',
-    // },
     {
       title: '지도',
       url: '/map',

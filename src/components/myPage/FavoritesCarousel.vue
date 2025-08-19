@@ -88,7 +88,6 @@ const loadBookmarks = async () => {
     danziList.value = [];
   } finally {
     loading.value = false;
-    console.log('  ⚠️  : ', danziList.value);
   }
 };
 

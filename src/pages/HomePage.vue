@@ -279,7 +279,7 @@ const router = useRouter();
 const auth = useAuthStore();
 
 const supportableList = ref([]);
-// const additionalPoint = ref(null);
+const additionalPoint = ref(null);
 const favoriteList = ref([]); // 즐겨찾기 목록 추가
 
 const seoulHousesLoading = ref(false);
@@ -352,7 +352,6 @@ const loadFavorites = async () => {
   try {
     const response = await getBookmarks(auth.token);
     favoriteList.value = response.bookmarks || [];
-    console.log('즐겨찾기 목록 로드 완료:', favoriteList.value.length); // 디버깅용
   } catch (error) {
     console.error('즐겨찾기 목록 로드 실패:', error);
     favoriteList.value = [];
@@ -427,8 +426,6 @@ const getEventStyle = (label) => {
 const loadSupportableHouses = async () => {
   if (supportableList.value.length == 0) return;
 
-  console.log('  ⚠️  : ', supportableList.value);
-
   try {
     supportableHousesLoading.value = true;
     const params = new URLSearchParams();
@@ -440,11 +437,8 @@ const loadSupportableHouses = async () => {
       params.append('aisTpCdNm', type);
     });
 
-    console.log('  ⚠️ params : ', params.toString());
-
     const { data } = await axios.get(`/api/api/house?${params.toString()}`);
     supportableHouses.value = data.housingList || [];
-    console.log('지원 가능 목록 로드 완료:', supportableHouses.value.length);
   } catch (error) {
     console.error('지원 가능 목록 로드 실패:', error);
     supportableHouses.value = [];
@@ -463,7 +457,6 @@ const loadSeoulHouses = async () => {
 
     const { data } = await axios.get(`/api/api/house?${params.toString()}`);
     seoulHouses.value = data.housingList || [];
-    console.log('서울 주택 목록 로드 완료:', seoulHouses.value.length);
   } catch (error) {
     console.error('서울 주택 목록 로드 실패:', error);
     seoulHouses.value = [];
@@ -482,7 +475,6 @@ const loadGeunggiHouses = async () => {
 
     const { data } = await axios.get(`/api/api/house?${params.toString()}`);
     geunggiHouses.value = data.housingList || [];
-    console.log('경기 주택 목록 로드 완료:', geunggiHouses.value.length);
   } catch (error) {
     console.error('경기 주택 목록 로드 실패:', error);
     geunggiHouses.value = [];
@@ -517,10 +509,10 @@ onMounted(() => {
     loadUser();
     mypage.getUserInfo();
   }
-  
+
   // 즐겨찾기는 로그인 상태와 관계없이 호출 (내부에서 로그인 상태 확인)
   loadFavorites();
-  
+
   // 공고 목록은 로그인 상태와 관계없이 호출 (공개 정보)
   loadSeoulHouses();
   loadGeunggiHouses();
@@ -720,6 +712,7 @@ onMounted(() => {
 
 .feature-card {
   background: #f7f7f9;
+  cursor: pointer;
   border-radius: 20px;
   max-height: 150px;
   padding: 32px;
