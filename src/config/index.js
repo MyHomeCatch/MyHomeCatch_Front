@@ -4,32 +4,32 @@ export default {
   menus: [
     // 메인 메뉴 구성 정보
     {
-      title: 'PageA1',
-      url: '/pageA/one',
+      title: '청약 캘린더',
+      url: '/calendar',
       icon: 'fa-solid fa-paste',
     },
     {
-      title: 'PageB1',
-      url: '/pageB/one',
-      icon: 'fa-solid fa-plane-departure',
-    },
-    {
-      title: 'PageC1',
-      url: '/pageC/one',
+      title: '지도',
+      url: '/map',
       icon: 'fa-regular fa-images',
     },
   ],
   accoutMenus: {
     // 인증 관련 메뉴 정보
     login: {
-      url: '/pageB/two',
-      title: 'PageB2',
+      url: '/login',
+      title: '로그인',
       icon: 'fa-solid fa-right-to-bracket',
     },
     join: {
-      url: '/pageB/three',
-      title: 'PageB3',
+      url: '/join',
+      title: '회원가입',
       icon: 'fa-solid fa-user-plus',
+    },
+    logout: {
+      url: '/logout',
+      title: '로그아웃',
+      icon: 'fa-solid fa-right-from-bracket',
     },
   },
 };

@@ -1,43 +1,60 @@
 <script setup>
-import { reactive, computed } from 'vue';
 import config from '@/config';
 import MenuGroup from './menu/MenuGroup.vue';
 import AccountMenuGroup from './menu/AccountMenuGroup.vue';
-
-let state = reactive({ isNavShow: false });
-let navClass = computed(() =>
-  state.isNavShow ? 'collapse navbar-collapse show' : 'collapse navbar-collapse'
-);
-const toggleNavShow = () => (state.isNavShow = !state.isNavShow);
 </script>
+
 <template>
-  <nav class="navbar navbar-expand-sm bg-secondary navbar-light">
-    <div class="container-fluid">
-      <router-link class="navbar-brand" to="/">
+  <nav class="navbar navbar-expand-sm custom-navbar container-fluid px-0 py-1">
+    <div class="d-flex justify-content-between align-items-center w-100 px-3">
+      <!-- 왼쪽 메뉴 -->
+      <div class="d-flex align-items-center">
+        <MenuGroup :menus="config.menus" />
+      </div>
+
+      <!-- 로고 -->
+      <router-link class="navbar-brand mx-auto" to="/">
         <img src="../assets/images/MyHomeCatchLogo.png" alt="로고 이미지" />
       </router-link>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#collapsibleNavbar"
-        @click="toggleNavShow"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div :class="navClass" id="collapsibleNavbar">
-        <!-- 추후 작업 예정 -->
-        <MenuGroup :menus="config.menus" />
+
+      <!-- 오른쪽 계정 메뉴 -->
+      <div class="d-flex align-items-center">
         <AccountMenuGroup />
       </div>
     </div>
   </nav>
 </template>
 
-<style scope>
-img {
-  border-radius: 10%;
-  width: 50px;
-  height: 50px;
+<style scoped>
+.custom-navbar {
+  background-color: white;
+  padding: 0;
+  width: 100%;
+  margin: 0;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.navbar-brand img {
+  width: 210px;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .navbar-brand {
+    margin: 0 auto;
+  }
+
+  #collapsibleNavbar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
 }
 </style>
